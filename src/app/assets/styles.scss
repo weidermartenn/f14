@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+    scroll-behavior: smooth;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    @apply bg-bg dark:bg-bg-dark text-f14-font dark:text-f14-font-dark font-Rubik;
+
+    .hover-text {
+        @apply hover:text-hover-text hover:scale-105 cursor-pointer duration-150;
+    }
+}
