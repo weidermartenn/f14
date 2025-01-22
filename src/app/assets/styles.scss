@@ -19,3 +19,26 @@ body {
         @apply hover:text-hover-text hover:scale-105 cursor-pointer duration-150;
     }
 }
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+::-webkit-scrollbar {
+    width: 12px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #101011;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #8090F4;
+}

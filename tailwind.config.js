@@ -11,7 +11,7 @@ module.exports = {
         "f14-font-dark": "#8090F4",
         "bg": "#FFFFFF",
         "bg-dark": "#101011",
-        "hover-text": "#909BDD",
+        "hover-text": "#C6C7CD",
       },
       fontFamily: {
         "Rubik": ["Rubik", "sans-serif"],
