@@ -6,7 +6,7 @@
             <div class="flex flex-col justify-center items-center mt-10 w-[44rem] h-[12rem] bg-zinc-900 rounded-md gap-6">
                 <span class="text-xl text-white">Добро пожаловать на FKanban</span>
                 <span class="text-center text-gray-300">Ваш идеальный инструмент для организации задач и управления проектами.</span>
-                <button>Создать проект</button>
+                <button @click="createProject">Создать проект</button>
             </div>
 
             <!-- Основной текст -->
@@ -66,8 +66,15 @@
 
 <script setup lang="ts">
 import { useInternetConnection } from '@/features/check-internet-conn/lib/useInternetConnection';
+import { useRouter } from 'vue-router';
 
 const { isOnline } = useInternetConnection();
+
+const router = useRouter();
+
+const createProject = () => {
+    router.push('/create-new-project');
+}
 </script>
 
 <style scoped>

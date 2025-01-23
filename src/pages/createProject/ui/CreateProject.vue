@@ -1,0 +1,72 @@
+<template>
+    <div class="min-h-screen flex items-center justify-center overflow-hidden">
+        <div class="bg-bg-accent-dark p-8 rounded-lg shadow-lg w-full max-w-md">
+            <h2 class="text-2xl font-bold mb-6 text-center">Придумайте название для проекта</h2>
+            <form @submit.prevent="createProject">
+                <Input type="text" v-model="input" :error="error" placeholder="Название" class="w-full rounded-md p-2 mb-4"/>
+                <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    {{ loading ? "Создаем..." : "Создать" }}
+                </button>
+            </form>
+        </div>
+    </div>
+</template>
+
+<script setup lang="ts">
+import { Input } from "@/shared/ui/Input";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { supabase } from "@/shared/api/supabaseClient";
+import { generateId } from "@/shared/lib/generateId";
+import Project from "@/entities/project/types";
+
+const loading = ref(false);
+const input = ref('');
+const error = ref('');
+
+const router = useRouter();
+
+const createProject = async () => {
+    // Проверка на пустое значение
+    if (!input.value) {
+        error.value = "Пожалуйста, введите название.";
+        return;
+    }
+
+    try {
+        loading.value = true;
+        error.value = "";
+
+        const { data: { user } } = await supabase.auth.getUser();
+
+        const projectId = generateId();
+        const createdAt = new Date().toISOString(); 
+
+        console.log(projectId, user?.email, input.value, createdAt);
+
+        const { error: supabaseError } = await supabase.from('projects').insert([ 
+            { 
+                id: projectId,
+                createdAt: createdAt,
+                userEmail: user?.email,
+                name: input.value
+            } 
+        ]);
+
+        if (supabaseError) throw supabaseError;
+
+        router.push('/projects');
+    } catch (error) {
+        if (error instanceof Error) {
+            alert(error.message)
+        }
+    } finally {
+        loading.value = false;
+    }
+}
+
+</script>
+
+<style scoped>
+
+</style>

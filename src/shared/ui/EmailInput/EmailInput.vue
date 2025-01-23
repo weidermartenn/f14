@@ -5,7 +5,7 @@
         type="email"
         id="email"
         :value="modelValue"
-        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        class="mt-1 block w-full px-3 py-2 text-input-text border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         placeholder="Введите ваш email"
         @input="handleInput"
       />
@@ -14,7 +14,7 @@
   </template>
   
   <script setup lang="ts">
-  import { ref, watch } from "vue";
+  import { watch } from "vue";
   
   const props = defineProps({
     modelValue: {

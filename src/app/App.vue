@@ -1,6 +1,6 @@
 <template>
   <div class="min-w-max h-auto">
-    <Header v-if="!isAuthPage" />
+    <Header v-if="!isAuthPage && !isCreateProjectPage" />
     <RouterView />
   </div>
 </template>
@@ -13,7 +13,7 @@ import { initAuth } from "@/shared/lib/auth";
 
 const route = useRoute();
 const isAuthPage = computed(() => route.path === '/auth');
-const isRegPage = computed(() => route.path === '/reg');
+const isCreateProjectPage = computed(() => route.path === '/create-new-project');
 
 initAuth();
 

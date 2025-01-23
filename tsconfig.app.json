@@ -10,5 +10,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "src/shared/api/supabaseClient.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue", "src/shared/api/supabaseClient.ts", "src/features/check-users-session/getUserSession", "src/features/tasks/useTasks.js"]
 }

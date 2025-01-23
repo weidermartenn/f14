@@ -1,6 +1,7 @@
 <template>
     <div class="min-h-screen flex items-center justify-center overflow-hidden">
-      <div class="bg-bg p-8 rounded-lg shadow-lg w-full max-w-md">
+      <button @click="router.push('/')" class="mr-10 hover:text-hover-text">Вернуться на главную страницу</button>
+      <div class="bg-bg-accent-dark p-8 rounded-lg shadow-lg w-full max-w-md">
         <h2 class="text-2xl font-bold mb-6 text-center">Войти в систему</h2>
         <form @submit.prevent="handleLogin">
           <EmailInput v-model="email" :error="error" />

@@ -1,8 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Main from '../../pages/main/ui/Main.vue';
 import Auth from '../../pages/auth/ui/Auth.vue';
-import StartProject from '../../pages/startproject/ui/StartProject.vue';
 import { user } from "@/shared/lib/auth";
+import CreateProject from '../../pages/createProject/ui/CreateProject.vue';
+import Projects from '../../pages/projects/ui/Projects.vue';
 
 export const router = createRouter({
     history: createWebHistory(),
@@ -16,8 +17,13 @@ export const router = createRouter({
             component: Auth,
         },
         {
-            path: '/start-project',
-            component: StartProject,
+            path: '/create-new-project',
+            component: CreateProject,
+            meta: { requiresAuth: true },
+        },
+        {
+            path: '/projects',
+            component: Projects,
             meta: { requiresAuth: true },
         }
     ]

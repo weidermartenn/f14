@@ -7,15 +7,23 @@
                 <span class="text-sm">Доска задач для индивидуальных разработчиков</span>
             </div>
         </div>
-        <section class="flex gap-4 mr-6">
-            <div v-if="user" class="flex items-center gap-4">
+        <div class="flex flex-row">
+            <button class="mr-20 hover:text-hover-text" @click="projectsClick">Проекты</button>
+            <section class="flex gap-4 mr-6">
+            <div v-if="user" class="flex flex-col items-center">
                 <span class="text-white">{{ user.email }}</span>
-                <button @click="handleLogout" class="text-sm text-red-400 hover:text-red-500">
-                    Выйти
-                </button>
+                <div>
+                    <button class="text-sm hover:text-hover-text mr-6">
+                        Профиль
+                    </button>
+                    <button @click="handleLogout" class="text-sm text-red-400 hover:text-red-500">
+                        Выйти
+                    </button>
+                </div>
             </div>
             <span v-else class="hover-text" @click="authClick">Войти</span>
         </section>
+        </div>
     </div>
 </template>
 
@@ -29,6 +37,10 @@ const router = useRouter();
 
 const authClick = () => {
     router.push('/auth');
+}
+
+const projectsClick = () => {
+    router.push('/projects');
 }
 
 const handleLogout = async () => {
