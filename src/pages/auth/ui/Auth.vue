@@ -56,7 +56,7 @@
       }
 
       await updateUserState();
-      router.push("/");
+      router.push("/projects");
   };
   
   </script>

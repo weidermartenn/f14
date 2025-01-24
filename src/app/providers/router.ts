@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Main from '../../pages/main/ui/Main.vue';
 import Auth from '../../pages/auth/ui/Auth.vue';
-import { user } from "@/shared/lib/auth";
+import { user, isAuthInitialized } from "@/shared/lib/auth";
 import CreateProject from '../../pages/createProject/ui/CreateProject.vue';
 import Projects from '../../pages/projects/ui/Projects.vue';
 
@@ -29,12 +29,29 @@ export const router = createRouter({
     ]
 })
 
-// Хук проверки авторизации
-router.beforeEach((to, _, next) => {
-    if (to.meta.requiresAuth && !user.value) {
-        next("/auth");
+// Асинхронный хук проверки авторизации
+router.beforeEach(async (to, _, next) => {
+    // Ждем завершения инициализации аутентификации
+    if (!isAuthInitialized.value) {
+        await new Promise(resolve => {
+            const checkAuth = () => {
+                if (isAuthInitialized.value) resolve(true);
+                else setTimeout(checkAuth, 50);
+            };
+            checkAuth();
+        });
+    }
+
+    if (to.meta.requiresAuth) {
+        // Для защищенных маршрутов
+        user.value ? next() : next('/auth');
     } else {
-        next();
+        // Для публичных маршрутов
+        if (to.path === '/auth' && user.value) {
+            next('/projects'); // Перенаправляем если пользователь авторизован
+        } else {
+            next();
+        }
     }
 })
 

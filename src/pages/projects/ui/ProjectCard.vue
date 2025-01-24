@@ -1,7 +1,7 @@
 <template>
-    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+    <div class="bg-bg-accent-dark p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
         <h3 class="text-xl font-semibold">{{ project.name }}</h3>
-        <p class="text-gray-600 text-sm mt-2">Создан: {{ formatDate(project.createdAt) }}</p>
+        <p class="text-gray-300 text-sm mt-2">Создан: {{ formatDate(project.createdAt) }}</p>
     </div>
 </template>
 

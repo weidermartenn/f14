@@ -8,7 +8,7 @@
             </div>
         </div>
         <div class="flex flex-row">
-            <button class="mr-20 hover:text-hover-text" @click="projectsClick">Проекты</button>
+            <button v-if="user" class="mr-20 hover:text-hover-text" @click="projectsClick">Проекты</button>
             <section class="flex gap-4 mr-6">
             <div v-if="user" class="flex flex-col items-center">
                 <span class="text-white">{{ user.email }}</span>
