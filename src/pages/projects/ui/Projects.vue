@@ -30,6 +30,13 @@
         :key="project.id"
         :project="project"
       />
+
+      <!-- Новая карточка для добавления проекта -->
+      <div
+          class="w-64 h-40 flex items-center justify-center cursor-pointer border-2 border-gray-300 rounded-lg shadow-md hover:border-blue-500 transition-colors"
+        >
+          <span class="text-4xl text-gray-300 hover:text-blue-500 transition-colors">+</span>
+        </div>
     </div>
   </div>
 </template>

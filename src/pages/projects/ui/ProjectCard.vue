@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-bg-accent-dark p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+    <div class="w-64 h-40 bg-bg-accent-dark hover:bg-opacity-60 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
         <h3 class="text-xl font-semibold">{{ project.name }}</h3>
         <p class="text-gray-300 text-sm mt-2">Создан: {{ formatDate(project.createdAt) }}</p>
     </div>
