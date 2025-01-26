@@ -5,6 +5,13 @@
       >Ниже отображаются все созданные вами проекты.</span
     >
 
+    <button
+      @click="handleCreateProject"
+      class="w-14 h-10 mt-6 flex items-center justify-center text-3xl cursor-pointer border-2 border-gray-700 rounded-lg hover:border-blue-500 hover:text-blue-500 transition-colors"
+    >
+      +
+    </button>
+
     <!-- Загрузка проектов -->
     <div v-if="loading" class="mt-10 flex justify-center">
       <LoadingSpinner />
@@ -24,19 +31,16 @@
     </div>
 
     <!-- Отображение проектов -->
-    <div v-else class="w-full mt-10 flex flex-wrap gap-4">
+    <div v-else 
+      class="w-full mt-10 grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4"
+    >
       <ProjectCard
         v-for="project in projects"
         :key="project.id"
         :project="project"
+        @edit="handleProjectUpdate"
+        @delete="handleProjectDelete"
       />
-
-      <!-- Новая карточка для добавления проекта -->
-      <div
-          class="w-64 h-40 flex items-center justify-center cursor-pointer border-2 border-gray-300 rounded-lg shadow-md hover:border-blue-500 transition-colors"
-        >
-          <span class="text-4xl text-gray-300 hover:text-blue-500 transition-colors">+</span>
-        </div>
     </div>
   </div>
 </template>
@@ -44,18 +48,19 @@
 <script setup lang="ts">
 import ProjectCard from "./ProjectCard.vue";
 import LoadingSpinner from "@/shared/ui/LoadingSpinner/ui/LoadingSpinner.vue";
-import { ref, onMounted, watch } from "vue";
-import { supabase } from "@/shared/api/supabaseClient";
-import type { Project } from "@/entities/project/types";
-import { user } from "@/shared/lib/auth";
+import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import { user } from "@/shared/lib/auth";
+import { fetchProjects } from "../model/sbHelper";
+import type { Project } from "@/entities/project/types";
 
-const router = useRouter();
 const projects = ref<Project[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
 
-const fetchProjects = async () => {
+const router = useRouter();
+
+const loadProjects = async () => {
   try {
     if (!user.value?.email) {
       throw new Error("Пользователь не авторизован.");
@@ -64,17 +69,8 @@ const fetchProjects = async () => {
     loading.value = true;
     error.value = null;
 
-    const { data, error: supabaseError } = await supabase
-      .from("projects")
-      .select("*")
-      .eq("userEmail", user.value.email);
-
-    if (supabaseError) throw supabaseError;
-
-    projects.value = (data as Project[]).map((project) => ({
-      ...project,
-      createdAt: new Date(project.createdAt),
-    }));
+    const data = await fetchProjects(user.value.email);
+    projects.value = data;
   } catch (err) {
     console.error("Ошибка при загрузке проектов:", err); // Логируем ошибку
     error.value = err as string;
@@ -83,9 +79,26 @@ const fetchProjects = async () => {
   }
 };
 
+const handleProjectUpdate = (updatedProject: Project) => {
+  projects.value = projects.value.map((p: Project) =>
+    p.id === updatedProject.id ? updatedProject : p
+  );
+};
+
+const handleProjectDelete = async (deletedProject: Project) => {
+  projects.value = projects.value.filter(
+    (p: Project) => p.id !== deletedProject.id
+  );
+  await loadProjects();
+};
+
+const handleCreateProject = () => {
+  router.push("/create-new-project");
+};
+
 onMounted(() => {
   if (user.value) {
-    fetchProjects();
+    loadProjects();
   }
 });
 </script>

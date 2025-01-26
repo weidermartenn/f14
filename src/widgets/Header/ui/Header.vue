@@ -13,7 +13,7 @@
             <div v-if="user" class="flex flex-col items-center">
                 <span class="text-white">{{ user.email }}</span>
                 <div>
-                    <button class="text-sm hover:text-hover-text mr-6">
+                    <button @click="handleProfile" class="text-sm hover:text-hover-text mr-6">
                         Профиль
                     </button>
                     <button @click="handleLogout" class="text-sm text-red-400 hover:text-red-500">
@@ -46,6 +46,14 @@ const projectsClick = () => {
 const handleLogout = async () => {
     await supabase.auth.signOut();
     router.push("/");
+}
+
+const handleProfile = () => {
+    if (user.value) {
+        router.push(`/profile`);
+    } else {
+        authClick();
+    }
 }
 </script>
 
