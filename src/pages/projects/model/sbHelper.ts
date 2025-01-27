@@ -54,53 +54,47 @@ export const deleteProject = async (id: string) => {
     }
 }
 
-export const downloadAvatar = async (path: string): Promise<string> => {
-    try {
-        const { data, error } = await supabase.storage
-        .from('avatars')
-        .download(path);
-
-        if (error) throw error;
-
-        return URL.createObjectURL(data);
-    } catch (err) {
-        throw err;
-    }
-}
-
-export const uploadFileToStorage = async (file: File): Promise<string> => {
+export const uploadUserAvatar = async (userId: string, file: File): Promise<string> => {
     try {
         const fileExt = file.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `${fileName}`;
+        const filePath = `${userId}/${Math.random().toString(36).substring(2)}.${fileExt}`;
 
-        const { error } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(filePath, file);
 
-        if (error) throw error;
+        if (uploadError) throw uploadError;
 
-        return filePath;
+        const { data } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+        return data.publicUrl;
     } catch (err) {
+        console.error("Unexpected error in uploadUserAvatar: ", err);
         throw err;
     }
 }
 
-export const updateUserProfile = async (
-    userId: string
-): Promise<User> => {
+export const updateUserAvatar = async (userId: string, avatarPath: string): Promise<void> => {
     try {
-        const { data, error } = await supabase
+        const { error } = await supabase
             .from('users')
-            .select('*')
-            .eq('id', userId)
-            .single();
+            .update({ avatar_url: avatarPath })
+            .eq('id', userId);
 
         if (error) throw error;
-
-        return data;
     } catch (err) {
+        console.error("Unexpected error in updateUserAvatar: ", err);
         throw err;
     }
-} 
+};
+
+export const getAvatarUrl = (path: string): string => {
+    const { data } = supabase.storage
+    .from('avatars')
+    .getPublicUrl(path);
+
+    return data.publicUrl;
+};
 

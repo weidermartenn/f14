@@ -31,8 +31,9 @@
     </div>
 
     <!-- Отображение проектов -->
-    <div v-else 
-      class="w-full mt-10 grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4"
+    <div
+      v-else
+      class="w-full mt-10 grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4"
     >
       <ProjectCard
         v-for="project in projects"

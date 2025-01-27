@@ -9,7 +9,7 @@
         'mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500',
         disabled ? 'text-gray-400' : 'text-input-text',
       ]"
-      placeholder="Введите данные"
+      :placeholder="placeholder"
       @input="handleInput"
     />
     <p v-if="error" class="mt-2 text-sm text-red-600">{{ error }}</p>
@@ -31,6 +31,10 @@ const props = defineProps({
   error: {
     type: String,
     default: "",
+  },
+  placeholder: {
+    type: String,
+    default: "Введите данные",
   },
   disabled: {
     type: Boolean,

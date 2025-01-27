@@ -5,6 +5,7 @@ import { user, isAuthInitialized } from "@/shared/lib/auth";
 import CreateProject from '../../pages/createProject/ui/CreateProject.vue';
 import Projects from '../../pages/projects/ui/Projects.vue';
 import Profile from '../../pages/profile/ui/Profile.vue';
+import Workspace from '../../pages/workspace/ui/Workspace.vue';
 
 export const router = createRouter({
     history: createWebHistory(),
@@ -31,6 +32,11 @@ export const router = createRouter({
             path: '/profile',
             component: Profile,
             meta: { requiresAuth: true },
+        },
+        {
+            path: '/workspace/:id',
+            component: Workspace,
+            meta : { requiresAuth: true },
         }
     ]
 })

@@ -19,13 +19,13 @@
           >
             <button
               @click="handleEdit"
-              class="px-4 py-2 hover:bg-gray-700 duration-150 rounded-md"
+              class="w-full px-4 py-2 hover:bg-gray-700 duration-150 rounded-md"
             >
               Изменить
             </button>
             <button
               @click="handleDelete"
-              class="px-4 py-2 hover:bg-gray-700 duration-150 rounded-md"
+              class="w-full px-4 py-2 hover:bg-gray-700 duration-150 rounded-md"
             >
               Удалить
             </button>
@@ -35,7 +35,7 @@
       <p class="text-gray-300 text-sm mt-2">
         Создан: {{ formatDate(project.createdAt) }}
       </p>
-      <button class="mt-8">Перейти</button>
+      <button @click="handleRedirect" class="mt-8">Перейти</button>
     </div>
     <div v-if="isEditOpen" class="mt-4 space-y-2">
       <Input type="text" v-model="editedName" />
@@ -75,10 +75,13 @@ import type { Project } from "@/entities/project/types";
 import { user } from "@/shared/lib/auth";
 import { updateProject, deleteProject } from "../model/sbHelper";
 import { ConfirmationModal } from "@/shared/ui/ConfirmationModal";
+import { useRouter } from "vue-router";
 
 const props = defineProps<{
   project: Project;
 }>();
+
+const router = useRouter();
 
 const emit = defineEmits(["edit", "delete"]);
 
@@ -91,6 +94,10 @@ const editedName = ref("");
 
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
+};
+
+const handleRedirect = () => {
+  router.push(`/projects/workspace/${props.project.id}`);
 };
 
 const handleEdit = () => {
