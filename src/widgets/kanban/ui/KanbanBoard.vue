@@ -1,42 +1,44 @@
 <template>
-  <div class="space-y-4">
-    <div class="flex justify-between items-center mb-4">
-      <h1 class="text-2xl font-bold">Kanban Board</h1>
-      <Button @click="showModal = true">Добавить задачу</Button>
-    </div>
-
-    <div class="flex flex-col md:flex-row gap-4 overflow-x-auto pb-4">
-      <TaskColumn
+  <div class="flex justify-center p-4 min-h-screen">
+    <!-- Колонки -->
+    <div class="flex gap-4 w-[1000px] h-[600px]">
+      <div
         v-for="column in columns"
         :key="column.id"
-        :column="column"
-        @task-moved="moveTask"
-      />
+        class="flex-1 bg-bg-accent-dark rounded-lg p-4 shadow-md shadow-black"
+      >
+        <div class="flex justify-center">
+          <i :class="column.icon" class="text-3xl text-gray-400 mb-2"></i>
+        </div>
+        <h3 class="text-center text-white">{{ column.title }}</h3>
+        <div class="mt-10 flex justify-center">
+          <KanbanTaskCard />
+        </div>
+      </div>
     </div>
-
-    <AddTaskModal
-      v-if="showModal"
-      @close="showModal = false"
-      @submit="handleAddTask"
-    />
   </div>
 </template>
 
-<script setup lang="ts">
-import TaskColumn from "@/features/tasks/TaskColumn.vue";
-import AddTaskModal from "./AddTaskModal.vue";
-import { ref } from 'vue';
-import { useTasks } from '@features/tasks/useTasks';
-import Button from '@shared/ui/Button';
+<script setup>
+import { reactive } from "vue";
+import { KanbanTaskCard } from "..";
 
-const { columns, addTask, moveTask } = useTasks();
-const showModal = ref(flase);
-
-const handleAddTask = (task) => {
-    addTask(task);
-    showModal.value = false;
-};
-
+// Состояние колонок и задач
+const columns = reactive([
+  {
+    id: "planned",
+    title: "Запланировано",
+    icon: "fa-regular fa-calendar",
+  },
+  {
+    id: "progress",
+    title: "В работе",
+    icon: "fa-solid fa-bars-staggered",
+  },
+  {
+    id: "done",
+    title: "Завершено",
+    icon: "fa-solid fa-check",
+  },
+]);
 </script>
-
-<style scoped></style>

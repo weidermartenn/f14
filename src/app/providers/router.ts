@@ -34,7 +34,7 @@ export const router = createRouter({
             meta: { requiresAuth: true },
         },
         {
-            path: '/workspace/:id',
+            path: '/projects/workspace',
             component: Workspace,
             meta : { requiresAuth: true },
         }

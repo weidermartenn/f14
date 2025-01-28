@@ -1,5 +1,6 @@
 import { supabase } from "@/shared/api/supabaseClient";
 import type { Project } from "@/entities/project/types";
+import type { Task } from "@/entities/task/types";
 
 export const fetchProjects = async (userEmail: string): Promise<Project[]> => {
     try {
@@ -97,4 +98,36 @@ export const getAvatarUrl = (path: string): string => {
 
     return data.publicUrl;
 };
+
+export const addTask = async (projectId: string, task: Task) => {
+    try {
+        const { error } = await supabase
+        .from('tasks')
+        .insert({ ...task, project_id: projectId })
+        .select()
+        .single();
+
+        if (error) throw error;
+    } catch (err) {
+        throw err;
+    }
+}
+
+export const fetchTasks = async (projectId: string): Promise<Task[]> => {
+    try {
+        const { data, error } = await supabase
+        .from('tasks')
+        .select('*')
+        .eq('project_id', projectId);
+
+        if (error) throw error;
+
+        return {
+            ...data,
+            createdAt: new Date(data.createdAt)
+        };
+    } catch (err) {
+        throw err;
+    }
+}
 
