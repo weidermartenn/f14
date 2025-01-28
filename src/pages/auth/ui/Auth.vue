@@ -1,7 +1,10 @@
 <template>
-    <div class="min-h-screen flex items-center justify-center overflow-hidden">
-      <button @click="router.push('/')" class="mr-10 hover:text-hover-text">Вернуться на главную страницу</button>
-      <div class="bg-bg-accent-dark p-8 rounded-lg shadow-lg w-full max-w-md">
+    <div class="min-h-screen flex flex-col items-center justify-center overflow-hidden">
+      <button @click="router.back" class="flex items-center gap-2 hover:text-gray-300">
+            <i class="fa-solid fa-chevron-left"></i>
+            <span>Вернуться назад</span>
+        </button>
+      <div class="bg-bg-accent-dark mt-4 p-8 rounded-lg shadow-lg w-full max-w-md">
         <h2 class="text-2xl font-bold mb-6 text-center">Войти в систему</h2>
         <form @submit.prevent="handleLogin">
           <EmailInput v-model="email" :error="error" />

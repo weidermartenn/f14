@@ -1,7 +1,7 @@
 <template>
   <div class="min-w-max h-auto">
     <Header v-if="!isAuthPage && !isCreateProjectPage" />
-    <RouterView />
+    <RouterView class="mt-20" />
   </div>
 </template>
 
