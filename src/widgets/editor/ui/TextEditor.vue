@@ -1,43 +1,51 @@
 <template>
-  <div class="text-editor border border-gray-700 rounded-lg p-4 bg-gray-800">
-    <!--Панель инструментов-->
-    <div v-if="editor" class="toolbar flex gap-2 mb-4">
-      <button
-        @click="editor.chain().focus().toggleBold().run()"
-        :class="{ 'bg-blue-500': editor.isActive('bold') }"
-        class="p-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors"
-      >
-        <i class="fa-solid fa-bold"></i>
-      </button>
-      <button
-        @click="editor.chain().focus().toggleItalic().run()"
-        :class="{ 'bg-blue-500': editor.isActive('italic') }"
-        class="p-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors"
-      >
-        <i class="fa-solid fa-italic"></i>
-      </button>
-      <button
-        @click="editor.chain().focus().toggleBulletList().run()"
-        :class="{ 'bg-blue-500': editor.isActive('bulletList') }"
-        class="p-2 bg-gray-700 text-white rounded hover:bg-gray-600 transition-colors"
-      >
-        <i class="fa-solid fa-list"></i>
-      </button>
+  <div class="flex flex-col gap-6">
+    <div class="bg-bg-dark ml-2 rounded-lg p-2 flex justify-between gap-4 px-4 text-gray-300">
+      <div class="flex gap-4">
+        <!--Bold-->
+        <button>
+          <span class="fa-solid fa-bold"></span>
+        </button>
+        <!--Italic-->
+        <button>
+          <span class="fa-solid fa-italic"></span>
+        </button>
+        <!--Underline-->
+        <button>
+          <span class="fa-solid fa-underline"></span>
+        </button>
+        <!--Strikethrough-->
+        <button>
+          <span class="fa-solid fa-strikethrough"></span>
+        </button>
+        <!--Link-->
+        <button>
+          <span class="fa-solid fa-link"></span>
+        </button>
+      </div>
+      <div class="flex gap-4">
+        <!--Bulleted List-->
+        <button>
+          <span class="fa-solid fa-list-ul"></span>
+        </button>
+        <!--Numbered List-->
+        <button>
+          <span class="fa-solid fa-list-ol"></span>
+        </button>
+        <!--Quote-->
+      </div>
     </div>
-
-    <!--Редактор-->
-    <editor-content :editor="editor" class="editor-content min-h-[150px] p-2 text-white outline-none focus:border-blue-500"/>
+    <div class="bg-bg-dark h-96 ml-2 rounded-lg p-2 flex justify-between gap-4 px-4 text-gray-300">
+      <div class="w-full h-full">
+        
+      </div>
+    </div>
+      
   </div>
 </template>
 
 <script setup lang="ts">
-import { useEditor, EditorContent } from "@tiptap/vue-3";
-import StarterKit from "@tiptap/starter-kit";
 
-const editor = useEditor({
-  content: "",
-  extensions: [StarterKit],
-});
 </script>
 
 <style scoped></style>
