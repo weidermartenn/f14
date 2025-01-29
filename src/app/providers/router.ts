@@ -6,37 +6,55 @@ import CreateProject from '../../pages/createProject/ui/CreateProject.vue';
 import Projects from '../../pages/projects/ui/Projects.vue';
 import Profile from '../../pages/profile/ui/Profile.vue';
 import Workspace from '../../pages/workspace/ui/Workspace.vue';
+import CreateTask from '../../pages/createTask/ui/CreateTask.vue';
 
 export const router = createRouter({
     history: createWebHistory(),
     routes: [
         {
             path: '/',
+            name: 'main',
             component: Main,
+        },
+         // обработка 404
+        {
+            path: '/:pathMatch(.*)*',
+            redirect: '/',
         },
         {
             path: '/auth',
+            name: 'auth',
             component: Auth,
         },
         {
             path: '/create-new-project',
+            name: 'create-new-project',
             component: CreateProject,
             meta: { requiresAuth: true },
         },
         {
             path: '/projects',
+            name: 'projects',
             component: Projects,
             meta: { requiresAuth: true },
         },
         {
             path: '/profile',
+            name: 'profile',
             component: Profile,
             meta: { requiresAuth: true },
         },
         {
             path: '/projects/workspace',
+            name: 'workspace',
             component: Workspace,
             meta : { requiresAuth: true },
+        },
+        {
+            path: '/projects/workspace/create-task',
+            name: 'create-task',
+            component: CreateTask,
+            meta: { requiresAuth: true },
         }
     ]
 })

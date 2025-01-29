@@ -1,41 +1,74 @@
 <template>
   <div class="flex flex-col items-center gap-4 p-4 min-h-screen">
     <div class="flex flex-col items-center gap-1">
-      <span class="text-sm text-gray-400">Перемещайте задачи между колонками с помощью перетаскивания и нажатием кнопки</span>
-      <span class="text-sm text-gray-400">Для более подробного просмотра задач нажмите на задачу</span>
+      <span class="text-sm text-gray-400"
+        >Перемещайте задачи между колонками с помощью перетаскивания и нажатием
+        кнопки</span
+      >
+      <span class="text-sm text-gray-400"
+        >Для более подробного просмотра задач нажмите на задачу</span
+      >
     </div>
 
-    <!-- Контейнер для плашки и доски -->
-    <div class="flex items-center gap-4">
-      <!-- Плашка с подсказками -->
-      <div id="tips" class="bg-bg-dark p-4 rounded-lg shadow-md shadow-black flex flex-col gap-3">
-        <div class="flex items-center gap-2">
-          <button class="hover:bg-gray-600 w-8 h-8 flex items-center justify-center rounded-full duration-150">
-            <i class="fa-solid fa-pen-to-square text-gray-400"></i>
-          </button>
-          <span class="text-sm text-gray-400">Редактировать задачу</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <button class="hover:bg-gray-600 w-8 h-8 flex items-center justify-center rounded-full duration-150">
-            <i class="fa-solid fa-snowflake text-gray-400"></i>
-          </button>
-          <span class="text-sm text-gray-400">Заморозить задачу</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <button class="hover:bg-gray-600 w-8 h-8 flex items-center justify-center rounded-full duration-150">
-            <i class="fa-solid fa-eye-slash text-gray-400"></i>
-          </button>
-          <span class="text-sm text-gray-400">Скрыть задачу</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <button class="hover:bg-gray-600 w-8 h-8 flex items-center justify-center rounded-full duration-150">
-            <i class="fa-regular fa-trash-can text-gray-400"></i>
-          </button>
-          <span class="text-sm text-gray-400">Удалить задачу</span>
-        </div>
-      </div>
+    <div class="flex gap-6 items-center justify-center">
+      <span>Добавить задачу</span>
+      <button
+        @click="handleAddTask"
+        class="w-14 h-10 flex items-center justify-center text-3xl cursor-pointer border-2 border-gray-700 rounded-lg hover:border-blue-500 hover:text-blue-500 transition-colors"
+      >
+        +
+      </button>
+    </div>
 
-      <!-- Колонки -->
+    <div class="mr-12 flex items-center gap-4 relative">
+      <i
+        id="info"
+        class="fa-solid fa-circle-info text-2xl text-zinc-700 flex justify-center items-center w-8 h-8 rounded-full hover:bg-bg-accent-dark hover:text-zinc-500 duration-150"
+        @mouseenter="showTips = true"
+        @mouseleave="showTips = false"
+      ></i>
+
+      <Transition name="fade">
+        <div
+          v-if="showTips"
+          id="tips"
+          class="bg-bg-dark p-4 rounded-lg shadow-md shadow-black flex flex-col gap-3 absolute left-12 top-0"
+        >
+          <div class="flex items-center gap-2">
+            <button
+              class="hover:bg-gray-600 w-8 h-8 flex items-center justify-center rounded-full duration-150"
+            >
+              <i class="fa-solid fa-pen-to-square text-gray-400"></i>
+            </button>
+            <span class="text-sm text-gray-400">Редактировать задачу</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button
+              class="hover:bg-gray-600 w-8 h-8 flex items-center justify-center rounded-full duration-150"
+            >
+              <i class="fa-solid fa-snowflake text-gray-400"></i>
+            </button>
+            <span class="text-sm text-gray-400">Заморозить задачу</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button
+              class="hover:bg-gray-600 w-8 h-8 flex items-center justify-center rounded-full duration-150"
+            >
+              <i class="fa-solid fa-eye-slash text-gray-400"></i>
+            </button>
+            <span class="text-sm text-gray-400">Скрыть задачу</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <button
+              class="hover:bg-gray-600 w-8 h-8 flex items-center justify-center rounded-full duration-150"
+            >
+              <i class="fa-regular fa-trash-can text-gray-400"></i>
+            </button>
+            <span class="text-sm text-gray-400">Удалить задачу</span>
+          </div>
+        </div>
+      </Transition>
+
       <div class="flex gap-4 w-[1000px] h-[600px]">
         <div
           v-for="column in columns"
@@ -52,28 +85,39 @@
         </div>
       </div>
     </div>
+    <ActivityChart />
   </div>
 </template>
-<script setup>
-import { reactive } from "vue";
-import { KanbanTaskCard } from "..";
 
-// Состояние колонок и задач
+<script setup>
+import { ref, reactive } from "vue";
+import { useRouter } from "vue-router";
+import { KanbanTaskCard } from "..";
+import { ActivityChart } from "@/widgets/activitychart";
+
+const showTips = ref(false);
+
+const router = useRouter()
+
 const columns = reactive([
-  {
-    id: "planned",
-    title: "Запланировано",
-    icon: "fa-regular fa-calendar",
-  },
-  {
-    id: "progress",
-    title: "В работе",
-    icon: "fa-solid fa-bars-staggered",
-  },
-  {
-    id: "done",
-    title: "Завершено",
-    icon: "fa-solid fa-check",
-  },
+  { id: "planned", title: "Запланировано", icon: "fa-regular fa-calendar" },
+  { id: "progress", title: "В работе", icon: "fa-solid fa-bars-staggered" },
+  { id: "done", title: "Завершено", icon: "fa-solid fa-check" },
 ]);
+
+const handleAddTask = () => {
+  router.push({ name: 'create-task' });
+}
 </script>
+
+<style>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateX(-10px);
+}
+</style>
