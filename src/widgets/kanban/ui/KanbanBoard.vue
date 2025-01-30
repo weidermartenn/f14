@@ -85,7 +85,7 @@
         </div>
       </div>
     </div>
-    <ActivityChart />
+    
   </div>
 </template>
 
@@ -93,7 +93,6 @@
 import { ref, reactive } from "vue";
 import { useRouter } from "vue-router";
 import { KanbanTaskCard } from "..";
-import { ActivityChart } from "@/widgets/activitychart";
 
 const showTips = ref(false);
 

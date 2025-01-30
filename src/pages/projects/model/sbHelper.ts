@@ -1,6 +1,7 @@
 import { supabase } from "@/shared/api/supabaseClient";
 import type { Project } from "@/entities/project/types";
 import type { Task } from "@/entities/task/types";
+import type { Label } from "@/entities/label/types";
 
 export const fetchProjects = async (userEmail: string): Promise<Project[]> => {
     try {
@@ -87,3 +88,30 @@ export const fetchTasks = async (projectId: string): Promise<Task[]> => {
     }
 }
 
+export const fetchLabels = async (): Promise<Label[]> => {
+    try {
+        const { data, error } = await supabase
+        .from('labels')
+        .select('*');
+        
+        if (error) throw error;
+
+        return data as Label[];
+    } catch (err) {
+        throw err;
+    }
+}
+
+export const addLabel = async (label: Label) => {
+    try {
+        const { error } = await supabase
+        .from('labels')
+        .insert(label)
+        .select()
+        .single();
+
+        if (error) throw error;
+    } catch (err) {
+        throw err;
+    }
+}
