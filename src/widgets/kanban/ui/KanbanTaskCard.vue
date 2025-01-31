@@ -19,29 +19,45 @@
       <div class="flex flex-col">
         <span class="flex gap-1 items-center text-xs text-gray-400">
           <i class="fa-solid fa-chart-simple"></i>
-          <span>Низкий</span>
+          <span>{{ getPriorityLabel(task.priority) }}</span>
         </span>
         <span class="flex gap-1 items-center text-xs text-gray-400">
           <i class="fa-regular fa-calendar-days"></i>
-          <span>01.01.2023</span>
+          <span>{{ formatDate(task.deadline) }}</span>
         </span>
       </div>
-      <div class="grid grid-cols-2 gap-1">
-          <Label :label="'Frontend-1'"/>
-          <Label :label="'Frontend-1'"/>
-          <Label :label="'Frontend-1'"/>
+      <div v-if="task.labels && task.labels.lenght > 0" class="grid grid-cols-2 gap-1">
+          <Label v-for="(label, index) in task.labels" :key="index" :label="label"/>
       </div>
     </div>
     <div class="mt-4 flex gap-2 justify-center items-center">
       <i class="fa-solid fa-clock text-xl"></i>
-      <span class="text-sm">01.01.2023</span>
+      <span class="text-sm">{{ formatDate(task.createdAt) }}</span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { Label } from '@/widgets/label';
+import type { Task } from '@/entities/task/types';
+import { defineProps } from 'vue';
 
+const props = defineProps<{
+  task: Task;
+}>();
+
+const getPriorityLabel = (priority: Label) => {
+  switch (priority) {
+    case 1: return 'Низкий';
+    case 2: return 'Средний';
+    case 3: return 'Высокий';
+    default: return 'Не указан';
+  }
+}
+
+const formatDate = (date: Date) => {
+  return new Date(date).toLocaleDateString('ru-RU');
+};
 
 </script>
 

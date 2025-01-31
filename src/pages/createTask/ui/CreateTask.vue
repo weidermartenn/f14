@@ -30,45 +30,87 @@
       </div>
 
       <!-- Второй столбец -->
-      <div class="flex flex-col gap-4 bg-bg-dark rounded-md p-4 overflow-y-auto max-h-[550px]">
+      <div
+        class="flex flex-col gap-4 bg-bg-dark rounded-md p-4 overflow-y-auto max-h-[550px] max-w-[400px] w-full"
+      >
         <span>Выполнить до:</span>
         <DatePicker v-model="selectedDate" placeholder="Выберите дату" />
-        <div class="flex gap-4 items-center">
+        <div class="flex mt-4 gap-4 items-center">
           <span>Приоритет:</span>
-          <select class="bg-bg-accent-dark rounded-md p-2">
+          <select class="bg-bg-accent-dark rounded-md p-2 cursor-pointer">
             <option value="1">Низкий</option>
             <option value="2">Средний</option>
             <option value="3">Высокий</option>
           </select>
         </div>
 
-        <span>Метки</span>
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <div class="mt-4">
+          <span>Метки</span>
+          <!--Выбранные метки-->
+          <div
+            v-if="selectedLabels.length > 0"
+            class="flex flex-wrap gap-2 mt-2 max-w-full overflow-hidden"
+          >
+            <div
+              v-for="(label, index) in selectedLabels"
+              :key="label.id"
+              class="flex items-center gap-2 bg-blue-500 text-white rounded-md px-2 py-1 text-sm max-w-[150px]"
+            >
+              <span class="truncate">{{ label.label }}</span>
+              <button
+                @click="removeLabel(index)"
+                class="text-white hover:text-red-500"
+              >
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+          </div>
+          <div v-else>
+            <span class="text-xs text-gray-300"
+              >Вы не выбрали ни одной метки</span
+            >
+          </div>
+        </div>
+        <div
+          v-if="labels.length > 0"
+          class="grid grid-cols-2 sm:grid-cols-3 gap-2"
+        >
           <Label
             class="h-8"
             v-for="labelItem in labels"
             :key="labelItem.id"
             :label="labelItem.label"
+            :class="{
+              'opacity-50 cursor-not-allowed': isLabelSelected(labelItem),
+            }"
+            @click="toggleLabel(labelItem)"
           />
         </div>
 
+        <div v-else>
+          <LoadingSpinner />
+        </div>
+
         <!-- Кнопка и форма добавления новой метки -->
-        <div v-if="isAddingLabel" class="flex gap-2">
+        <div
+          v-if="isAddingLabel"
+          class="flex items-center justify-center gap-2"
+        >
           <Input
             type="text"
             v-model="newLabel"
             placeholder="Новая метка"
-            class="w-full"
+            class="h-9"
           />
           <button
             @click="confirmAddLabel"
-            class="px-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+            class="w-10 h-6 bg-blue-500 text-white rounded-md hover:bg-blue-600"
           >
             <i class="fa-solid fa-check"></i>
           </button>
           <button
             @click="cancelAddLabel"
-            class="px-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+            class="w-10 h-6 bg-red-500 text-white rounded-md hover:bg-red-600"
           >
             <i class="fa-solid fa-xmark"></i>
           </button>
@@ -98,21 +140,30 @@
           />
         </div>
         <span class="text-xs text-gray-400"
-            >Максимальное количество файлов: 5</span
-          >
+          >Максимальное количество файлов: 5</span
+        >
 
         <div v-if="selectedFiles.length > 0" class="mt-4">
-            <ul class="space-y-2">
-                <li v-for="(file, index) in selectedFiles" :key="index" class="flex items-center text-gray-300 gap-2">
-                    <i class="text-md" :class="getIcon(file)"></i>
-                    <span class="text-xs">{{ file.name }}</span>
-                    <button @click="removeFile(index)" class="text-red-500 hover:text-red-700">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </li>
-            </ul>
+          <ul class="space-y-2">
+            <li
+              v-for="(file, index) in selectedFiles"
+              :key="index"
+              class="flex items-center text-gray-300 gap-2"
+            >
+              <i class="text-md" :class="getIcon(file)"></i>
+              <span class="text-xs">{{ file.name }}</span>
+              <button
+                @click="removeFile(index)"
+                class="text-red-500 hover:text-red-700"
+              >
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </li>
+          </ul>
         </div>
-        <button class="mt-10 flex justify-center gap-2 hover:text-gray-300">Создать</button>
+        <button class="mt-10 flex justify-center gap-2 hover:text-gray-300">
+          Создать
+        </button>
       </div>
     </div>
   </div>
@@ -120,23 +171,20 @@
 
 <script setup lang="ts">
 import { useRouter } from "vue-router";
-import { ref, onMounted } from "vue";
+import { ref, onMounted} from "vue";
 import { Input } from "@/shared/ui/Input";
 import { TextEditor } from "@/widgets/editor";
 import { DatePicker } from "@/shared/ui/DatePicker";
 import { Label } from "@/widgets/label";
 import { supabase } from "@/shared/api/supabaseClient";
-import { fetchLabels, addLabel } from "@/pages/projects/model/sbHelper";
-
-interface Label {
-  id: number;
-  label: string;
-}
+import { fetchLabels, addLabel } from "@/shared/api/sbHelper";
+import { LoadingSpinner } from "@/shared/ui/LoadingSpinner";
 
 const router = useRouter();
 const description = ref("");
 
 const labels = ref<Label[]>([]);
+const selectedLabels = ref<Label[]>([]);
 const isAddingLabel = ref(false);
 const newLabel = ref("");
 
@@ -154,8 +202,8 @@ const handleFileInput = async (event: Event) => {
   const files = target.files;
 
   if (files && files.length > 5) {
-    alert('Максимальное количество файлов: 5');
-    target.value = '';
+    alert("Максимальное количество файлов: 5");
+    target.value = "";
   } else if (files) {
     selectedFiles.value = Array.from(files);
   }
@@ -163,41 +211,41 @@ const handleFileInput = async (event: Event) => {
 
 const removeFile = (index: number) => {
   selectedFiles.value.splice(index, 1);
-}
+};
 
 const getIcon = (file: File) => {
-  const extension = file.name.split('.').pop()?.toLowerCase();
+  const extension = file.name.split(".").pop()?.toLowerCase();
 
   switch (extension) {
-    case 'pdf':
-      return 'fa-solid fa-file-pdf';
-    case 'doc':
-    case 'docx':
-      return 'fa-solid fa-file-word';
-    case 'xls':
-    case 'xlsx':
-      return 'fa-solid fa-file-excel';
-    case 'jpg':
-    case 'jpeg':
-    case 'png':
-    case 'gif':
-      return 'fa-solid fa-file-image';
-    case 'txt':
-      return 'fa-solid fa-file-lines';
-    case 'cpp':
-    case 'py':
-    case 'js':
-    case 'ts':
-    case 'kt':
-    case 'dart':
-    case 'cs':
-    case 'java':
-      return 'fa-solid fa-file-code';
-    case 'rar':
-    case 'zip':
-      return 'fa-solid fa-file-zipper';
+    case "pdf":
+      return "fa-solid fa-file-pdf";
+    case "doc":
+    case "docx":
+      return "fa-solid fa-file-word";
+    case "xls":
+    case "xlsx":
+      return "fa-solid fa-file-excel";
+    case "jpg":
+    case "jpeg":
+    case "png":
+    case "gif":
+      return "fa-solid fa-file-image";
+    case "txt":
+      return "fa-solid fa-file-lines";
+    case "cpp":
+    case "py":
+    case "js":
+    case "ts":
+    case "kt":
+    case "dart":
+    case "cs":
+    case "java":
+      return "fa-solid fa-file-code";
+    case "rar":
+    case "zip":
+      return "fa-solid fa-file-zipper";
     default:
-      return 'fa-solid fa-file';
+      return "fa-solid fa-file";
   }
 };
 
@@ -222,6 +270,34 @@ const confirmAddLabel = async () => {
 const cancelAddLabel = () => {
   newLabel.value = "";
   isAddingLabel.value = false;
+};
+
+const toggleLabel = (label: Label) => {
+  if (isLabelSelected(label)) {
+    removeLabelFromSelected(label);
+  } else {
+    addLabelToSelected(label);
+  }
+};
+
+const isLabelSelected = (label: Label) => {
+  return selectedLabels.value.some(
+    (selectedLabel) => selectedLabel.id === label.id
+  );
+};
+
+const addLabelToSelected = (label: Label) => {
+  selectedLabels.value.push(label);
+};
+
+const removeLabel = (index: number) => {
+  selectedLabels.value.splice(index, 1);
+};
+
+const removeLabelFromSelected = (label: Label) => {
+  selectedLabels.value = selectedLabels.value.filter(
+    (selectedLabel) => selectedLabel.id !== label.id
+  );
 };
 </script>
 

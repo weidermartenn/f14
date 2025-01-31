@@ -52,7 +52,7 @@ import LoadingSpinner from "@/shared/ui/LoadingSpinner/ui/LoadingSpinner.vue";
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { user } from "@/shared/lib/auth";
-import { fetchProjects } from "../model/sbHelper";
+import { fetchProjects } from "@/shared/api/sbHelper";
 import type { Project } from "@/entities/project/types";
 
 const projects = ref<Project[]>([]);

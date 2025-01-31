@@ -70,6 +70,24 @@ export const addTask = async (projectId: string, task: Task) => {
     }
 }
 
+export const updateTask = async (taskId: string, updates: Partial<Task>): Promise<Task | null> => {
+    try {
+        const { data, error } = await supabase
+        .from("tasks")
+        .update(updates)
+        .eq("id", taskId)
+        .select()
+        .single();
+
+        if (error) throw error;
+
+        return data;
+    } catch (error) {
+        console.error("Ошибка при обновлении задачи: ", error);
+        return null;
+    }
+}
+
 export const fetchTasks = async (projectId: string): Promise<Task[]> => {
     try {
         const { data, error } = await supabase
@@ -79,10 +97,11 @@ export const fetchTasks = async (projectId: string): Promise<Task[]> => {
 
         if (error) throw error;
 
-        return {
-            ...data,
-            createdAt: new Date(data.createdAt)
-        };
+        return data.map((task: Task) => ({
+            ...task,
+            createdAt: new Date(task.createdAt),
+            deadline: new Date(task.deadline)
+        }))
     } catch (err) {
         throw err;
     }

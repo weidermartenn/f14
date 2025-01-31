@@ -7,6 +7,6 @@ export interface Task {
     priority: number;
     isFrozen: boolean;
     labels: string[] | null;
-    status: number;
+    status: string;
     projectId: string;
 }

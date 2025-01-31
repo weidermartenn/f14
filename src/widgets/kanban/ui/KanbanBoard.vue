@@ -20,7 +20,11 @@
       </button>
     </div>
 
-    <div class="mr-12 flex items-center gap-4 relative">
+    <div v-if="tasks.length === 0" class="text-center text-gray-400 mt-4">
+      В этом проекте пока нет задач. Нажмите на кнопку выше, чтобы добавить новую задачу.
+    </div>
+
+    <div v-else class="mr-12 flex items-center gap-4 relative">
       <i
         id="info"
         class="fa-solid fa-circle-info text-2xl text-zinc-700 flex justify-center items-center w-8 h-8 rounded-full hover:bg-bg-accent-dark hover:text-zinc-500 duration-150"
@@ -80,23 +84,30 @@
           </div>
           <h3 class="text-center text-white">{{ column.title }}</h3>
           <div class="mt-10 flex justify-center">
-            <KanbanTaskCard />
+            <KanbanTaskCard
+                v-for="task in tasksByColumn[column.id]"
+                :key="task.id"
+                :task="task"
+              />
           </div>
         </div>
       </div>
     </div>
-    
   </div>
 </template>
 
-<script setup>
-import { ref, reactive } from "vue";
-import { useRouter } from "vue-router";
+<script setup lang="ts">
+import { ref, onMounted, reactive, computed } from "vue";
+import { useRouter, useRoute } from "vue-router";
 import { KanbanTaskCard } from "..";
+import { fetchTasks } from "@/shared/api/sbHelper";
+import type { Task } from "@/entities/task/types";
 
 const showTips = ref(false);
-
-const router = useRouter()
+const router = useRouter();
+const route = useRoute();
+const projectId = route.query.projectId as string;
+const tasks = ref<Task[]>([]);
 
 const columns = reactive([
   { id: "planned", title: "Запланировано", icon: "fa-regular fa-calendar" },
@@ -104,9 +115,30 @@ const columns = reactive([
   { id: "done", title: "Завершено", icon: "fa-solid fa-check" },
 ]);
 
+const tasksByColumn = computed(() => {
+  const groupedTasks: { [key: string]: Task[] } = {
+    planned: [],
+    progress: [],
+    done: [],
+  };
+  tasks.value.forEach((task: Task) => {
+    groupedTasks[task.status].push(task);
+  });
+
+  return groupedTasks;
+});
+
+const fetchProjectTasks = async () => {
+  if (!projectId) return;
+  tasks.value = await fetchTasks(projectId);
+  console.log("Задачи : ",await fetchTasks(projectId));
+};
+
 const handleAddTask = () => {
-  router.push({ name: 'create-task' });
-}
+  router.push({ name: "create-task", query: { projectId } });
+};
+
+onMounted(fetchProjectTasks);
 </script>
 
 <style>

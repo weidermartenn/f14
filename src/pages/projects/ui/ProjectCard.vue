@@ -35,7 +35,7 @@
       <p class="text-gray-300 text-sm mt-2">
         Создан: {{ formatDate(project.createdAt) }}
       </p>
-      <button @click="handleRedirect" class="mt-8">Перейти</button>
+      <button @click="handleRedirect(project.name)" class="mt-8">Перейти</button>
     </div>
     <div v-if="isEditOpen" class="mt-4 space-y-2">
       <Input type="text" v-model="editedName" />
@@ -73,7 +73,7 @@ import { defineProps, ref, watch } from "vue";
 import { Input } from "@/shared/ui/Input";
 import type { Project } from "@/entities/project/types";
 import { user } from "@/shared/lib/auth";
-import { updateProject, deleteProject } from "../model/sbHelper";
+import { updateProject, deleteProject } from "@/shared/api/sbHelper";
 import { ConfirmationModal } from "@/shared/ui/ConfirmationModal";
 import { useRouter } from "vue-router";
 
@@ -96,8 +96,8 @@ const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
 };
 
-const handleRedirect = () => {
-  router.push(`/projects/workspace`);
+const handleRedirect = (projectName: string) => {
+  router.push({ name: 'workspace', query: { name: projectName} });
 };
 
 const handleEdit = () => {
