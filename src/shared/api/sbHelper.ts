@@ -93,7 +93,7 @@ export const fetchTasks = async (projectId: string): Promise<Task[]> => {
         const { data, error } = await supabase
         .from('tasks')
         .select('*')
-        .eq('project_id', projectId);
+        .eq('projectId', projectId);
 
         if (error) throw error;
 

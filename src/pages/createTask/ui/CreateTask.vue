@@ -18,7 +18,9 @@
           Создание задачи для проекта
           <code
             class="text-f14-font-dark bg-bg-dark rounded-md px-2 ml-2"
-          ></code>
+          >
+            {{ projectName }}
+          </code>
         </span>
         <Input
           type="text"
@@ -170,7 +172,7 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { ref, onMounted} from "vue";
 import { Input } from "@/shared/ui/Input";
 import { TextEditor } from "@/widgets/editor";
@@ -179,9 +181,13 @@ import { Label } from "@/widgets/label";
 import { supabase } from "@/shared/api/supabaseClient";
 import { fetchLabels, addLabel } from "@/shared/api/sbHelper";
 import { LoadingSpinner } from "@/shared/ui/LoadingSpinner";
+import { fileIcon } from "../model/extensions";
 
 const router = useRouter();
+const route = useRoute();
 const description = ref("");
+
+const projectName = ref(route.query.name || "");
 
 const labels = ref<Label[]>([]);
 const selectedLabels = ref<Label[]>([]);
@@ -214,39 +220,9 @@ const removeFile = (index: number) => {
 };
 
 const getIcon = (file: File) => {
-  const extension = file.name.split(".").pop()?.toLowerCase();
+  const extension = file.name.split(".").pop()?.toLowerCase() || "";
 
-  switch (extension) {
-    case "pdf":
-      return "fa-solid fa-file-pdf";
-    case "doc":
-    case "docx":
-      return "fa-solid fa-file-word";
-    case "xls":
-    case "xlsx":
-      return "fa-solid fa-file-excel";
-    case "jpg":
-    case "jpeg":
-    case "png":
-    case "gif":
-      return "fa-solid fa-file-image";
-    case "txt":
-      return "fa-solid fa-file-lines";
-    case "cpp":
-    case "py":
-    case "js":
-    case "ts":
-    case "kt":
-    case "dart":
-    case "cs":
-    case "java":
-      return "fa-solid fa-file-code";
-    case "rar":
-    case "zip":
-      return "fa-solid fa-file-zipper";
-    default:
-      return "fa-solid fa-file";
-  }
+  return fileIcon(extension);
 };
 
 const startAddLabel = () => {

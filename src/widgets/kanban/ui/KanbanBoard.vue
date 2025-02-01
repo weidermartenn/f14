@@ -2,8 +2,7 @@
   <div class="flex flex-col items-center gap-4 p-4 min-h-screen">
     <div class="flex flex-col items-center gap-1">
       <span class="text-sm text-gray-400"
-        >Перемещайте задачи между колонками с помощью перетаскивания и нажатием
-        кнопки</span
+        >Перемещайте задачи между колонками с помощью перетаскивания</span
       >
       <span class="text-sm text-gray-400"
         >Для более подробного просмотра задач нажмите на задачу</span
@@ -14,7 +13,7 @@
       <span>Добавить задачу</span>
       <button
         @click="handleAddTask"
-        class="w-14 h-10 flex items-center justify-center text-3xl cursor-pointer border-2 border-gray-700 rounded-lg hover:border-blue-500 hover:text-blue-500 transition-colors"
+        class="w-12 h-8 flex items-center justify-center text-xl cursor-pointer border-2 border-gray-700 rounded-lg hover:border-blue-500 hover:text-blue-500 transition-colors"
       >
         +
       </button>
@@ -77,19 +76,31 @@
         <div
           v-for="column in columns"
           :key="column.id"
-          class="flex-1 bg-bg-accent-dark rounded-lg p-4 shadow-md shadow-black"
+          class="flex-1 bg-bg-accent-dark rounded-lg p-4 shadow-md shadow-black flex flex-col"
         >
           <div class="flex justify-center">
             <i :class="column.icon" class="text-3xl text-gray-400 mb-2"></i>
           </div>
           <h3 class="text-center text-white">{{ column.title }}</h3>
-          <div class="mt-10 flex justify-center">
-            <KanbanTaskCard
-                v-for="task in tasksByColumn[column.id]"
-                :key="task.id"
-                :task="task"
-              />
-          </div>
+          <draggable
+            :list="tasksByColumn[column.id]"
+            group="tasks"
+            item-key="id"
+            class="mt-10 flex flex-col gap-2 overflow-y-auto flex-1"
+            @change="(event) => handleTaskMove(event, column.id)"
+            @move="onDragMove"
+            @end="onDragEnd"
+          >
+            <template #item="{ element }">
+              <Transition name="fade">
+                <KanbanTaskCard
+                  :task="element"
+                  :class="{ 'border-indicator': element.isIndicator }"
+                  class="cursor-move"
+                />
+              </Transition>
+            </template>
+          </draggable>
         </div>
       </div>
     </div>
@@ -100,14 +111,20 @@
 import { ref, onMounted, reactive, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { KanbanTaskCard } from "..";
-import { fetchTasks } from "@/shared/api/sbHelper";
+import { fetchTasks, updateTask } from "@/shared/api/sbHelper";
 import type { Task } from "@/entities/task/types";
+import draggable from "vuedraggable";
 
 const showTips = ref(false);
 const router = useRouter();
 const route = useRoute();
 const projectId = route.query.projectId as string;
 const tasks = ref<Task[]>([]);
+
+const props = defineProps({
+  projectId: String,
+  projectName: String,
+});
 
 const columns = reactive([
   { id: "planned", title: "Запланировано", icon: "fa-regular fa-calendar" },
@@ -131,11 +148,38 @@ const tasksByColumn = computed(() => {
 const fetchProjectTasks = async () => {
   if (!projectId) return;
   tasks.value = await fetchTasks(projectId);
-  console.log("Задачи : ",await fetchTasks(projectId));
 };
 
 const handleAddTask = () => {
-  router.push({ name: "create-task", query: { projectId } });
+  router.push({ name: "create-task", query: { id: projectId, name: props.projectName } });
+};
+
+const handleTaskMove = async (event: any, newStatus: string) => {
+  const { added, moved } = event;
+  const task = added?.element || moved?.element;
+
+  if (task) {
+    task.status = newStatus;
+    await updateTask(task.id, { status: newStatus });
+  }
+};
+
+const onDragMove = (event: any) => {
+  const { related } = event;
+  const relatedElement = related.element as Task;
+
+  // Убираем индикатор у всех карточек
+  tasks.value.forEach((task: Task) => (task.isIndicator = false));
+
+  // Добавляем индикатор к карточке, над которой находится перетаскиваемая карточка
+  if (relatedElement) {
+    relatedElement.isIndicator = true;
+  }
+};
+
+const onDragEnd = () => {
+  // Убираем индикатор у всех карточек после завершения перетаскивания
+  tasks.value.forEach((task: Task) => (task.isIndicator = false));
 };
 
 onMounted(fetchProjectTasks);
@@ -149,6 +193,10 @@ onMounted(fetchProjectTasks);
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-  transform: translateX(-10px);
+  transform: translateY(10px);
+}
+
+.border-indicator {
+  border-bottom: 2px solid #3bf6ae; /* Синий бордер для индикатора */
 }
 </style>

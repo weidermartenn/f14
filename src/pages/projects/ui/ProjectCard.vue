@@ -97,7 +97,7 @@ const toggleMenu = () => {
 };
 
 const handleRedirect = (projectName: string) => {
-  router.push({ name: 'workspace', query: { name: projectName} });
+  router.push({ name: 'workspace', query: { name: projectName, projectId: props.project.id } });
 };
 
 const handleEdit = () => {

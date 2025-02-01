@@ -1,7 +1,7 @@
 <template>
     <div class="flex flex-col items-center">
         <span class="text-2xl "><code class="bg-bg-accent-dark text-white rounded-md px-2 py-1">{{ projectName }}</code></span>
-        <KanbanBoard />
+        <KanbanBoard :projectId="route.query.projectId" :projectName="route.query.name"/>
         <ActivityChart class="mb-20"/>
     </div>
 </template>
