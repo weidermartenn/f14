@@ -10,9 +10,21 @@ import BulletList from '@tiptap/extension-bullet-list';
 import OrderedList from '@tiptap/extension-ordered-list';
 import Blockquote from '@tiptap/extension-blockquote';
 
-export function useTextEditor() {
+export interface TextEditorActions {
+    editor: ReturnType<typeof useEditor>;
+    toggleBold: () => void;
+    toggleItalic: () => void;
+    toggleUnderline: () => void;
+    toggleStrike: () => void;
+    toggleLink: () => void;
+    toggleBulletList: () => void;
+    toggleOrderedList: () => void;
+    toggleBlockquote: () => void;
+  }
+
+export function useTextEditor(initialContent: string) {
     const editor = useEditor({
-        content: "",
+        content: initialContent,
         extensions: [
             StarterKit,
             Link.configure({

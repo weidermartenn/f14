@@ -1,0 +1,1 @@
+export { default as TaskDetail } from './ui/TaskDetail.vue'

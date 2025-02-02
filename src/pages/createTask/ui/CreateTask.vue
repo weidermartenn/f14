@@ -1,4 +1,12 @@
 <template>
+  <ConfirmationModal
+    :isOpen="isErrorModalOpen"
+    title="Ошибка"
+    message="Пожалуйста, введите название задачи"
+    confirmText="OK"
+    cancelText=""
+    @confirm="isErrorModalOpen = false"
+  />
   <div class="mt-28 flex flex-col items-center gap-4 px-4">
     <div>
       <button
@@ -8,6 +16,7 @@
         <i class="fa-solid fa-chevron-left"></i>
         <span>Вернуться назад</span>
       </button>
+      <button @click="sdf">sdf</button>
     </div>
     <div
       class="bg-bg-accent-dark p-8 rounded-lg shadow-lg w-full md:w-[90%] lg:w-[70%] grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4"
@@ -16,9 +25,7 @@
       <div>
         <span class="text-xl text-gray-300 ml-2">
           Создание задачи для проекта
-          <code
-            class="text-f14-font-dark bg-bg-dark rounded-md px-2 ml-2"
-          >
+          <code class="text-f14-font-dark bg-bg-dark rounded-md px-2 ml-2">
             {{ projectName }}
           </code>
         </span>
@@ -39,7 +46,7 @@
         <DatePicker v-model="selectedDate" placeholder="Выберите дату" />
         <div class="flex mt-4 gap-4 items-center">
           <span>Приоритет:</span>
-          <select class="bg-bg-accent-dark rounded-md p-2 cursor-pointer">
+          <select v-model="priority" class="bg-bg-accent-dark rounded-md p-2 cursor-pointer">
             <option value="1">Низкий</option>
             <option value="2">Средний</option>
             <option value="3">Высокий</option>
@@ -163,7 +170,10 @@
             </li>
           </ul>
         </div>
-        <button class="mt-10 flex justify-center gap-2 hover:text-gray-300">
+        <button
+          @click="createTask"
+          class="mt-10 flex justify-center gap-2 bg-blue-500 text-white rounded-md px-4 py-2 hover:bg-blue-600"
+        >
           Создать
         </button>
       </div>
@@ -179,20 +189,30 @@ import { TextEditor } from "@/widgets/editor";
 import { DatePicker } from "@/shared/ui/DatePicker";
 import { Label } from "@/widgets/label";
 import { supabase } from "@/shared/api/supabaseClient";
-import { fetchLabels, addLabel } from "@/shared/api/sbHelper";
+import { fetchLabels, addLabel, addTask, createTaskFolder, uploadFiles } from "@/shared/api/sbHelper";
 import { LoadingSpinner } from "@/shared/ui/LoadingSpinner";
 import { fileIcon } from "../model/extensions";
+import { generateId } from "@/shared/lib/generateId";
+import { ConfirmationModal } from "@/shared/ui/ConfirmationModal";
 
 const router = useRouter();
 const route = useRoute();
 const description = ref("");
+const priority = ref("1");
 
 const projectName = ref(route.query.name || "");
+const projectId = ref(route.query.id || "");
 
 const labels = ref<Label[]>([]);
 const selectedLabels = ref<Label[]>([]);
 const isAddingLabel = ref(false);
 const newLabel = ref("");
+
+const isErrorModalOpen = ref(false);
+
+const sdf = () => {
+  console.log(description.value);
+}
 
 onMounted(async () => {
   labels.value = await fetchLabels();
@@ -258,7 +278,7 @@ const toggleLabel = (label: Label) => {
 
 const isLabelSelected = (label: Label) => {
   return selectedLabels.value.some(
-    (selectedLabel) => selectedLabel.id === label.id
+    (selectedLabel: Label) => selectedLabel.id === label.id
   );
 };
 
@@ -272,9 +292,49 @@ const removeLabel = (index: number) => {
 
 const removeLabelFromSelected = (label: Label) => {
   selectedLabels.value = selectedLabels.value.filter(
-    (selectedLabel) => selectedLabel.id !== label.id
+    (selectedLabel: Label) => selectedLabel.id !== label.id
   );
 };
+
+const createTask = async () => {
+  try {
+    const taskId = generateId();
+
+    if (!projectId) {
+      alert("Проект не найден");
+      return router.back();
+    }
+
+    if (!name.value.trim()) {
+      isErrorModalOpen.value = true;
+      return;
+    }
+
+    const cleanDescription = description.value.replace(/<[^>]+>/gm, "").trim();
+
+    const taskData = {
+      id: taskId,
+      name: name.value,
+      description: cleanDescription.length > 0 ? description.value : null,
+      createdAt: new Date().toISOString(),
+      deadline: selectedDate.value?.toISOString(),
+      priority: parseInt(priority.value),
+      labels: selectedLabels.value.map((l: Label) => l.label),
+      status: "planned",
+      projectId: projectId.value
+    };
+    
+    await addTask(projectId.value, taskData);
+
+    await createTaskFolder(projectId.value, taskId);
+
+    await uploadFiles(projectId.value, taskId, selectedFiles.value);
+
+    router.back();
+  } catch (error) {
+    console.error("Ошибка при создании задачи:", error);
+  }
+}
 </script>
 
 <style scoped>

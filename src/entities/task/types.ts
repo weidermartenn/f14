@@ -6,7 +6,7 @@ export interface Task {
     deadline: Date;
     priority: number;
     isFrozen: boolean;
-    labels: string[] | null;
-    status: string;
+    labels?: string[] | null;
+    status: 'planned' | 'progress' | 'done';
     projectId: string;
 }

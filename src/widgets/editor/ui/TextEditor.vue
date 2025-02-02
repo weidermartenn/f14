@@ -100,9 +100,16 @@
 
 <script setup lang="ts">
 import { EditorContent } from "@tiptap/vue-3";
-import { useTextEditor } from "../model/useTextEditor";
+import { useTextEditor, type TextEditorActions } from "../model/useTextEditor";
+import { watch, defineProps, defineEmits } from "vue";
 
-const {
+const props = defineProps({
+  modelValue: String,
+});
+
+const emit = defineEmits(["update:modelValue"]);
+
+const { 
   editor,
   toggleBold,
   toggleItalic,
@@ -111,8 +118,13 @@ const {
   toggleLink,
   toggleBulletList,
   toggleOrderedList,
-  toggleBlockquote,
-} = useTextEditor();
+  toggleBlockquote
+} = useTextEditor(props.modelValue || '');
+
+watch(() => editor.value?.getHTML(), (newValue) => {
+  emit("update:modelValue", newValue || '');
+})
+
 </script>
 
 <style scoped>
@@ -155,5 +167,11 @@ const {
 /* Убедимся, что текст в списках виден */
 :deep(.tiptap li) {
   color: inherit; /* Наследует цвет текста */
+}
+
+:deep(.tiptap p:first-child:empty::before) {
+  content: "Введите описание задачи...";
+  color: #6b7280;
+  float: left;
 }
 </style>

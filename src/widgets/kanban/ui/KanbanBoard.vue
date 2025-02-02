@@ -20,7 +20,8 @@
     </div>
 
     <div v-if="tasks.length === 0" class="text-center text-gray-400 mt-4">
-      В этом проекте пока нет задач. Нажмите на кнопку выше, чтобы добавить новую задачу.
+      В этом проекте пока нет задач. Нажмите на кнопку выше, чтобы добавить
+      новую задачу.
     </div>
 
     <div v-else class="mr-12 flex items-center gap-4 relative">
@@ -35,7 +36,7 @@
         <div
           v-if="showTips"
           id="tips"
-          class="bg-bg-dark p-4 rounded-lg shadow-md shadow-black flex flex-col gap-3 absolute left-12 top-0"
+          class="bg-bg-dark p-4 rounded-lg shadow-md shadow-black flex flex-col gap-3 absolute left-12 top-0 z-50"
         >
           <div class="flex items-center gap-2">
             <button
@@ -93,11 +94,25 @@
           >
             <template #item="{ element }">
               <Transition name="fade">
-                <KanbanTaskCard
-                  :task="element"
-                  :class="{ 'border-indicator': element.isIndicator }"
-                  class="cursor-move"
-                />
+                <div class="relative">
+                  <div
+                    v-if="!loadingTasks[element.id]"
+                    class="transition-opacity duration-300"
+                  >
+                    <KanbanTaskCard
+                      :task="element"
+                      @delete="handleDeleteTask"
+                      :class="{ 'border-indicator': element.isIndicator }"
+                      class="cursor-move"
+                    />
+                  </div>
+                  <div
+                    v-if="loadingTasks[element.id]"
+                    class="absolute inset-0 flex items-center justify-center"
+                  >
+                    <LoadingSpinner />
+                  </div>
+                </div>
               </Transition>
             </template>
           </draggable>
@@ -108,11 +123,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive, computed } from "vue";
+import { ref, onMounted, reactive, computed, provide } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { KanbanTaskCard } from "..";
-import { fetchTasks, updateTask } from "@/shared/api/sbHelper";
+import { fetchTasks, updateTask, deleteTask, fetchLabels } from "@/shared/api/sbHelper";
 import type { Task } from "@/entities/task/types";
+import { LoadingSpinner } from "@/shared/ui/LoadingSpinner";
 import draggable from "vuedraggable";
 
 const showTips = ref(false);
@@ -120,6 +136,20 @@ const router = useRouter();
 const route = useRoute();
 const projectId = route.query.projectId as string;
 const tasks = ref<Task[]>([]);
+
+const loadingTasks = ref<Record<string, boolean>>({});
+
+const handleDeleteTask = async (taskId: string) => {
+  loadingTasks.value[taskId] = true;
+  try {
+    await deleteTask(taskId);
+    tasks.value = tasks.value.filter((task: Task) => task.id !== taskId);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    delete loadingTasks.value[taskId];
+  }
+}
 
 const props = defineProps({
   projectId: String,
@@ -151,7 +181,10 @@ const fetchProjectTasks = async () => {
 };
 
 const handleAddTask = () => {
-  router.push({ name: "create-task", query: { id: projectId, name: props.projectName } });
+  router.push({
+    name: "create-task",
+    query: { id: props.projectId, name: props.projectName },
+  });
 };
 
 const handleTaskMove = async (event: any, newStatus: string) => {
@@ -182,7 +215,10 @@ const onDragEnd = () => {
   tasks.value.forEach((task: Task) => (task.isIndicator = false));
 };
 
-onMounted(fetchProjectTasks);
+onMounted(async () => {
+  await fetchProjectTasks();
+});
+
 </script>
 
 <style>
