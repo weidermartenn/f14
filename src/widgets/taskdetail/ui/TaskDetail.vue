@@ -49,7 +49,7 @@
         </div>
 
         <!-- Описание -->
-        <div class="space-y-2">
+        <div class="bg-bg-accent-dark p-2 rounded-md">
           <h3 class="text-lg text-white">Описание</h3>
           <div
             class="text-zinc-300 prose prose-invert"
@@ -134,7 +134,7 @@ import { Label } from "@/widgets/label";
 import { ref, watch } from 'vue';
 import { fetchTaskFiles } from "@/shared/api/sbHelper";
 
-const props =defineProps({
+const props = defineProps({
   task: {
     type: Object as () => Task,
     required: true,
@@ -211,7 +211,7 @@ const loadAttachments = async () => {
       taskId: props.task.id
     });
     
-    const files = await fetchTaskFiles(props.task.project_id, props.task.id);
+    const files = await fetchTaskFiles(props.task.projectId, props.task.id);
     console.log('Received files:', files);
     
     attachments.value = files;

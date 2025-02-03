@@ -16,7 +16,6 @@
         <i class="fa-solid fa-chevron-left"></i>
         <span>Вернуться назад</span>
       </button>
-      <button @click="sdf">sdf</button>
     </div>
     <div
       class="bg-bg-accent-dark p-8 rounded-lg shadow-lg w-full md:w-[90%] lg:w-[70%] grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4"
@@ -209,10 +208,6 @@ const isAddingLabel = ref(false);
 const newLabel = ref("");
 
 const isErrorModalOpen = ref(false);
-
-const sdf = () => {
-  console.log(description.value);
-}
 
 onMounted(async () => {
   labels.value = await fetchLabels();

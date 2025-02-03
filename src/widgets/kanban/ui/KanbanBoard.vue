@@ -73,11 +73,11 @@
         </div>
       </Transition>
 
-      <div class="flex gap-4 w-[1000px] h-[600px]">
+      <div class="grid grid-cols-3 ] gap-4">
         <div
           v-for="column in columns"
           :key="column.id"
-          class="flex-1 bg-bg-accent-dark rounded-lg p-4 shadow-md shadow-black flex flex-col"
+          class="flex-1 bg-bg-accent-dark rounded-lg p-4 shadow-md shadow-black flex flex-col min-h-[600px] max-h-[600px]"
         >
           <div class="flex justify-center">
             <i :class="column.icon" class="text-3xl text-gray-400 mb-2"></i>
@@ -85,9 +85,10 @@
           <h3 class="text-center text-white">{{ column.title }}</h3>
           <draggable
             :list="tasksByColumn[column.id]"
+            :move="checkMove"
             group="tasks"
             item-key="id"
-            class="mt-10 flex flex-col gap-2 overflow-y-auto flex-1"
+            class="mt-10 flex flex-col gap-2 p-4 overflow-y-auto flex-1"
             @change="(event) => handleTaskMove(event, column.id)"
             @move="onDragMove"
             @end="onDragEnd"
@@ -101,6 +102,8 @@
                   >
                     <KanbanTaskCard
                       :task="element"
+                      @hide="handleHideTask"
+                      @freeze="handleFreezeTask"
                       @delete="handleDeleteTask"
                       :class="{ 'border-indicator': element.isIndicator }"
                       class="cursor-move"
@@ -119,16 +122,58 @@
         </div>
       </div>
     </div>
+    <div class="mt-10 w-full px-4 flex justify-center">
+      <div v-if="hiddenTasks.length > 0">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-2xl text-gray-300">Скрытые задачи</span>
+          <button
+            @click="isHiddenExpanded = !isHiddenExpanded"
+            class="text-gray-400 hover:text-white transition-colors"
+          >
+            <i
+              :class="
+                isHiddenExpanded
+                  ? 'fa-solid fa-chevron-down'
+                  : 'fa-solid fa-chevron-up'
+              "
+            ></i>
+          </button>
+        </div>
+
+        <Transition name="slide">
+          <div v-if="isHiddenExpanded" class="overflow-x-auto pb-4">
+            <div class="flex gap-4 min-h-[200px]">
+              <KanbanTaskCard
+                v-for="task in hiddenTasks"
+                :key="task.id"
+                :task="task"
+                class="flex-shrink-0 w-72"
+                @hide="handleHideTask"
+                @freeze="handleFreezeTask"
+                @delete="handleDeleteTask"
+              />
+            </div>
+          </div>
+        </Transition>
+      </div>
+
+      <div v-else class="text-center">
+        <span class="text-2xl text-gray-300">Скрытые задачи</span>
+        <div class="mt-4 text-gray-400">Пока нет скрытых задач</div>
+      </div>
+    </div>
   </div>
+  <Notification :notifications="notifications" @close="removeNotification" />
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive, computed, provide } from "vue";
+import { ref, onMounted, reactive, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { KanbanTaskCard } from "..";
-import { fetchTasks, updateTask, deleteTask, fetchLabels } from "@/shared/api/sbHelper";
+import { fetchTasks, updateTask, deleteTask } from "@/shared/api/sbHelper";
 import type { Task } from "@/entities/task/types";
 import { LoadingSpinner } from "@/shared/ui/LoadingSpinner";
+import { Notification } from "@/widgets/notification";
 import draggable from "vuedraggable";
 
 const showTips = ref(false);
@@ -138,6 +183,33 @@ const projectId = route.query.projectId as string;
 const tasks = ref<Task[]>([]);
 
 const loadingTasks = ref<Record<string, boolean>>({});
+
+const isHiddenExpanded = ref(false);
+
+const notifications = ref<
+  Array<{ id: string; message: string; type: "success" | "error" }>
+>([]);
+let notificationId = 0;
+
+const addNotification = (
+  message: string,
+  type: "success" | "error" = "success"
+) => {
+  const id = `notify-${notificationId++}`;
+  notifications.value.unshift({ id, message, type });
+
+  if (notifications.value.length > 5) {
+    notifications.value.pop();
+  }
+
+  setTimeout(() => {
+    removeNotification(id);
+  }, 3000);
+};
+
+const removeNotification = (id: string) => {
+  notifications.value = notifications.value.filter((n) => n.id !== id);
+};
 
 const handleDeleteTask = async (taskId: string) => {
   loadingTasks.value[taskId] = true;
@@ -149,7 +221,55 @@ const handleDeleteTask = async (taskId: string) => {
   } finally {
     delete loadingTasks.value[taskId];
   }
-}
+};
+
+const handleHideTask = async (taskId: string) => {
+  try {
+    const task = tasks.value.find((task: Task) => task.id === taskId);
+
+    if (task) {
+      const newHideState = !task.isVisible;
+      await updateTask(taskId, { isVisible: newHideState });
+      task.isVisible = newHideState;
+
+      addNotification(
+        `Задача "${task.name}" ${
+          newHideState ? "теперь скрыта" : "снова доступна"
+        }`,
+        "success"
+      );
+    }
+  } catch (err) {
+    addNotification("Ошибка скрытия задачи", "error");
+    console.error("Ошибка при изменении состояния задачи:", err);
+  }
+};
+
+const hiddenTasks = computed(() => {
+  return tasks.value.filter((task: Task) => task.isVisible);
+});
+
+const handleFreezeTask = async (taskId: string) => {
+  try {
+    const task = tasks.value.find((task: Task) => task.id === taskId);
+
+    if (task) {
+      const newFrozenState = !task.isFrozen;
+      await updateTask(taskId, { isFrozen: newFrozenState });
+      task.isFrozen = newFrozenState;
+
+      addNotification(
+        `Задача "${task.name}" ${
+          newFrozenState ? "заморожена" : "разморожена"
+        }`,
+        "success"
+      );
+    }
+  } catch (err) {
+    addNotification("Ошибка заморозки задачи", "error");
+    console.error("Ошибка при изменении состояния задачи:", err);
+  }
+};
 
 const props = defineProps({
   projectId: String,
@@ -168,9 +288,11 @@ const tasksByColumn = computed(() => {
     progress: [],
     done: [],
   };
-  tasks.value.forEach((task: Task) => {
-    groupedTasks[task.status].push(task);
-  });
+  tasks.value
+    .filter((task: Task) => !task.isVisible)
+    .forEach((task: Task) => {
+      groupedTasks[task.status].push(task);
+    });
 
   return groupedTasks;
 });
@@ -185,6 +307,10 @@ const handleAddTask = () => {
     name: "create-task",
     query: { id: props.projectId, name: props.projectName },
   });
+};
+
+const checkMove = (event: any) => {
+  return !event.draggedContext.element.isFrozen;
 };
 
 const handleTaskMove = async (event: any, newStatus: string) => {
@@ -218,7 +344,6 @@ const onDragEnd = () => {
 onMounted(async () => {
   await fetchProjectTasks();
 });
-
 </script>
 
 <style>
@@ -234,5 +359,38 @@ onMounted(async () => {
 
 .border-indicator {
   border-bottom: 2px solid #3bf6ae; /* Синий бордер для индикатора */
+}
+
+/* Анимация для раскрытия/сворачивания */
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.3s ease;
+  max-height: 500px; /* Максимальная ожидаемая высота */
+  overflow: hidden;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  opacity: 0;
+  max-height: 0;
+}
+
+/* Стили для горизонтального скролла */
+.overflow-x-auto {
+  scrollbar-width: thin;
+  scrollbar-color: #3f3f46 #27272a;
+}
+
+.overflow-x-auto::-webkit-scrollbar {
+  height: 8px;
+}
+
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: #27272a;
+}
+
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background-color: #3f3f46;
+  border-radius: 4px;
 }
 </style>

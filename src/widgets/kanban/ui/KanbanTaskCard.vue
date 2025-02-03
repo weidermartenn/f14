@@ -1,15 +1,18 @@
 <template>
-  <div class="w-72 h-42 p-2 flex flex-col justify-between bg-bg-dark rounded-md border-2 border-gray-700 hover:border-blue-500 cursor-pointer">
+  <div 
+  :class="['w-72 h-42 p-2 flex flex-col justify-between rounded-md border-2 cursor-pointer',
+    task.isFrozen ? 'bg-gray-800 border-gray-600' : 'bg-bg-dark border-gray-700 hover:border-blue-500'
+  ]">
     <TaskDetail :task="task" :isOpen="isOpen" @close="handleClose"/>
     <div class="flex justify-between gap-4">
         <button id="edit" class="hover:bg-gray-600 w-6 h-6 flex items-center justify-center rounded-full duration-150">
           <i class="fa-solid fa-pen-to-square"></i>
         </button>
-        <button id="froze" class="hover:bg-gray-600 w-6 h-6 flex items-center justify-center rounded-full duration-150">
-          <i class="fa-solid fa-snowflake"></i>
+        <button @click="handleFreezeTask" id="froze" class="hover:bg-gray-600 w-6 h-6 flex items-center justify-center rounded-full duration-150">
+          <i class="fa-solid fa-snowflake" :class="task.isFrozen ? 'text-gray-300' : ''"></i>
         </button>
-        <button id="hide" class="hover:bg-gray-600 w-6 h-6 flex items-center justify-center rounded-full duration-150">
-          <i class="fa-solid fa-eye-slash"></i>
+        <button @click="handleHideTask" id="hide" class="hover:bg-gray-600 w-6 h-6 flex items-center justify-center rounded-full duration-150">
+          <i :class="task.isVisible ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
         </button>
         <button @click="handleDeleteTask" id="delete" class="hover:bg-gray-600 w-6 h-6 flex items-center justify-center rounded-full duration-150">
           <i class="fa-regular fa-trash-can"></i>
@@ -51,7 +54,7 @@ const props = defineProps<{
   task: Task;
 }>();
 
-const emit = defineEmits(['delete']);
+const emit = defineEmits(['delete', 'freeze', 'hide']);
 
 const isOpen = ref(false);
 
@@ -64,11 +67,6 @@ const getPriorityLabel = (priority: Label) => {
   }
 }
 
-/**
- * Format date to string in format dd.mm.yyyy
- * @param {Date} date
- * @returns {string}
- */
 const formatDate = (date: Date) => {
   return new Date(date).toLocaleDateString('ru-RU');
 };
@@ -77,6 +75,13 @@ const handleDeleteTask = async () => {
   emit('delete', props.task.id);
 }
 
+const handleHideTask = async () => {
+  emit('hide', props.task.id)
+}
+
+const handleFreezeTask = async () => {
+  emit('freeze', props.task.id);
+}
 
 const handleClick = () => {
   isOpen.value = !isOpen.value;
