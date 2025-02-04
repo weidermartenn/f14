@@ -1,5 +1,5 @@
 <template>
-    <div class="min-h-screen flex flex-col items-center justify-center overflow-hidden">
+    <div class="flex flex-col items-center justify-center overflow-hidden mt-52">
       <button @click="router.back" class="flex items-center gap-2 hover:text-gray-300">
             <i class="fa-solid fa-chevron-left"></i>
             <span>Вернуться назад</span>

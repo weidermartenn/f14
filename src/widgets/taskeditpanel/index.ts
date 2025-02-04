@@ -1,0 +1,1 @@
+export { default as TaskEditPanel } from './ui/TaskEditPanel.vue'

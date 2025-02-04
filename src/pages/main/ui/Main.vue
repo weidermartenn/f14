@@ -1,7 +1,7 @@
 <template>
     <div>
         <!-- Онлайн-состояние -->
-        <div class="min-w-full flex flex-col items-center gap-10 p-4" v-if="isOnline">
+        <div class="min-w-full flex flex-col items-center gap-10 p-4 mb-14" v-if="isOnline">
             <!-- Приветственный блок -->
             <div class="flex flex-col justify-center items-center w-[44rem] h-[12rem] bg-zinc-900 rounded-md gap-6">
                 <span class="text-xl text-white">Добро пожаловать на FKanban</span>

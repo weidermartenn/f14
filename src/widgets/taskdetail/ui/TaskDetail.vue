@@ -52,7 +52,7 @@
         <div class="bg-bg-accent-dark p-2 rounded-md">
           <h3 class="text-lg text-white">Описание</h3>
           <div
-            class="text-zinc-300 prose prose-invert"
+            class="text-zinc-300 prose prose-invert break-words"
             v-html="task.description || 'Нет описания'"
           ></div>
         </div>

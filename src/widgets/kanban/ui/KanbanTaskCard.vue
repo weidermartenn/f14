@@ -1,11 +1,12 @@
 <template>
+  <TaskEditPanel :task="task" :isOpen="isEditPanelOpen" @close="handleEditClose" @updated="handleTaskUpdated"/>
   <div 
   :class="['w-72 h-42 p-2 flex flex-col justify-between rounded-md border-2 cursor-pointer',
     task.isFrozen ? 'bg-gray-800 border-gray-600' : 'bg-bg-dark border-gray-700 hover:border-blue-500'
   ]">
     <TaskDetail :task="task" :isOpen="isOpen" @close="handleClose"/>
     <div class="flex justify-between gap-4">
-        <button id="edit" class="hover:bg-gray-600 w-6 h-6 flex items-center justify-center rounded-full duration-150">
+        <button @click="handleEditTask" id="edit" class="hover:bg-gray-600 w-6 h-6 flex items-center justify-center rounded-full duration-150">
           <i class="fa-solid fa-pen-to-square"></i>
         </button>
         <button @click="handleFreezeTask" id="froze" class="hover:bg-gray-600 w-6 h-6 flex items-center justify-center rounded-full duration-150">
@@ -49,14 +50,16 @@ import type { Task } from '@/entities/task/types';
 import { deleteTask } from '@/shared/api/sbHelper';
 import { defineProps, defineEmits, ref } from 'vue';
 import { TaskDetail } from '@/widgets/taskdetail';
+import { TaskEditPanel } from '@/widgets/taskeditpanel';
 
 const props = defineProps<{
   task: Task;
 }>();
 
-const emit = defineEmits(['delete', 'freeze', 'hide']);
+const emit = defineEmits(['edit', 'delete', 'freeze', 'hide']);
 
 const isOpen = ref(false);
+const isEditPanelOpen = ref(false);
 
 const getPriorityLabel = (priority: Label) => {
   switch (priority) {
@@ -67,9 +70,19 @@ const getPriorityLabel = (priority: Label) => {
   }
 }
 
+const handleTaskUpdated = (updatedTask: Task) => {
+  emit('edit', updatedTask);
+  isEditPanelOpen.value = false;
+}
+
 const formatDate = (date: Date) => {
   return new Date(date).toLocaleDateString('ru-RU');
 };
+
+const handleEditTask = async () => {
+  emit('edit', props.task.id)
+  isEditPanelOpen.value = true
+}
 
 const handleDeleteTask = async () => {
   emit('delete', props.task.id);
@@ -89,6 +102,10 @@ const handleClick = () => {
 
 const handleClose = () => {
   isOpen.value = false;
+}
+
+const handleEditClose = () => {
+  isEditPanelOpen.value = false;
 }
 </script>
 

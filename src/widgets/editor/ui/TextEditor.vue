@@ -89,10 +89,10 @@
       </div>
     </div>
     <div
-      class="bg-bg-dark h-96 ml-2 rounded-lg p-2 flex justify-between gap-4 px-4 text-gray-300 overflow-y-auto max-h-[600px]"
+      class="bg-bg-dark h-96 ml-2 rounded-lg p-2 flex justify-between gap-4 px-4 text-gray-300 overflow-y-auto max-h-[650px]"
     >
       <div class="w-full h-full">
-        <editor-content :editor="editor" class="h-full w-full max-w-[95%] break-words" />
+        <editor-content :editor="editor" class="h-full break-words" />
       </div>
     </div>
   </div>
@@ -133,6 +133,9 @@ watch(() => editor.value?.getHTML(), (newValue) => {
   padding: 1rem;
   height: 100%;
   outline: none;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+  min-width: 0;
 }
 
 :deep(.tiptap p) {

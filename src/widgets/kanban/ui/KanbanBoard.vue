@@ -73,7 +73,7 @@
         </div>
       </Transition>
 
-      <div class="grid grid-cols-3 ] gap-4">
+      <div class="grid grid-cols-3 gap-4">
         <div
           v-for="column in columns"
           :key="column.id"
@@ -148,6 +148,7 @@
                 :key="task.id"
                 :task="task"
                 class="flex-shrink-0 w-72"
+                @edit="handleEditTask"
                 @hide="handleHideTask"
                 @freeze="handleFreezeTask"
                 @delete="handleDeleteTask"
@@ -211,15 +212,25 @@ const removeNotification = (id: string) => {
   notifications.value = notifications.value.filter((n) => n.id !== id);
 };
 
+const handleEditTask = async (taskId: string) => {
+  const task = tasks.value.find((task: Task) => task.id === taskId);
+}
+
 const handleDeleteTask = async (taskId: string) => {
   loadingTasks.value[taskId] = true;
-  try {
-    await deleteTask(taskId);
-    tasks.value = tasks.value.filter((task: Task) => task.id !== taskId);
-  } catch (err) {
-    console.error(err);
-  } finally {
-    delete loadingTasks.value[taskId];
+  const task = tasks.value.find((task: Task) => task.id === taskId);
+
+  if (task) {
+    try {
+      await deleteTask(taskId); 
+
+      tasks.value = tasks.value.filter((task: Task) => task.id !== taskId);
+
+      addNotification(`Задача "${task.name}" удалена`, "success");
+    } catch (err) {
+      addNotification("Ошибка удаления задачи", "error");
+      console.error("Ошибка при удалении задачи:", err);
+    }
   }
 };
 
