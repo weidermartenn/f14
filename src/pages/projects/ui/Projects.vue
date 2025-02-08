@@ -1,5 +1,5 @@
 <template>
-  <div class="px-20 py-10">
+  <div class="px-20 py-10 min-h-[calc(100vh-180px)]">
     <h2 class="text-3xl mt-4">Все проекты</h2>
     <span class="text-gray-300"
       >Ниже отображаются все созданные вами проекты.</span

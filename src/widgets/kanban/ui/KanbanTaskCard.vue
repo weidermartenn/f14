@@ -15,7 +15,7 @@
         <button @click="handleHideTask" id="hide" class="hover:bg-gray-600 w-6 h-6 flex items-center justify-center rounded-full duration-150">
           <i :class="task.isVisible ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye'"></i>
         </button>
-        <button @click="handleDeleteTask" id="delete" class="hover:bg-gray-600 w-6 h-6 flex items-center justify-center rounded-full duration-150">
+        <button @click="handleDeleteModalOpen" id="delete" class="hover:bg-gray-600 w-6 h-6 flex items-center justify-center rounded-full duration-150">
           <i class="fa-regular fa-trash-can"></i>
         </button>
     </div>
@@ -41,6 +41,15 @@
         <span class="text-sm">{{ formatDate(task.deadline) }}</span>
       </div>
     </div>
+    <ConfirmationModal
+      :is-open="isDeleteModalOpen"
+      title="Удалить проект?"
+      :message="`Вы уверены, что хотите удалить задачу ${task.name}? Это действие нельзя отменить.`"
+      confirm-text="Удалить"
+      :is-loading="isDeleting"
+      @confirm="handleDeleteTask"
+      @cancel="cancelDelete" 
+    />
   </div>
 </template>
 
@@ -51,6 +60,7 @@ import { deleteTask } from '@/shared/api/sbHelper';
 import { defineProps, defineEmits, ref } from 'vue';
 import { TaskDetail } from '@/widgets/taskdetail';
 import { TaskEditPanel } from '@/widgets/taskeditpanel';
+import { ConfirmationModal } from '@/shared/ui/ConfirmationModal';
 
 const props = defineProps<{
   task: Task;
@@ -60,6 +70,7 @@ const emit = defineEmits(['edit', 'delete', 'freeze', 'hide']);
 
 const isOpen = ref(false);
 const isEditPanelOpen = ref(false);
+const isDeleteModalOpen = ref(false);
 
 const getPriorityLabel = (priority: Label) => {
   switch (priority) {
@@ -106,6 +117,14 @@ const handleClose = () => {
 
 const handleEditClose = () => {
   isEditPanelOpen.value = false;
+}
+
+const handleDeleteModalOpen = () => {
+  isDeleteModalOpen.value = true;
+}
+
+const cancelDelete = () => {
+  isDeleteModalOpen.value = false;
 }
 </script>
 
