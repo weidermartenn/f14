@@ -8,7 +8,8 @@
                     <span class="text-sm">Доска задач для индивидуальных разработчиков</span>
                 </div>
             </div>
-            <div class="flex flex-row">
+            <div class="flex flex-row items-center">
+                <ChangeThemeButton class="mr-20"/>
                 <button v-if="user" class="mr-20 hover:text-hover-text" @click="projectsClick">Проекты</button>
                 <section class="flex gap-4 mr-6">
                 <div v-if="user" class="flex flex-col items-center">
@@ -31,6 +32,7 @@ import logo from "@/app/assets/wflogo.svg";
 import { useRouter } from "vue-router";
 import { user } from "@/shared/lib/auth";
 import { supabase } from "@/shared/api/supabaseClient";
+import { ChangeThemeButton } from "@/features/change-theme";
 
 const router = useRouter();
 

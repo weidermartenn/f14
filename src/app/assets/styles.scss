@@ -2,22 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-    scroll-behavior: smooth;
-}
-
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-body {
+html, body {
     @apply bg-bg dark:bg-bg-dark text-f14-font dark:text-f14-font-dark font-Rubik;
-
+    scroll-behavior: smooth;
     .hover-text {
         @apply hover:text-hover-text hover:scale-105 cursor-pointer duration-150;
     }
+
+    background-color: theme('colors.bg');
+    color: theme('colors.f14-font');
+    transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+.dark {
+    background-color: theme('colors.bg-dark');
+    color: theme('colors.f14-font-dark');
 }
 
 input::-webkit-outer-spin-button,

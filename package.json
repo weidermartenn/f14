@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.48.0",
-    "@tanstack/vue-query": "^5.64.2",
+    "@tanstack/vue-query": "^5.66.0",
     "@tiptap/extension-blockquote": "^2.11.3",
     "@tiptap/extension-bold": "^2.11.3",
     "@tiptap/extension-bullet-list": "^2.11.3",
