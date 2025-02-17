@@ -21,58 +21,56 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, onMounted } from 'vue';
 
 const isDark = ref(false);
 const isRotating = ref(false);
+const isInitialLoad = ref(true);
 
 const toggleTheme = () => {
   isRotating.value = true;
   setTimeout(() => {
     isRotating.value = false;
   }, 500);
-
+  
   isDark.value = !isDark.value;
-  updateTheme();
+  updateTheme(true);
 };
 
-const updateTheme = () => {
+const updateTheme = (withAnimation: boolean) => {
   const root = document.documentElement;
-  root.style.transition = "background-color 0.5s ease, color 0.5s ease";
-
-  if (isDark.value) {
-    root.classList.add("dark");
-    localStorage.theme = "dark";
-  } else {
-    root.classList.remove("dark");
-    localStorage.theme = "light";
+  
+  if (withAnimation) {
+    root.style.transition = 'background-color 0.5s ease, color 0.5s ease';
   }
 
-  setTimeout(() => {
-    root.style.transition = "";
-  }, 500);
+  if (isDark.value) {
+    root.classList.add('dark');
+    localStorage.theme = 'dark';
+  } else {
+    root.classList.remove('dark');
+    localStorage.theme = 'light';
+  }
+
+  if (withAnimation) {
+    setTimeout(() => {
+      root.style.transition = '';
+    }, 500);
+  }
 };
 
 onMounted(() => {
   const savedTheme = localStorage.theme;
-  const root = document.documentElement;
-
-  root.style.transition = "background-color 0.5s ease, color 0.5s ease";
-
-  if (
-    savedTheme === "dark" ||
-    (!savedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches)
-  ) {
-    isDark.value = true;
-    root.classList.add("dark");
-  } else {
-    isDark.value = false;
-    root.classList.remove("dark");
-  }
-
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  
+  // Применяем тему без анимации
+  isDark.value = savedTheme === 'dark' || (!savedTheme && prefersDark);
+  updateTheme(false);
+  
+  // Убираем флаг начальной загрузки после первого рендера
   setTimeout(() => {
-    root.style.transition = "";
-  }, 500);
+    isInitialLoad.value = false;
+  }, 100);
 });
 </script>
 
@@ -95,5 +93,21 @@ onMounted(() => {
 .icon-fade-leave-to {
   opacity: 0;
   transform: rotate(90deg);
+}
+
+/* Глобальные стили в вашем основном CSS-файле */
+html {
+  background-color: theme('colors.bg');
+  color: theme('colors.f14-font');
+}
+
+.dark {
+  background-color: theme('colors.bg-dark');
+  color: theme('colors.f14-font-dark');
+}
+
+html,
+body {
+  transition: background-color 0.5s ease, color 0.5s ease;
 }
 </style>
