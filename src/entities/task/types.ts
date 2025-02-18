@@ -1,13 +1,14 @@
 export interface Task {
     id: string;
-    createdAt: Date;
+    createdAt: string;
     name: string;
     description: string | null;
-    deadline: Date;
+    deadline: string;
     priority: number;
     isFrozen: boolean;
     isVisible: boolean;
     labels?: string[] | null;
     status: 'planned' | 'progress' | 'done';
     projectId: string;
+    isIndicator?: boolean;
 }

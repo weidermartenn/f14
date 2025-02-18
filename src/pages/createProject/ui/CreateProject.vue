@@ -11,7 +11,7 @@
       <h2 class="text-2xl font-bold mb-6 text-center">
         Придумайте название для проекта
       </h2>
-      <form @submit.prevent="createProject">
+      <form @submit.prevent="createProject!!">
         <Input
           type="text"
           v-model="input"
@@ -34,12 +34,12 @@
 </template>
 
 <script setup lang="ts">
-import { Input } from "@/shared/ui/Input";
+import { Input } from "../../../shared/ui/Input";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import { supabase } from "@/shared/api/supabaseClient";
-import { generateId } from "@/shared/lib/generateId";
-import { createProject } from "@/shared/api/sbHelper"; // Импортируем новую функцию
+import { supabase } from "../../../shared/api/supabaseClient";
+import { generateId } from "../../../shared/lib/generateId";
+import { createProject } from "../../../shared/api/sbHelper"; // Импортируем новую функцию
 
 const loading = ref(false);
 const input = ref("");

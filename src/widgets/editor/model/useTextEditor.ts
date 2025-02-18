@@ -1,5 +1,4 @@
-import { ref } from 'vue';
-import { useEditor, Editor } from '@tiptap/vue-3';
+import { useEditor } from '@tiptap/vue-3';
 import StarterKit from "@tiptap/starter-kit";
 import Link from '@tiptap/extension-link';
 import Bold from '@tiptap/extension-bold';

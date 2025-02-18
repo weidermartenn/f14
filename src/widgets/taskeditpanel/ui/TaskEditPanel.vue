@@ -43,7 +43,7 @@
             </label>
             <TextEditor
               @click.stop
-              v-model="formData.description"
+              v-model="formData.description!!"
               class="bg-bg-accent-dark rounded-md"
             />
           </div>
@@ -116,9 +116,9 @@
 
 <script setup lang="ts">
 import { ref, watch, defineProps, defineEmits } from "vue";
-import { TextEditor } from "@/widgets/editor";
-import { updateTask } from "@/shared/api/sbHelper";
-import type { Task } from "@/entities/task/types";
+import { TextEditor } from "../../../widgets/editor";
+import { updateTask } from "../../../shared/api/sbHelper";
+import type { Task } from "../../../entities/task/types";
 
 const props = defineProps({
   task: {
@@ -135,7 +135,7 @@ const formData = ref({
   description: props.task.description,
   status: props.task.status,
   priority: props.task.priority,
-  deadline: props.task.deadline ? formatDateTime(props.task.deadline) : null,
+  deadline: props.task.deadline ? formatDateTime(props.task.deadline) : undefined,
 });
 
 const isSubmitting = ref(false);
@@ -155,7 +155,7 @@ watch(
       description: newTask.description,
       status: newTask.status,
       priority: newTask.priority,
-      deadline: newTask.deadline ? formatDateTime(newTask.deadline) : null,
+      deadline: newTask.deadline ? formatDateTime(newTask.deadline) : undefined,
     };
   }
 );
@@ -167,8 +167,8 @@ const handleSubmit = async () => {
     const updatedData = {
       ...formData.value,
       deadline: formData.value.deadline
-        ? new Date(formData.value.deadline)
-        : null,
+        ? formData.value.deadline
+        : undefined,
     };
 
     await updateTask(props.task.id, updatedData);

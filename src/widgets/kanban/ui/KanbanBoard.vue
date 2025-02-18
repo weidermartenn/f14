@@ -171,10 +171,10 @@
 import { ref, onMounted, reactive, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { KanbanTaskCard } from "..";
-import { fetchTasks, updateTask, deleteTask } from "@/shared/api/sbHelper";
-import type { Task } from "@/entities/task/types";
-import { LoadingSpinner } from "@/shared/ui/LoadingSpinner";
-import { Notification } from "@/widgets/notification";
+import { fetchTasks, updateTask, deleteTask } from "../../../shared/api/sbHelper";
+import type { Task } from "../../../entities/task/types";
+import { LoadingSpinner } from "../../../shared/ui/LoadingSpinner";
+import { Notification } from "../../../widgets/notification";
 import draggable from "vuedraggable";
 
 const showTips = ref(false);
@@ -213,7 +213,7 @@ const removeNotification = (id: string) => {
 };
 
 const handleEditTask = async (taskId: string) => {
-  const task = tasks.value.find((task: Task) => task.id === taskId);
+  tasks.value.find((task: Task) => task.id === taskId);
 }
 
 const handleDeleteTask = async (taskId: string) => {
@@ -257,7 +257,7 @@ const handleHideTask = async (taskId: string) => {
 };
 
 const hiddenTasks = computed(() => {
-  return tasks.value.filter((task: Task) => task.isVisible);
+  return tasks.value.filter((task: Task) => !task.isVisible);
 });
 
 const handleFreezeTask = async (taskId: string) => {
@@ -283,14 +283,22 @@ const handleFreezeTask = async (taskId: string) => {
 };
 
 const props = defineProps({
-  projectId: String,
-  projectName: String,
+  projectId: {
+    type: String,
+    required: true,
+    default: "",
+  },
+  projectName: {
+    type: String,
+    required: true,
+    default: "",
+  },
 });
 
 const columns = reactive([
-  { id: "planned", title: "Запланировано", icon: "fa-regular fa-calendar" },
-  { id: "progress", title: "В работе", icon: "fa-solid fa-bars-staggered" },
-  { id: "done", title: "Завершено", icon: "fa-solid fa-check" },
+  { id: "planned" as const, title: "Запланировано", icon: "fa-regular fa-calendar" },
+  { id: "progress" as const, title: "В работе", icon: "fa-solid fa-bars-staggered" },
+  { id: "done" as const, title: "Завершено", icon: "fa-solid fa-check" },
 ]);
 
 const tasksByColumn = computed(() => {
@@ -300,7 +308,7 @@ const tasksByColumn = computed(() => {
     done: [],
   };
   tasks.value
-    .filter((task: Task) => !task.isVisible)
+    .filter((task: Task) => task.isVisible)
     .forEach((task: Task) => {
       groupedTasks[task.status].push(task);
     });
@@ -324,7 +332,7 @@ const checkMove = (event: any) => {
   return !event.draggedContext.element.isFrozen;
 };
 
-const handleTaskMove = async (event: any, newStatus: string) => {
+const handleTaskMove = async (event: any, newStatus: 'planned' | 'progress' | 'done') => {
   const { added, moved } = event;
   const task = added?.element || moved?.element;
 

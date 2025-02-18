@@ -42,7 +42,7 @@
         class="flex flex-col gap-4 bg-bg-dark rounded-md p-4 overflow-y-auto max-h-[550px] max-w-[400px] w-full"
       >
         <span>Выполнить до:</span>
-        <DatePicker v-model="selectedDate" placeholder="Выберите дату" />
+        <DatePicker v-model="selectedDate!!" placeholder="Выберите дату" />
         <div class="flex mt-4 gap-4 items-center">
           <span>Приоритет:</span>
           <select v-model="priority" class="bg-bg-accent-dark rounded-md p-2 cursor-pointer">
@@ -182,17 +182,17 @@
 
 <script setup lang="ts">
 import { useRouter, useRoute } from "vue-router";
-import { ref, onMounted} from "vue";
-import { Input } from "@/shared/ui/Input";
-import { TextEditor } from "@/widgets/editor";
-import { DatePicker } from "@/shared/ui/DatePicker";
-import { Label } from "@/widgets/label";
-import { supabase } from "@/shared/api/supabaseClient";
-import { fetchLabels, addLabel, addTask, createTaskFolder, uploadFiles } from "@/shared/api/sbHelper";
-import { LoadingSpinner } from "@/shared/ui/LoadingSpinner";
+import { ref, onMounted } from "vue";
+import { Input } from "../../../shared/ui/Input";
+import { TextEditor } from "../../../widgets/editor";
+import { DatePicker } from "../../../shared/ui/DatePicker";
+import { Label } from "../../../widgets/label";
+import type { TLabel } from '../../../entities/label/types';
+import { fetchLabels, addLabel, addTask, createTaskFolder, uploadFiles } from "../../../shared/api/sbHelper";
+import { LoadingSpinner } from "../../../shared/ui/LoadingSpinner";
 import { fileIcon } from "../model/extensions";
-import { generateId } from "@/shared/lib/generateId";
-import { ConfirmationModal } from "@/shared/ui/ConfirmationModal";
+import { generateId } from "../../../shared/lib/generateId";
+import { ConfirmationModal } from "../../../shared/ui/ConfirmationModal";
 
 const router = useRouter();
 const route = useRoute();
@@ -202,8 +202,8 @@ const priority = ref("1");
 const projectName = ref(route.query.name || "");
 const projectId = ref(route.query.id || "");
 
-const labels = ref<Label[]>([]);
-const selectedLabels = ref<Label[]>([]);
+const labels = ref<TLabel[]>([]);
+const selectedLabels = ref<TLabel[]>([]);
 const isAddingLabel = ref(false);
 const newLabel = ref("");
 
@@ -236,7 +236,6 @@ const removeFile = (index: number) => {
 
 const getIcon = (file: File) => {
   const extension = file.name.split(".").pop()?.toLowerCase() || "";
-
   return fileIcon(extension);
 };
 
@@ -247,9 +246,12 @@ const startAddLabel = () => {
 const confirmAddLabel = async () => {
   if (newLabel.value.trim()) {
     try {
-      const label = { label: newLabel.value };
+      const label = {
+        id: Date.now(), // Временное решение, пока сервер не вернет настоящий ID
+        label: newLabel.value
+      };
       await addLabel(label);
-      labels.value = await fetchLabels(); // Обновляем список меток
+      labels.value = await fetchLabels();
       newLabel.value = "";
       isAddingLabel.value = false;
     } catch (error) {
@@ -263,7 +265,7 @@ const cancelAddLabel = () => {
   isAddingLabel.value = false;
 };
 
-const toggleLabel = (label: Label) => {
+const toggleLabel = (label: TLabel) => {
   if (isLabelSelected(label)) {
     removeLabelFromSelected(label);
   } else {
@@ -271,13 +273,13 @@ const toggleLabel = (label: Label) => {
   }
 };
 
-const isLabelSelected = (label: Label) => {
+const isLabelSelected = (label: TLabel) => {
   return selectedLabels.value.some(
-    (selectedLabel: Label) => selectedLabel.id === label.id
+    (selectedLabel: TLabel) => selectedLabel.id === label.id
   );
 };
 
-const addLabelToSelected = (label: Label) => {
+const addLabelToSelected = (label: TLabel) => {
   selectedLabels.value.push(label);
 };
 
@@ -285,17 +287,20 @@ const removeLabel = (index: number) => {
   selectedLabels.value.splice(index, 1);
 };
 
-const removeLabelFromSelected = (label: Label) => {
+const removeLabelFromSelected = (label: TLabel) => {
   selectedLabels.value = selectedLabels.value.filter(
-    (selectedLabel: Label) => selectedLabel.id !== label.id
+    (selectedLabel: TLabel) => selectedLabel.id !== label.id
   );
 };
 
 const createTask = async () => {
   try {
     const taskId = generateId();
+    const projectIdStr = Array.isArray(projectId.value) 
+      ? projectId.value[0] 
+      : projectId.value;
 
-    if (!projectId) {
+    if (!projectIdStr) {
       alert("Проект не найден");
       return router.back();
     }
@@ -312,24 +317,24 @@ const createTask = async () => {
       name: name.value,
       description: cleanDescription.length > 0 ? description.value : null,
       createdAt: new Date().toISOString(),
-      deadline: selectedDate.value?.toISOString(),
+      deadline: selectedDate.value!!.toISOString(),
       priority: parseInt(priority.value),
-      labels: selectedLabels.value.map((l: Label) => l.label),
-      status: "planned",
-      projectId: projectId.value
+      labels: selectedLabels.value.map((l: TLabel) => l.label),
+      status: "planned" as const,
+      projectId: projectIdStr,
+      isFrozen: false,
+      isVisible: false,
     };
     
-    await addTask(projectId.value, taskData);
-
-    await createTaskFolder(projectId.value, taskId);
-
-    await uploadFiles(projectId.value, taskId, selectedFiles.value);
+    await addTask(projectIdStr, taskData);
+    await createTaskFolder(projectIdStr, taskId);
+    await uploadFiles(projectIdStr, taskId, selectedFiles.value);
 
     router.back();
   } catch (error) {
     console.error("Ошибка при создании задачи:", error);
   }
-}
+};
 </script>
 
 <style scoped>

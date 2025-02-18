@@ -65,7 +65,7 @@
 </template>
 
 <script setup lang="ts">
-import { useInternetConnection } from '@/features/check-internet-conn/lib/useInternetConnection';
+import { useInternetConnection } from '../../../features/check-internet-conn/lib/useInternetConnection';
 import { useRouter } from 'vue-router';
 
 const { isOnline } = useInternetConnection();

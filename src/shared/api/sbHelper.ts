@@ -1,7 +1,7 @@
-import { supabase } from "@/shared/api/supabaseClient";
-import type { Project } from "@/entities/project/types";
-import type { Task } from "@/entities/task/types";
-import type { Label } from "@/entities/label/types";
+import { supabase } from "../../shared/api/supabaseClient";
+import type { Project } from "../../entities/project/types";
+import type { Task } from "../../entities/task/types";
+import type { TLabel } from "../../entities/label/types";
 
 export const fetchProjects = async (userEmail: string): Promise<Project[]> => {
   try {
@@ -222,8 +222,8 @@ export const fetchTasks = async (projectId: string): Promise<Task[]> => {
 
     return data.map((task: Task) => ({
       ...task,
-      createdAt: new Date(task.createdAt),
-      deadline: new Date(task.deadline),
+      createdAt: task.createdAt,
+      deadline: task.deadline,
       labels: task.labels || [],
     }));
   } catch (err) {
@@ -231,19 +231,19 @@ export const fetchTasks = async (projectId: string): Promise<Task[]> => {
   }
 };
 
-export const fetchLabels = async (): Promise<Label[]> => {
+export const fetchLabels = async (): Promise<TLabel[]> => {
   try {
     const { data, error } = await supabase.from("labels").select("*");
 
     if (error) throw error;
 
-    return data as Label[];
+    return data as TLabel[];
   } catch (err) {
     throw err;
   }
 };
 
-export const addLabel = async (label: Label) => {
+export const addLabel = async (label: TLabel) => {
   try {
     const { error } = await supabase
       .from("labels")

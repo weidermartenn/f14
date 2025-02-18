@@ -1,4 +1,4 @@
-export interface Label {
+export interface TLabel {
     id: number;
     label: string;
 }

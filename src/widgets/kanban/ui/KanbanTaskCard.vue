@@ -30,7 +30,7 @@
             </span>
             <span class="flex gap-1 items-center text-xs text-gray-400">
               <i class="fa-regular fa-calendar-days"></i>
-              <span>{{ formatDate(task.createdAt) }}</span>
+              <span>{{ formatDate(new Date(task.createdAt)) }}</span>
             </span>
           </div>
           <div v-if="task.labels && task.labels.length > 0" class="grid grid-cols-2 gap-1">
@@ -39,7 +39,7 @@
         </div>
         <div class="mt-4 flex gap-2 justify-center items-center">
           <i class="fa-solid fa-clock text-xl"></i>
-          <span class="text-sm">{{ formatDate(task.deadline) }}</span>
+          <span class="text-sm">{{ formatDate(new Date(task.deadline)) }}</span>
         </div>
       </div>
       <ConfirmationModal
@@ -56,13 +56,12 @@
 </template>
 
 <script setup lang="ts">
-import { Label } from '@/widgets/label';
-import type { Task } from '@/entities/task/types';
-import { deleteTask } from '@/shared/api/sbHelper';
+import { Label } from '../../../widgets/label';
+import type { Task } from '../../../entities/task/types';
 import { defineProps, defineEmits, ref } from 'vue';
-import { TaskDetail } from '@/widgets/taskdetail';
-import { TaskEditPanel } from '@/widgets/taskeditpanel';
-import { ConfirmationModal } from '@/shared/ui/ConfirmationModal';
+import { TaskDetail } from '../../../widgets/taskdetail';
+import { TaskEditPanel } from '../../../widgets/taskeditpanel';
+import { ConfirmationModal } from '../../../shared/ui/ConfirmationModal';
 
 const props = defineProps<{
   task: Task;
@@ -75,7 +74,7 @@ const isDeleting = ref(false)
 const isEditPanelOpen = ref(false);
 const isDeleteModalOpen = ref(false);
 
-const getPriorityLabel = (priority: Label) => {
+const getPriorityLabel = (priority: number) => {
   switch (priority) {
     case 1: return 'Низкий';
     case 2: return 'Средний';

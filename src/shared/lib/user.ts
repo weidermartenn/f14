@@ -1,9 +1,10 @@
 import { reactive } from "vue";
-import { supabase } from "@/shared/api/supabaseClient";
+import { supabase } from "../../shared/api/supabaseClient";
+import { user } from "./auth";
 
 // Глобальное состояние пользователя
 export const userState = reactive ({
-    user: null,
+    user: user,
 });
 
 // Функция для обновления состояния пользователя

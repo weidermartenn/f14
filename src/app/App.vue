@@ -7,11 +7,11 @@
 </template>
 
 <script setup lang="ts">
-import { Header } from '@/widgets/Header/';
-import { Footer } from '@/widgets/footer';
+import { Header } from '../widgets/Header';
+import { Footer } from '../widgets/footer';
 import { useRoute } from 'vue-router';
 import { computed } from 'vue';
-import { initAuth } from "@/shared/lib/auth";
+import { initAuth } from "../shared/lib/auth";
 
 const route = useRoute();
 const isAuthPage = computed(() => route.path === '/auth');

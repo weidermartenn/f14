@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
-import { supabase } from '@/shared/api/supabaseClient'
+import { supabase } from '../../../shared/api/supabaseClient'
 
 interface Props {
   path?: string

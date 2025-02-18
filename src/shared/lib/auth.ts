@@ -1,7 +1,7 @@
-import { supabase } from "@/shared/api/supabaseClient";
+import { supabase } from "../../shared/api/supabaseClient";
 import { ref } from "vue";
 
-export const user = ref(null);
+export const user = ref();
 export const isAuthInitialized = ref(false);
 
 export const initAuth = async () => {

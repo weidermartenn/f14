@@ -24,11 +24,11 @@
   </template>
   
   <script setup lang="ts">
-  import { EmailInput } from "@/shared/ui/EmailInput";
+  import { EmailInput } from "../../../shared/ui/EmailInput";
   import { ref } from "vue";
   import { useRouter } from "vue-router";
-  import { supabase } from "@/shared/api/supabaseClient";
-  import { updateUserState } from "@/shared/lib/user";
+  import { supabase } from "../../../shared/api/supabaseClient";
+  import { updateUserState } from "../../../shared/lib/user";
   
   const loading = ref(false);
   const email = ref('');

@@ -4,5 +4,4 @@ export interface User {
     name: string;
     avatar_url?: string;
     created_at: Date;
-    // другие поля при необходимости
   }

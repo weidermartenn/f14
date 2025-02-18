@@ -30,9 +30,9 @@
 <script setup lang="ts">
 import logo from "@/app/assets/wflogo.svg";
 import { useRouter } from "vue-router";
-import { user } from "@/shared/lib/auth";
-import { supabase } from "@/shared/api/supabaseClient";
-import { ChangeThemeButton } from "@/features/change-theme";
+import { user } from "../../../shared/lib/auth";
+import { supabase } from "../../../shared/api/supabaseClient";
+import { ChangeThemeButton } from "../../../features/change-theme";
 
 const router = useRouter();
 

@@ -35,7 +35,7 @@
       <p class="text-gray-300 text-sm mt-2">
         Создан: {{ formatDate(project.createdAt) }}
       </p>
-      <button @click="handleRedirect(project.name)" class="mt-8">Перейти</button>
+      <button @click="handleRedirect(project.id)" class="mt-8">Перейти</button>
     </div>
     <div v-if="isEditOpen" class="mt-4 space-y-2">
       <Input type="text" v-model="editedName" />
@@ -70,11 +70,10 @@
 
 <script setup lang="ts">
 import { defineProps, ref, watch } from "vue";
-import { Input } from "@/shared/ui/Input";
-import type { Project } from "@/entities/project/types";
-import { user } from "@/shared/lib/auth";
-import { updateProject, deleteProject } from "@/shared/api/sbHelper";
-import { ConfirmationModal } from "@/shared/ui/ConfirmationModal";
+import { Input } from "../../../shared/ui/Input";
+import type { Project } from "../../../entities/project/types";
+import { updateProject, deleteProject } from "../../../shared/api/sbHelper";
+import { ConfirmationModal } from "../../../shared/ui/ConfirmationModal";
 import { useRouter } from "vue-router";
 
 const props = defineProps<{
@@ -96,8 +95,8 @@ const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
 };
 
-const handleRedirect = (projectName: string) => {
-  router.push({ name: 'workspace', query: { name: projectName, projectId: props.project.id } });
+const handleRedirect = (projectId: string) => {
+  router.push({ name: 'workspace', query: { name: props.project.name, projectId: projectId } });
 };
 
 const handleEdit = () => {

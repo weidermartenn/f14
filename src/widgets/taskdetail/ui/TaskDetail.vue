@@ -77,7 +77,7 @@
           >
             <Label
               v-for="label in task.labels"
-              :key="label.id"
+              :key="label"
               :label="label"
               class="h-8"
             />
@@ -128,11 +128,11 @@
 </template>
 
 <script setup lang="ts">
-import type { Task } from "@/entities/task/types";
-import { fileIcon } from "@/pages/createTask/model/extensions";
-import { Label } from "@/widgets/label";
+import type { Task } from "../../../entities/task/types";
+import { fileIcon } from "../../../pages/createTask/model/extensions";
+import { Label } from "../../../widgets/label";
 import { ref, watch } from 'vue';
-import { fetchTaskFiles } from "@/shared/api/sbHelper";
+import { fetchTaskFiles } from "../../../shared/api/sbHelper";
 
 const props = defineProps({
   task: {
@@ -207,7 +207,7 @@ const loadAttachments = async () => {
     attachmentsError.value = false;
     
     console.log('Loading files for:', {
-      projectId: props.task.project_id,
+      projectId: props.task.projectId,
       taskId: props.task.id
     });
     
@@ -228,7 +228,7 @@ watch(() => props.task, async (newTask) => {
     try {
       attachmentsLoading.value = true;
       attachmentsError.value = false;
-      attachments.value = await fetchTaskFiles(newTask.project_id, newTask.id);
+      attachments.value = await fetchTaskFiles(newTask.projectId, newTask.id);
     } catch (err) {
       attachmentsError.value = true;
     } finally {

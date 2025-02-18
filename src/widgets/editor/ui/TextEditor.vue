@@ -100,7 +100,7 @@
 
 <script setup lang="ts">
 import { EditorContent } from "@tiptap/vue-3";
-import { useTextEditor, type TextEditorActions } from "../model/useTextEditor";
+import { useTextEditor } from "../model/useTextEditor";
 import { watch, defineProps, defineEmits } from "vue";
 
 const props = defineProps({

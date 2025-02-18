@@ -48,12 +48,12 @@
 
 <script setup lang="ts">
 import ProjectCard from "./ProjectCard.vue";
-import LoadingSpinner from "@/shared/ui/LoadingSpinner/ui/LoadingSpinner.vue";
+import LoadingSpinner from "../../../shared/ui/LoadingSpinner/ui/LoadingSpinner.vue";
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
-import { user } from "@/shared/lib/auth";
-import { fetchProjects } from "@/shared/api/sbHelper";
-import type { Project } from "@/entities/project/types";
+import { user } from "../../../shared/lib/auth";
+import { fetchProjects } from "../../../shared/api/sbHelper";
+import type { Project } from "../../../entities/project/types";
 
 const projects = ref<Project[]>([]);
 const loading = ref(true);
