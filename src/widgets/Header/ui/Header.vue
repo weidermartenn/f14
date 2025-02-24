@@ -5,7 +5,7 @@
                 <img :src=logo class="w-14"></img>
                 <div class="flex flex-col">
                     <span class="text-2xl">FKanban</span>
-                    <span class="text-sm">Доска задач для индивидуальных разработчиков</span>
+                    <span class="text-sm">Доска задач для </span>
                 </div>
             </div>
             <div class="flex flex-row items-center">
@@ -14,7 +14,10 @@
                 <section class="flex gap-4 mr-6">
                 <div v-if="user" class="flex flex-col items-center">
                     <span class="text-white">{{ user.email }}</span>
-                    <div>
+                    <div class="flex gap-4">
+                        <button @click="handleProfile" class="text-sm hover:text-gray-300">
+                            Профиль
+                        </button>
                         <button @click="handleLogout" class="text-sm text-red-400 hover:text-red-500">
                             Выйти
                         </button>
@@ -37,16 +40,20 @@ import { ChangeThemeButton } from "../../../features/change-theme";
 const router = useRouter();
 
 const authClick = () => {
-    router.push('/auth');
+    router.push({ name: 'auth' });
 }
 
 const projectsClick = () => {
-    router.push('/projects');
-}
+    router.push({ name: 'projects' });
+};
 
 const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.push("/");
+    router.push({ name: 'main' });
+}
+
+const handleProfile = () => {
+    router.push({ name: 'profile' });
 }
 </script>
 

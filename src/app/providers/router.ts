@@ -6,6 +6,8 @@ import CreateProject from '../../pages/createProject/ui/CreateProject.vue';
 import Projects from '../../pages/projects/ui/Projects.vue';
 import Workspace from '../../pages/workspace/ui/Workspace.vue';
 import CreateTask from '../../pages/createTask/ui/CreateTask.vue';
+import AuthRedirect from '../../pages/authRedirect/ui/AuthRedirect.vue';
+import Profile from '../../pages/profile/ui/Profile.vue';
 
 export const router = createRouter({
     history: createWebHistory(),
@@ -24,6 +26,17 @@ export const router = createRouter({
             path: '/auth',
             name: 'auth',
             component: Auth,
+        },
+        {
+            path: '/auth/auth-redirect',
+            name: 'auth-redirect',
+            component: AuthRedirect,
+        },
+        {
+            path: '/profile',
+            name: 'profile',
+            component: Profile,
+            meta: { requiresAuth: true },
         },
         {
             path: '/create-new-project',

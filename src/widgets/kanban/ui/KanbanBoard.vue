@@ -88,7 +88,7 @@
             :move="checkMove"
             group="tasks"
             item-key="id"
-            class="mt-10 flex flex-col gap-2 p-4 overflow-y-auto flex-1"
+            class="mt-10 flex flex-col gap-2 p-4 overflow-y-auto flex-1 min-w-[320px]"
             @change="(event) => handleTaskMove(event, column.id)"
             @move="onDragMove"
             @end="onDragEnd"

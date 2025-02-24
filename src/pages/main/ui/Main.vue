@@ -53,7 +53,6 @@
                 </div>
             </div>
         </div>
-
         <!-- Оффлайн-состояние -->
         <div class="flex mt-44 text-white justify-self-center" v-else>
             <div class="w-[28rem] h-[7rem] p-6 bg-zinc-900 rounded-md flex flex-col justify-center items-center">

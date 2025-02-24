@@ -38,7 +38,6 @@ const toggleTheme = () => {
 
 const updateTheme = () => {
   const root = document.documentElement;
-  root.style.transition = "background-color 0.5s ease, color 0.5s ease";
 
   if (isDark.value) {
     root.classList.add("dark");
@@ -47,17 +46,11 @@ const updateTheme = () => {
     root.classList.remove("dark");
     localStorage.theme = "light";
   }
-
-  setTimeout(() => {
-    root.style.transition = "";
-  }, 500);
 };
 
 onMounted(() => {
   const savedTheme = localStorage.theme;
   const root = document.documentElement;
-
-  root.style.transition = "background-color 0.5s ease, color 0.5s ease";
 
   if (
     savedTheme === "dark" ||
@@ -69,10 +62,6 @@ onMounted(() => {
     isDark.value = false;
     root.classList.remove("dark");
   }
-
-  setTimeout(() => {
-    root.style.transition = "";
-  }, 500);
 });
 </script>
 

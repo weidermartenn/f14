@@ -15,7 +15,7 @@
           </button>
           <div
             v-if="isMenuOpen"
-            class="absolute right-0 top-8 bg-zinc-800 rounded-md shadow-lg py-2 w-32 z-10"
+            class="absolute right-0 top-8 bg-zinc-800 rounded-md shadow-lg w-auto z-10"
           >
             <button
               @click="handleEdit"
@@ -35,7 +35,7 @@
       <p class="text-gray-300 text-sm mt-2">
         Создан: {{ formatDate(project.createdAt) }}
       </p>
-      <button @click="handleRedirect(project.id)" class="mt-8">Перейти</button>
+      <button @click="handleRedirect(project.id)" class="mt-8 hover:text-gray-400 duration-150">Перейти</button>
     </div>
     <div v-if="isEditOpen" class="mt-4 space-y-2">
       <Input type="text" v-model="editedName" />

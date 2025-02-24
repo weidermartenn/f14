@@ -1,6 +1,6 @@
 <template>
     <div class="w-full max-w-3xl bg-bg-dark p-4 rounded-md shadow-sm shadow-f14-font-dark flex flex-col items-center">
-        <h3 class="text-center text-white mb-4">График активности</h3>
+        <h3 class="text-center text-white mb-4">{{ props.graphName }}</h3>
         <div class="w-full h-64">
             <canvas ref="chartCanvas" class="w-full h-full"></canvas>
         </div>
@@ -8,8 +8,15 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, defineProps } from 'vue';
 import { Chart, registerables } from 'chart.js';
+
+const props = defineProps({
+    graphName: {
+        type: String,
+        required: true
+    }
+})
 
 Chart.register(...registerables);
 

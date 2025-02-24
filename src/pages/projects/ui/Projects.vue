@@ -1,6 +1,6 @@
 <template>
   <div class="px-20 py-10 min-h-[calc(100vh-180px)]">
-    <h2 class="text-3xl mt-4">Все проекты</h2>
+    <h2 class="text-3xl mt-4 py-2 mb-4 border-b-2 border-gray-700">Все проекты</h2>
     <span class="text-gray-300"
       >Ниже отображаются все созданные вами проекты.</span
     >
@@ -33,7 +33,7 @@
     <!-- Отображение проектов -->
     <div
       v-else
-      class="w-full mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-5 gap-4"
+      class="w-full mt-10 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-6 gap-4"
     >
       <ProjectCard
         v-for="project in projects"
