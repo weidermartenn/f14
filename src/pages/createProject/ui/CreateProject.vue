@@ -11,7 +11,7 @@
       <h2 class="text-2xl font-bold mb-6 text-center">
         Придумайте название для проекта
       </h2>
-      <form @submit.prevent="createProject!!">
+      <form @submit.prevent="addProject!!">
         <Input
           type="text"
           v-model="input"
@@ -39,7 +39,7 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { supabase } from "../../../shared/api/supabaseClient";
 import { generateId } from "../../../shared/lib/generateId";
-import { createProject } from "../../../shared/api/sbHelper"; // Импортируем новую функцию
+import { addProject } from "../../../shared/api/sbHelper"; // Импортируем новую функцию
 
 const loading = ref(false);
 const input = ref("");
@@ -66,7 +66,7 @@ const createProjectHandler = async () => {
     const createdAt = new Date().toISOString();
 
     // Создаем проект с помощью новой функции
-    await createProject({
+    await addProject({
       id: projectId,
       name: input.value,
       userEmail: user?.email || "",

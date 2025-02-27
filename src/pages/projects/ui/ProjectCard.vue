@@ -72,7 +72,7 @@
 import { defineProps, ref, watch } from "vue";
 import { Input } from "../../../shared/ui/Input";
 import type { Project } from "../../../entities/project/types";
-import { updateProject, deleteProject } from "../../../shared/api/sbHelper";
+import { updateProjectName, deleteProject } from "../../../shared/api/sbHelper";
 import { ConfirmationModal } from "../../../shared/ui/ConfirmationModal";
 import { useRouter } from "vue-router";
 
@@ -112,7 +112,7 @@ const saveChanges = async () => {
   try {
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    const updatedProject = await updateProject(
+    const updatedProject = await updateProjectName(
       props.project.id,
       editedName.value
     );

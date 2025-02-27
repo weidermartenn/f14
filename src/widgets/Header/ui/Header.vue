@@ -1,11 +1,11 @@
 <template>
     <div class="absolute top-0 left-0 right-0">
         <div class="min-w-full px-6 py-4 flex justify-between items-center">
-            <div class="flex flex-row justify-center items-center gap-2 text-white">
+            <div @click="router.push({ name: 'main' })" class="flex flex-row justify-center items-center gap-2 text-white cursor-pointer hover:scale-105 duration-150">
                 <img :src=logo class="w-14"></img>
                 <div class="flex flex-col">
                     <span class="text-2xl">FKanban</span>
-                    <span class="text-sm">Доска задач для </span>
+                    <span class="text-sm">Управление проектами и задачами</span>
                 </div>
             </div>
             <div class="flex flex-row items-center">

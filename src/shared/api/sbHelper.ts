@@ -3,6 +3,17 @@ import type { Project } from "../../entities/project/types";
 import type { Task } from "../../entities/task/types";
 import type { TLabel } from "../../entities/label/types";
 
+export const addUser = async (userId: string) => {
+  try {
+    // Случайный цвет
+    const color = Math.floor(Math.random() * 16777215).toString(16);
+    const { error } = await supabase.from("users").insert([{ id: userId, color: `#${color}` }]);
+    if (error) throw error;
+  } catch (err) {
+    throw err;
+  }
+}
+
 export const fetchProjects = async (userEmail: string): Promise<Project[]> => {
   try {
     const { data, error } = await supabase
@@ -22,7 +33,7 @@ export const fetchProjects = async (userEmail: string): Promise<Project[]> => {
 };
 
 // Функция для создания проекта
-export const createProject = async (project: {
+export const addProject = async (project: {
   id: string;
   name: string;
   userEmail: string;
@@ -57,7 +68,7 @@ export const createProject = async (project: {
   }
 };
 
-export const updateProject = async (id: string, name: string) => {
+export const updateProjectName = async (id: string, name: string) => {
   try {
     const { data, error } = await supabase
       .from("projects")

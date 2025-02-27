@@ -1,12 +1,8 @@
 <template>
   <div class="flex flex-col items-center gap-4 p-4 min-h-screen">
     <div class="flex flex-col items-center gap-1">
-      <span class="text-sm text-gray-400"
-        >Перемещайте задачи между колонками с помощью перетаскивания</span
-      >
-      <span class="text-sm text-gray-400"
-        >Для более подробного просмотра задач нажмите на задачу</span
-      >
+      <span class="text-sm text-gray-400">Перемещайте задачи между колонками с помощью перетаскивания</span>
+      <span class="text-sm text-gray-400">Для более подробного просмотра задач нажмите на задачу</span>
     </div>
 
     <div class="flex gap-6 items-center justify-center">
@@ -19,12 +15,7 @@
       </button>
     </div>
 
-    <div v-if="tasks.length === 0" class="text-center text-gray-400 mt-4">
-      В этом проекте пока нет задач. Нажмите на кнопку выше, чтобы добавить
-      новую задачу.
-    </div>
-
-    <div v-else class="mr-12 flex items-center gap-4 relative">
+    <div v-if="tasks.length > 0" class="mr-12 flex items-center gap-4 relative">
       <i
         id="info"
         class="fa-solid fa-circle-info text-2xl text-zinc-700 flex justify-center items-center w-8 h-8 rounded-full hover:bg-bg-accent-dark hover:text-zinc-500 duration-150"
@@ -121,6 +112,9 @@
           </draggable>
         </div>
       </div>
+    </div>
+    <div v-else class="text-center text-gray-400 mt-4">
+      В этом проекте пока нет задач. Нажмите на кнопку выше, чтобы добавить новую задачу.
     </div>
     <div class="mt-10 w-full px-4 flex justify-center">
       <div v-if="hiddenTasks.length > 0">
@@ -222,7 +216,7 @@ const handleDeleteTask = async (taskId: string) => {
 
   if (task) {
     try {
-      await deleteTask(taskId); 
+      await deleteTask(taskId);
 
       tasks.value = tasks.value.filter((task: Task) => task.id !== taskId);
 
@@ -245,7 +239,7 @@ const handleHideTask = async (taskId: string) => {
 
       addNotification(
         `Задача "${task.name}" ${
-          newHideState ? "теперь скрыта" : "снова доступна"
+          newHideState ? "снова доступна" : "теперь скрыта"
         }`,
         "success"
       );
