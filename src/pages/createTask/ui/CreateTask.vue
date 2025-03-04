@@ -323,7 +323,7 @@ const createTask = async () => {
       status: "planned" as const,
       projectId: projectIdStr,
       isFrozen: false,
-      isVisible: false,
+      isVisible: true,
     };
     
     await addTask(projectIdStr, taskData);

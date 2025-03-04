@@ -1,8 +1,12 @@
 <template>
   <div class="flex flex-col items-center gap-4 p-4 min-h-screen">
     <div class="flex flex-col items-center gap-1">
-      <span class="text-sm text-gray-400">Перемещайте задачи между колонками с помощью перетаскивания</span>
-      <span class="text-sm text-gray-400">Для более подробного просмотра задач нажмите на задачу</span>
+      <span class="text-sm text-gray-400"
+        >Перемещайте задачи между колонками с помощью перетаскивания</span
+      >
+      <span class="text-sm text-gray-400"
+        >Для более подробного просмотра задач нажмите на задачу</span
+      >
     </div>
 
     <div class="flex gap-6 items-center justify-center">
@@ -15,7 +19,7 @@
       </button>
     </div>
 
-    <div v-if="tasks.length > 0" class="mr-12 flex items-center gap-4 relative">
+    <div class="mr-12 flex items-center gap-4 relative">
       <i
         id="info"
         class="fa-solid fa-circle-info text-2xl text-zinc-700 flex justify-center items-center w-8 h-8 rounded-full hover:bg-bg-accent-dark hover:text-zinc-500 duration-150"
@@ -113,10 +117,13 @@
         </div>
       </div>
     </div>
-    <div v-else class="text-center text-gray-400 mt-4">
-      В этом проекте пока нет задач. Нажмите на кнопку выше, чтобы добавить новую задачу.
+
+    <div v-if="tasks.length === 0" class="text-center text-gray-400 mt-4">
+      В этом проекте пока нет задач. Нажмите на кнопку выше, чтобы добавить
+      новую задачу.
     </div>
-    <div class="mt-10 w-full px-4 flex justify-center">
+
+    <div v-if="tasks.length > 0" class="mt-10 w-full px-4 flex justify-center">
       <div v-if="hiddenTasks.length > 0">
         <div class="flex items-center gap-2 mb-2">
           <span class="text-2xl text-gray-300">Скрытые задачи</span>
@@ -151,11 +158,6 @@
           </div>
         </Transition>
       </div>
-
-      <div v-else class="text-center">
-        <span class="text-2xl text-gray-300">Скрытые задачи</span>
-        <div class="mt-4 text-gray-400">Пока нет скрытых задач</div>
-      </div>
     </div>
   </div>
   <Notification :notifications="notifications" @close="removeNotification" />
@@ -165,7 +167,11 @@
 import { ref, onMounted, reactive, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { KanbanTaskCard } from "..";
-import { fetchTasks, updateTask, deleteTask } from "../../../shared/api/sbHelper";
+import {
+  fetchTasks,
+  updateTask,
+  deleteTask,
+} from "../../../shared/api/sbHelper";
 import type { Task } from "../../../entities/task/types";
 import { LoadingSpinner } from "../../../shared/ui/LoadingSpinner";
 import { Notification } from "../../../widgets/notification";
@@ -208,7 +214,7 @@ const removeNotification = (id: string) => {
 
 const handleEditTask = async (taskId: string) => {
   tasks.value.find((task: Task) => task.id === taskId);
-}
+};
 
 const handleDeleteTask = async (taskId: string) => {
   loadingTasks.value[taskId] = true;
@@ -290,8 +296,16 @@ const props = defineProps({
 });
 
 const columns = reactive([
-  { id: "planned" as const, title: "Запланировано", icon: "fa-regular fa-calendar" },
-  { id: "progress" as const, title: "В работе", icon: "fa-solid fa-bars-staggered" },
+  {
+    id: "planned" as const,
+    title: "Запланировано",
+    icon: "fa-regular fa-calendar",
+  },
+  {
+    id: "progress" as const,
+    title: "В работе",
+    icon: "fa-solid fa-bars-staggered",
+  },
   { id: "done" as const, title: "Завершено", icon: "fa-solid fa-check" },
 ]);
 
@@ -326,7 +340,10 @@ const checkMove = (event: any) => {
   return !event.draggedContext.element.isFrozen;
 };
 
-const handleTaskMove = async (event: any, newStatus: 'planned' | 'progress' | 'done') => {
+const handleTaskMove = async (
+  event: any,
+  newStatus: "planned" | "progress" | "done"
+) => {
   const { added, moved } = event;
   const task = added?.element || moved?.element;
 

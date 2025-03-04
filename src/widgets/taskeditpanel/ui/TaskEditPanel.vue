@@ -8,7 +8,7 @@
     <div
       v-if="isOpen"
       @click.stop
-      class="fixed right-0 top-0 bottom-0 w-[400px] bg-zinc-900 shadow-xl z-50 overflow-y-auto p-8"
+      class="fixed right-0 top-0 bottom-0 w-[400px] bg-neutral-900 shadow-xl z-50 overflow-y-auto p-8"
     >
       <button
         @click="$emit('close')"

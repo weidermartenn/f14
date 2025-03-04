@@ -7,7 +7,7 @@
   >
     <div
       v-if="isOpen"
-      class="fixed left-0 top-0 bottom-0 w-[400px] bg-zinc-900 shadow-xl z-50 overflow-y-auto p-8"
+      class="fixed left-0 top-0 bottom-0 w-[400px] bg-neutral-900 shadow-xl z-50 overflow-y-auto p-8"
     >
       <button
         @click="$emit('close')"
@@ -92,6 +92,9 @@
           </div>
           <div v-else-if="attachmentsError" class="text-red-500 text-sm">
             Ошибка загрузки файлов
+          </div>
+          <div v-else-if="!attachments.length" class="text-gray-400 text-sm">
+            Вложения отсутствуют
           </div>
           <ul v-else class="space-y-2">
             <li

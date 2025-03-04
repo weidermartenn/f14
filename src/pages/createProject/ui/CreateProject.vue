@@ -36,7 +36,7 @@
 <script setup lang="ts">
 import { Input } from "../../../shared/ui/Input";
 import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { useRouter, useRoute } from "vue-router";
 import { supabase } from "../../../shared/api/supabaseClient";
 import { generateId } from "../../../shared/lib/generateId";
 import { addProject } from "../../../shared/api/sbHelper"; // Импортируем новую функцию
@@ -46,6 +46,9 @@ const input = ref("");
 const error = ref("");
 
 const router = useRouter();
+const route = useRoute();
+
+const orgId = ref(route.params.orgId as string);
 
 const createProjectHandler = async () => {
   // Проверка на пустое значение
@@ -71,9 +74,10 @@ const createProjectHandler = async () => {
       name: input.value,
       userEmail: user?.email || "",
       createdAt,
+      orgId: orgId.value,
     });
 
-    router.push("/projects");
+    router.back();
   } catch (err) {
     if (err instanceof Error) {
       alert(err.message);

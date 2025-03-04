@@ -2,24 +2,126 @@ import { supabase } from "../../shared/api/supabaseClient";
 import type { Project } from "../../entities/project/types";
 import type { Task } from "../../entities/task/types";
 import type { TLabel } from "../../entities/label/types";
+import { generateId } from "../lib/generateId";
 
-export const addUser = async (userId: string) => {
+const getRandomHexColor = () => {
+  const randomColor = Math.floor(Math.random() * 16777215);
+  return `#${randomColor.toString(16).padStart(6, '0')}`;
+};
+
+export const addUser = async (email: string) => {
   try {
+    const userId = generateId();
     // Случайный цвет
-    const color = Math.floor(Math.random() * 16777215).toString(16);
-    const { error } = await supabase.from("users").insert([{ id: userId, color: `#${color}` }]);
+    const color = getRandomHexColor();
+    const { error } = await supabase.from("users").insert([{ id: userId, color: `${color}`, email }]);
     if (error) throw error;
   } catch (err) {
     throw err;
   }
 }
 
-export const fetchProjects = async (userEmail: string): Promise<Project[]> => {
+export const getUserId = async (email: string) => {
+  try {
+    const { data, error } = await supabase.from("users").select("id").eq("email", email).single();
+    if (error) throw error;
+    return data.id;
+  } catch (err) {
+    throw err;
+  }
+}
+
+export const getUserEmail = async (id: string) => {
+  try {
+    const { data, error } = await supabase.from("users").select("email").eq("id", id).single();
+    if (error) throw error;
+    return data.email;
+  } catch (err) {
+    throw err;
+  }
+}
+
+export const getUserColor = async (id: string) => {
+  try {
+    const { data, error } = await supabase.from("users").select("color").eq("id", id).single();
+    if (error) throw error;
+    return data.color;
+  } catch (err) {
+    throw err;
+  }
+}
+
+export const checkOrg = async (email: string) => {
+  try {
+    const userId = await getUserId(email);
+    const { data, error } = await supabase
+      .from("orgs")
+      .select("*")
+      .eq("leaderId", userId);
+
+    if (error) throw error;
+
+    // Проверяем, есть ли данные
+    if (data && data.length > 0) {
+      return true;
+    }
+
+    return false;
+  } catch (err) {
+    throw err;
+  }
+};
+
+export const checkOrgInFocus = async (email: string) => {
+  try {
+    const userId = await getUserId(email);
+    const { data, error } = await supabase.from("users").select("orgInFocus").eq("id", userId).single();
+    if (error) throw error;
+
+    return data.orgInFocus;
+  } catch (err) {
+    throw err;
+  }
+}
+
+export const createOrg = async (name: string, email: string) => {
+  try {
+    const userId = await getUserId(email);
+    const id = generateId();
+    const { error } = await supabase.from("orgs").insert([{id: id, name: name, leaderId: userId, membersIds: [userId]}]);
+    if (error) throw error;
+  } catch (err) {
+    throw err;
+  }
+}
+
+export const fetchOrgs = async (email: string) => {
+  try {
+    const userId = await getUserId(email);
+    const { data, error } = await supabase.from("orgs").select("*").contains("membersIds", `{${userId}}`);
+    if (error) throw error;
+    return data;
+  } catch (err) {
+    throw err;
+  }
+}
+
+export const fetchOrgName = async (id: string) => {
+  try {
+    const { data, error } = await supabase.from("orgs").select("name").eq("id", id).single();
+    if (error) throw error;
+    return data.name;
+  } catch (err) {
+    throw err;
+  }
+}
+
+export const fetchProjects = async (orgId: string): Promise<Project[]> => {
   try {
     const { data, error } = await supabase
       .from("projects")
       .select("*")
-      .eq("userEmail", userEmail);
+      .eq("orgId", orgId);
 
     if (error) throw error;
 
@@ -32,12 +134,14 @@ export const fetchProjects = async (userEmail: string): Promise<Project[]> => {
   }
 };
 
+
 // Функция для создания проекта
 export const addProject = async (project: {
   id: string;
   name: string;
   userEmail: string;
   createdAt: string;
+  orgId: string;
 }): Promise<Project> => {
   try {
     // Создаем проект в таблице projects
@@ -267,3 +371,4 @@ export const addLabel = async (label: TLabel) => {
     throw err;
   }
 };
+

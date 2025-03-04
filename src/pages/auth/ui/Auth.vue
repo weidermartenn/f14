@@ -39,6 +39,7 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { supabase } from "../../../shared/api/supabaseClient";
 import { updateUserState } from "../../../shared/lib/user";
+import { addUser } from "../../../shared/api/sbHelper";
 
 const loading = ref(false);
 const email = ref("");
@@ -53,6 +54,7 @@ const handleLogin = async () => {
     error.value = "Пожалуйста, введите email.";
     return;
   }
+
   try {
     loading.value = true;
     error.value = "";
@@ -67,6 +69,7 @@ const handleLogin = async () => {
     if (supabaseError) throw supabaseError;
     authed.value = true;
     await updateUserState();
+    addUser(email.value);
     router.push({ name: "auth-redirect" });
   } catch (error) {
     if (error instanceof Error) {
@@ -77,5 +80,6 @@ const handleLogin = async () => {
   }
 };
 </script>
+
 
 <style scoped></style>

@@ -3,4 +3,5 @@ export interface Project {
     userEmail: string;
     name: string;
     createdAt: Date;
+    orgId: string;
 }

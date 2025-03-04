@@ -1,6 +1,11 @@
 <template>
   <div class="px-20 py-10 min-h-[calc(100vh-180px)]">
-    <h2 class="text-3xl mt-4 py-2 mb-4 border-b-2 border-gray-700">Все проекты</h2>
+    <button @click="$router.push({ name: 'dashboard' })" class="flex items-center gap-2 mb-4 hover:text-gray-300 duration-150">
+      <i class="fa-solid fa-chevron-left hover:text-gray-300"></i>
+      <span>Вернуться к дашборду</span>
+    </button>
+    <span class="bg-bg-accent-dark text-white rounded-md px-2 py-1">{{ orgName }}</span>
+    <h2 class="text-3xl mt-4 py-2 mb-4 border-b-2 border-gray-700">Все проекты </h2>
     <span class="text-gray-300"
       >Ниже отображаются все созданные вами проекты.</span
     >
@@ -50,30 +55,33 @@
 import ProjectCard from "./ProjectCard.vue";
 import LoadingSpinner from "../../../shared/ui/LoadingSpinner/ui/LoadingSpinner.vue";
 import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import { user } from "../../../shared/lib/auth";
-import { fetchProjects } from "../../../shared/api/sbHelper";
+import { useRoute, useRouter } from "vue-router";
+import { fetchProjects, fetchOrgName } from "../../../shared/api/sbHelper";
 import type { Project } from "../../../entities/project/types";
 
 const projects = ref<Project[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
 
+const route = useRoute();
 const router = useRouter();
+
+const orgName = ref("");
 
 const loadProjects = async () => {
   try {
-    if (!user.value?.email) {
-      throw new Error("Пользователь не авторизован.");
+    const orgId = route.params.orgId as string;
+    if (!orgId) {
+      throw new Error("Организация не найдена.");
     }
 
     loading.value = true;
     error.value = null;
 
-    const data = await fetchProjects(user.value.email);
+    const data = await fetchProjects(orgId);
     projects.value = data;
   } catch (err) {
-    console.error("Ошибка при загрузке проектов:", err); // Логируем ошибку
+    console.error("Ошибка при загрузке проектов:", err);
     error.value = err as string;
   } finally {
     loading.value = false;
@@ -94,14 +102,14 @@ const handleProjectDelete = async (deletedProject: Project) => {
 };
 
 const handleCreateProject = () => {
-  router.push("/create-new-project");
+  router.push({ name: "create-new-project", params: { orgId: route.params.orgId } });
 };
 
 onMounted(() => {
-  if (user.value) {
-    loadProjects();
-  }
+  loadProjects();
+  fetchOrgName(route.params.orgId as string).then((name) => (orgName.value = name));
 });
 </script>
+
 
 <style scoped></style>

@@ -66,13 +66,23 @@
 <script setup lang="ts">
 import { useInternetConnection } from '../../../features/check-internet-conn/lib/useInternetConnection';
 import { useRouter } from 'vue-router';
+import { checkOrg } from '../../../shared/api/sbHelper';
+import { user } from '../../../shared/lib/auth';
+import { ref } from 'vue';
+
 
 const { isOnline } = useInternetConnection();
 
 const router = useRouter();
+const isHadOrg = ref(false);
 
-const createProject = () => {
-    router.push('/create-new-project');
+const createProject = async () => {
+    isHadOrg.value = await checkOrg(user.value.email);
+    if (isHadOrg) {
+        router.push({ name: 'dashboard' });
+    } else {
+        router.push({ name: 'create-organization' });
+    }
 }
 </script>
 

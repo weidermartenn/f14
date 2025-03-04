@@ -18,8 +18,10 @@
         </span>
       </div>
     </div>
-    <div class="bg-zinc-400 dark:bg-zinc-900 min-w-[1200px] max-h-[1100px] rounded-md mt-4">
-      <div class="w-full flex justify-center items-center p-4">
+    <div
+      class="bg-zinc-400 dark:bg-zinc-900 w-full max-w-[1200px] h-[1000px] rounded-md mt-4 mb-20 flex flex-col"
+    >
+      <div class="w-full flex justify-center items-center p-4 shadow-lg">
         <!-- Контейнер для пунктов -->
         <div class="flex gap-8 items-center">
           <span
@@ -36,8 +38,38 @@
           </span>
         </div>
       </div>
-      <div>
-        <KanbanBoard :projectId="projectId" :projectName="projectName" />
+      <div class="flex-1 overflow-auto p-4">
+        <!-- Условное отображение компонентов -->
+        <KanbanBoard
+          v-if="currentPage === 1"
+          :projectId="projectId"
+          :projectName="projectName"
+          class="h-full"
+        />
+        <div
+          v-else-if="currentPage === 0"
+          class="h-full flex items-center justify-center"
+        >
+          Все задачи (виджет будет добавлен позже)
+        </div>
+        <div
+          v-else-if="currentPage === 2"
+          class="h-full flex items-center justify-center"
+        >
+          Диаграмма Ганта (виджет будет добавлен позже)
+        </div>
+        <div
+          v-else-if="currentPage === 3"
+          class="h-full flex items-center justify-center"
+        >
+          Аналитика (виджет будет добавлен позже)
+        </div>
+        <div
+          v-else-if="currentPage === 4"
+          class="h-full flex items-center justify-center"
+        >
+          Все действия (виджет будет добавлен позже)
+        </div>
       </div>
     </div>
   </div>
@@ -45,7 +77,7 @@
 
 <script setup lang="ts">
 import { KanbanBoard } from "../../../widgets/kanban/";
-import { ref, watch } from "vue";
+import { ref, watch, onMounted } from "vue";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
@@ -57,8 +89,27 @@ const projectName = ref<string | undefined>(
 );
 
 // Список всех пунктов
-const pages = ["Все задачи", "Доска задач", "Диаграмма Ганта", "Аналитика", "Все действия"];
+const pages = [
+  "Все задачи",
+  "Доска задач",
+  "Диаграмма Ганта",
+  "Аналитика",
+  "Все действия",
+];
 const currentPage = ref(0); // Текущий активный пункт
+
+// Восстановление состояния вкладки из localStorage
+onMounted(() => {
+  const savedPage = localStorage.getItem("currentPage");
+  if (savedPage !== null) {
+    currentPage.value = parseInt(savedPage, 10);
+  }
+});
+
+// Сохранение состояния вкладки в localStorage
+watch(currentPage, (newPage) => {
+  localStorage.setItem("currentPage", newPage.toString());
+});
 
 // Если route.query.projectId или route.query.name изменятся, обновите projectId и projectName
 watch(
@@ -83,3 +134,7 @@ watch(
   }
 );
 </script>
+
+<style scoped>
+/* Дополнительные стили, если нужно */
+</style>
