@@ -94,6 +94,8 @@ router.beforeEach(async (to, _, next) => {
   } else {
     if (to.path === '/auth' && user.value) {
       next('/dashboard');
+    } else if (to.path === '/' && user.value) {
+      next('/dashboard');
     } else {
       next();
     }
