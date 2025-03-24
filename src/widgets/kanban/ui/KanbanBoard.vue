@@ -167,11 +167,7 @@
 import { ref, onMounted, reactive, computed } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { KanbanTaskCard } from "..";
-import {
-  fetchTasks,
-  updateTask,
-  deleteTask,
-} from "../../../shared/api/sbHelper";
+import { supabaseHelper } from "../../../shared/api/sbHelper";
 import type { Task } from "../../../entities/task/types";
 import { LoadingSpinner } from "../../../shared/ui/LoadingSpinner";
 import { Notification } from "../../../widgets/notification";
@@ -222,7 +218,7 @@ const handleDeleteTask = async (taskId: string) => {
 
   if (task) {
     try {
-      await deleteTask(taskId);
+      await supabaseHelper.deleteTask(taskId);
 
       tasks.value = tasks.value.filter((task: Task) => task.id !== taskId);
 
@@ -240,7 +236,7 @@ const handleHideTask = async (taskId: string) => {
 
     if (task) {
       const newHideState = !task.isVisible;
-      await updateTask(taskId, { isVisible: newHideState });
+      await supabaseHelper.updateTask(taskId, { isVisible: newHideState });
       task.isVisible = newHideState;
 
       addNotification(
@@ -266,7 +262,7 @@ const handleFreezeTask = async (taskId: string) => {
 
     if (task) {
       const newFrozenState = !task.isFrozen;
-      await updateTask(taskId, { isFrozen: newFrozenState });
+      await supabaseHelper.updateTask(taskId, { isFrozen: newFrozenState });
       task.isFrozen = newFrozenState;
 
       addNotification(
@@ -326,7 +322,7 @@ const tasksByColumn = computed(() => {
 
 const fetchProjectTasks = async () => {
   if (!projectId) return;
-  tasks.value = await fetchTasks(projectId);
+  tasks.value = await supabaseHelper.fetchTasks(projectId);
 };
 
 const handleAddTask = () => {
@@ -349,7 +345,7 @@ const handleTaskMove = async (
 
   if (task) {
     task.status = newStatus;
-    await updateTask(task.id, { status: newStatus });
+    await supabaseHelper.updateTask(task.id, { status: newStatus });
   }
 };
 

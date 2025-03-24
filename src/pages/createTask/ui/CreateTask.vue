@@ -188,7 +188,7 @@ import { TextEditor } from "../../../widgets/editor";
 import { DatePicker } from "../../../shared/ui/DatePicker";
 import { Label } from "../../../widgets/label";
 import type { TLabel } from '../../../entities/label/types';
-import { fetchLabels, addLabel, addTask, createTaskFolder, uploadFiles } from "../../../shared/api/sbHelper";
+import { supabaseHelper } from "../../../shared/api/sbHelper";
 import { LoadingSpinner } from "../../../shared/ui/LoadingSpinner";
 import { fileIcon } from "../model/extensions";
 import { generateId } from "../../../shared/lib/generateId";
@@ -210,7 +210,7 @@ const newLabel = ref("");
 const isErrorModalOpen = ref(false);
 
 onMounted(async () => {
-  labels.value = await fetchLabels();
+  labels.value = await supabaseHelper.fetchLabels();
 });
 
 const name = ref("");
@@ -250,8 +250,8 @@ const confirmAddLabel = async () => {
         id: Date.now(), // Временное решение, пока сервер не вернет настоящий ID
         label: newLabel.value
       };
-      await addLabel(label);
-      labels.value = await fetchLabels();
+      await supabaseHelper.addLabel(label);
+      labels.value = await supabaseHelper.fetchLabels();
       newLabel.value = "";
       isAddingLabel.value = false;
     } catch (error) {
@@ -326,9 +326,9 @@ const createTask = async () => {
       isVisible: true,
     };
     
-    await addTask(projectIdStr, taskData);
-    await createTaskFolder(projectIdStr, taskId);
-    await uploadFiles(projectIdStr, taskId, selectedFiles.value);
+    await supabaseHelper.addTask(projectIdStr, taskData);
+    await supabaseHelper.createTaskFolder(projectIdStr, taskId);
+    await supabaseHelper.uploadFiles(projectIdStr, taskId, selectedFiles.value);
 
     router.back();
   } catch (error) {

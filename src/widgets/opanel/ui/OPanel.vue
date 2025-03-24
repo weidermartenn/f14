@@ -26,7 +26,7 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import OPanelCard from "./OPanelCard.vue";
-import { fetchOrgs } from "../../../shared/api/sbHelper";
+import { supabaseHelper } from "../../../shared/api/sbHelper";
 import { user } from "../../../shared/lib/auth";
 import type { Orgs } from "../../../entities/org/types";
 import { LoadingSpinner } from "../../../shared/ui/LoadingSpinner";
@@ -42,7 +42,7 @@ const handleCreateOrg = async () => {
 onMounted(async () => {
   try {
     loading.value = true;
-    orgs.value = await fetchOrgs(user.value.email);
+    orgs.value = await supabaseHelper.fetchOrgs(user.value.email);
     console.log("Загруженные организации:", orgs.value); // Логирование для проверки данных
   } catch (error) {
     console.error("Ошибка при загрузке организаций:", error);

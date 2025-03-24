@@ -1,0 +1,1 @@
+export { default as CommentsContainer } from './ui/CommentsContainer.vue'

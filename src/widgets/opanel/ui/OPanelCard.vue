@@ -26,7 +26,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, defineProps, computed } from "vue";
-import { getUserEmail, getUserColor } from "../../../shared/api/sbHelper";
+import { supabaseHelper } from "../../../shared/api/sbHelper";
 import { user } from "../../../shared/lib/auth";
 import type { Orgs } from "../../../entities/org/types";
 import { useRouter } from "vue-router";
@@ -71,19 +71,19 @@ const getContrastColor = (hexColor: string): string => {
 onMounted(async () => {
   try {
     // Получение почты лидера
-    const leaderEmailResponse = await getUserEmail(props.org.leaderId);
+    const leaderEmailResponse = await supabaseHelper.getUserEmail(props.org.leaderId);
     allMemberEmails.value[props.org.leaderId] = leaderEmailResponse;
     leaderEmail.value = leaderEmailResponse;
 
     // Получение почты всех участников
     for (const memberId of props.org.membersIds) {
-      const email = await getUserEmail(memberId);
+      const email = await supabaseHelper.getUserEmail(memberId);
       allMemberEmails.value[memberId] = email;
     }
 
     // Получение цвета всех участников
     for (const memberId of props.org.membersIds) {
-      const color = await getUserColor(memberId);
+      const color = await supabaseHelper.getUserColor(memberId);
       memberColors.value[memberId] = color;
     }
 

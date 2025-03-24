@@ -135,7 +135,7 @@ import type { Task } from "../../../entities/task/types";
 import { fileIcon } from "../../../pages/createTask/model/extensions";
 import { Label } from "../../../widgets/label";
 import { ref, watch } from 'vue';
-import { fetchTaskFiles } from "../../../shared/api/sbHelper";
+import { supabaseHelper } from "../../../shared/api/sbHelper";
 
 const props = defineProps({
   task: {
@@ -214,7 +214,7 @@ const loadAttachments = async () => {
       taskId: props.task.id
     });
     
-    const files = await fetchTaskFiles(props.task.projectId, props.task.id);
+    const files = await supabaseHelper.fetchTaskFiles(props.task.projectId, props.task.id);
     console.log('Received files:', files);
     
     attachments.value = files;
@@ -231,7 +231,7 @@ watch(() => props.task, async (newTask) => {
     try {
       attachmentsLoading.value = true;
       attachmentsError.value = false;
-      attachments.value = await fetchTaskFiles(newTask.projectId, newTask.id);
+      attachments.value = await supabaseHelper.fetchTaskFiles(newTask.projectId, newTask.id);
     } catch (err) {
       attachmentsError.value = true;
     } finally {

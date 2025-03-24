@@ -117,7 +117,7 @@
 <script setup lang="ts">
 import { ref, watch, defineProps, defineEmits } from "vue";
 import { TextEditor } from "../../../widgets/editor";
-import { updateTask } from "../../../shared/api/sbHelper";
+import { supabaseHelper } from "../../../shared/api/sbHelper";
 import type { Task } from "../../../entities/task/types";
 
 const props = defineProps({
@@ -171,7 +171,7 @@ const handleSubmit = async () => {
         : undefined,
     };
 
-    await updateTask(props.task.id, updatedData);
+    await supabaseHelper.updateTask(props.task.id, updatedData);
 
     emit("updated", { ...props.task, ...updatedData });
     emit("notify", { type: "success", message: "Задача успешно обновлена" });

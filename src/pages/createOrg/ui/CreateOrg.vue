@@ -31,7 +31,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { createOrg } from '../../../shared/api/sbHelper';
+import { supabaseHelper } from '../../../shared/api/sbHelper';
 import { Input } from '../../../shared/ui/Input';
 import { user } from '../../../shared/lib/auth';
 
@@ -45,7 +45,7 @@ const router = useRouter();
 const handleCreateOrg = async () => {
   try {
     loading.value = true;
-    await createOrg(name.value, email.value);
+    await supabaseHelper.createOrg(name.value, email.value);
     if (error.value) throw new Error(error.value);
     router.push({ name: 'projects' });
   } catch (e) {

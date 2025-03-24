@@ -72,7 +72,7 @@
 import { defineProps, ref, watch } from "vue";
 import { Input } from "../../../shared/ui/Input";
 import type { Project } from "../../../entities/project/types";
-import { updateProjectName, deleteProject } from "../../../shared/api/sbHelper";
+import { supabaseHelper } from "../../../shared/api/sbHelper";
 import { ConfirmationModal } from "../../../shared/ui/ConfirmationModal";
 import { useRouter } from "vue-router";
 
@@ -112,7 +112,7 @@ const saveChanges = async () => {
   try {
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    const updatedProject = await updateProjectName(
+    const updatedProject = await supabaseHelper.updateProjectName(
       props.project.id,
       editedName.value
     );
@@ -140,7 +140,7 @@ const handleDelete = () => {
 const confirmDelete = async () => {
   isDeleting.value = true;
   try {
-    await deleteProject(props.project.id);
+    await supabaseHelper.deleteProject(props.project.id);
     emit("delete", props.project.id);
     isDeleteModalOpen.value = false;
   } catch (err) {
