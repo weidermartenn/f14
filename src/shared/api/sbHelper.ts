@@ -236,31 +236,27 @@ class SupabaseHelper {
 
   public fetchOrgMembers = async (orgId: string) => {
     try {
-      // Fetch the organization data to get the membersIds array
+      // 1. Get the organization's member IDs
       const { data: orgData, error: orgError } = await supabase
         .from("orgs")
         .select("membersIds")
         .eq("id", orgId)
         .single();
-
+  
       if (orgError) throw orgError;
-
-      // Fetch emails for each member ID
-      const emails = await Promise.all(
-        orgData.membersIds.map(async (memberId: string) => {
-          const { data: userData, error: userError } = await supabase
-            .from("users")
-            .select("email")
-            .eq("id", memberId)
-            .single();
-
-          if (userError) throw userError;
-          return userData.email;
-        })
-      );
-
-      return emails;
+      if (!orgData?.membersIds?.length) return [];
+  
+      // 2. Get member emails from the users table
+      const { data: users, error: usersError } = await supabase
+        .from("users")
+        .select("email")
+        .in("id", orgData.membersIds);
+  
+      if (usersError) throw usersError;
+  
+      return users?.map(user => user.email) || [];
     } catch (err) {
+      console.error("Error fetching org members:", err);
       throw err;
     }
   };
@@ -277,6 +273,21 @@ class SupabaseHelper {
         createdAt: new Date(project.createdAt),
       }));
     } catch (err) {
+      throw err;
+    }
+  };
+
+  public fetchProject = async (projectId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('id', projectId)
+        .single();
+      if (error) throw error;
+      return data;
+    } catch (err) {
+      console.error("Error fetching project:", err);
       throw err;
     }
   };
@@ -518,6 +529,35 @@ class SupabaseHelper {
         .single();
       if (error) throw error;
     } catch (err) {
+      throw err;
+    }
+  };
+
+  public deleteComment = async (commentId: string) => {
+    try {
+      const { error } = await supabase
+        .from("comments")
+        .delete()
+        .eq("id", commentId);
+      if (error) throw error;
+      return true;
+    } catch (err) {
+      console.error("Error deleting comment:", err);
+      throw err;
+    }
+  };
+
+  public editComment = async (comment: Comment) => {
+    try {
+      const { data, error } = await supabase
+        .from("comments")
+        .update(comment)
+        .eq("id", comment.id)
+        .select();
+      if (error) throw error;
+      return data[0];
+    } catch (err) {
+      console.error("Error updating comment:", err);
       throw err;
     }
   };

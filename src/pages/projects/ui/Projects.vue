@@ -183,10 +183,10 @@ const openAddMemberModal = () => {
   }
 };
 
-const handleMemberAdded = async (email: string) => {
+const handleMemberAdded = async (data: { email: string; message: string }) => {
   try {
     showNotification.value = true;
-    notificationMessage.value = `Приглашение отправлено на ${email}`;
+    notificationMessage.value = data.message;
 
     // Reset notification after 5 seconds
     setTimeout(() => {

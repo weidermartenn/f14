@@ -20,9 +20,11 @@
         </button>
         <button
           @click="addMember"
-          class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700"
+          :disabled="isLoading"
+          class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Добавить
+          <span v-if="!isLoading">Добавить</span>
+          <span v-else>Отправка...</span>
         </button>
       </div>
     </div>
@@ -37,6 +39,7 @@ import { useRoute } from "vue-router";
 const route = useRoute();
 const isOpen = ref(false);
 const newMemberEmail = ref("");
+const isLoading = ref(false);
 const emit = defineEmits(["close", "memberAdded"]);
 
 const openModal = () => {
@@ -52,21 +55,35 @@ const closeModal = () => {
 const addMember = async () => {
   if (newMemberEmail.value.trim() !== "") {
     try {
+      isLoading.value = true;
       const orgId = route.params.orgId as string;
       if (!orgId) {
         throw new Error("Organization ID is missing");
       }
 
       await supabaseHelper.inviteMember(newMemberEmail.value, orgId);
-      emit("memberAdded", newMemberEmail.value);
+      
+      // Emit success event to parent
+      emit("memberAdded", {
+        email: newMemberEmail.value,
+        message: `Приглашение отправлено на ${newMemberEmail.value}`
+      });
+      
+      // Close modal after short delay
+      setTimeout(() => {
+        closeModal();
+      }, 500);
     } catch (error) {
       console.error("Ошибка при добавлении участника:", error);
+      // You could also emit an error event here if needed
+    } finally {
+      isLoading.value = false;
     }
   }
 };
 
 defineExpose({
   openModal,
-  closeModal, 
+  closeModal,
 });
 </script>
