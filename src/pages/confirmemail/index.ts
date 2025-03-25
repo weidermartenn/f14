@@ -1,0 +1,1 @@
+export { default as ConfirmEmail } from './ui/ConfirmEmail.vue'

@@ -10,6 +10,7 @@ import AuthRedirect from '../../pages/authRedirect/ui/AuthRedirect.vue';
 import Profile from '../../pages/profile/ui/Profile.vue';
 import CreateOrg from '../../pages/createOrg/ui/CreateOrg.vue';
 import Dashboard from '../../pages/dashboard/ui/Dashboard.vue';
+import ConfirmEmail from '../../pages/confirmemail/ui/ConfirmEmail.vue';
 
 export const router = createRouter({
   history: createWebHistory(),
@@ -74,8 +75,13 @@ export const router = createRouter({
       name: 'create-task',
       component: CreateTask,
       meta: { requiresAuth: true },
-    }
-  ]
+    },
+    {
+      path: '/confirm-email',
+      name: 'confirm-email',
+      component: ConfirmEmail, // Add the new route
+    },
+  ],
 });
 
 router.beforeEach(async (to, _, next) => {

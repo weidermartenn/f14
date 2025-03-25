@@ -14,6 +14,7 @@
                 </div>
             </div>
             <div class="flex flex-row items-center">
+                <MainNotifications class="mr-20"/>
                 <ChangeThemeButton class="mr-20"/>
                 <section class="flex gap-4 mr-6">
                 <div v-if="user" class="flex flex-col items-center">
@@ -40,6 +41,7 @@ import { useRouter } from "vue-router";
 import { user } from "../../../shared/lib/auth";
 import { supabase } from "../../../shared/api/supabaseClient";
 import { ChangeThemeButton } from "../../../features/change-theme";
+import MainNotifications from "../../mainnotification/ui/MainNotifications.vue";
 
 const router = useRouter();
 

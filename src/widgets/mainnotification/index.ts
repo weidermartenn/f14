@@ -1,0 +1,1 @@
+export { default as MainNotifications } from './ui/MainNotifications.vue'

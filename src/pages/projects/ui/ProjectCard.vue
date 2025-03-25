@@ -2,6 +2,8 @@
   <div>
     <div
       class="w-64 h-40 bg-bg-accent-dark p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
+      :class="{ 'border-2 border-blue-500': isSelected }"
+      @click="handleSelect"
     >
       <div class="flex justify-between">
         <h3 class="text-xl font-semibold truncate max-w-[80%]">{{ project.name }}</h3>
@@ -78,11 +80,12 @@ import { useRouter } from "vue-router";
 
 const props = defineProps<{
   project: Project;
+  isSelected: boolean;
 }>();
 
 const router = useRouter();
 
-const emit = defineEmits(["edit", "delete"]);
+const emit = defineEmits(["edit", "delete", "select"]);
 
 const isMenuOpen = ref(false);
 const isEditOpen = ref(false);
@@ -95,6 +98,9 @@ const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
 };
 
+const handleSelect = () => {
+  emit("select", props.project.id);
+};
 const handleRedirect = (projectId: string) => {
   router.push({ name: 'workspace', query: { name: props.project.name, projectId: projectId } });
 };

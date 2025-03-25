@@ -53,6 +53,8 @@ const handleOrg = () => {
 };
 
 const getContrastColor = (hexColor: string): string => {
+  if (!hexColor) return "#FFFFFF"; // Default to white if hexColor is not defined
+
   // Удаляем символ #, если он есть
   hexColor = hexColor.replace("#", "");
 
