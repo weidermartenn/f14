@@ -69,6 +69,7 @@ import { user } from "../../../shared/lib/auth";
 
 const props = defineProps<{
   comment: Comment;
+  isLeader: boolean;
 }>();
 
 const emit = defineEmits(["commentDeleted", "commentUpdated"]);
@@ -82,7 +83,7 @@ const editedComment = ref("");
 const currentUserId = ref("");
 
 const isCurrentUser = computed(() => {
-  return currentUserId.value === props.comment.userId;
+  return currentUserId.value === props.comment.userId || props.isLeader;
 });
 
 const fetchUsername = async () => {
@@ -113,8 +114,10 @@ const fetchCurrentUserId = async () => {
 };
 
 const formatTimestamp = (timestamp: Date) => {
+  // Создаем новую дату, добавляя 3 часа к переданному времени
   const date = new Date(timestamp);
-  
+  date.setHours(date.getHours() + 3);
+
   return new Intl.DateTimeFormat('ru-RU', {
     day: '2-digit',
     month: '2-digit',

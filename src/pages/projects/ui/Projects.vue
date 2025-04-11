@@ -24,11 +24,12 @@
           <div class="flex flex-wrap gap-2 mt-2">
             <!-- Имена участников -->
             <span
-              v-for="(email, id) in memberEmails"
+              v-for="(member, id) in members"
               :key="id"
               class="bg-bg-accent-dark text-white rounded-md px-2 py-1"
             >
-              {{ email.split("@")[0] }}
+              {{ member.email.split("@")[0] }}
+              <i v-if="member.isLeader" class="fa-solid fa-crown text-gray-300"></i>
             </span>
           </div>
           <button
@@ -109,7 +110,7 @@ const projects = ref<Project[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
 const selectedProjectId = ref<string | null>(null);
-const memberEmails = ref<{ [key: string]: string }>({});
+const members = ref<{email: string; isLeader: boolean}[]>([]);
 
 const route = useRoute();
 const router = useRouter();
@@ -168,10 +169,12 @@ const handleCreateProject = () => {
 const fetchMemberData = async () => {
   try {
     const orgId = route.params.orgId as string;
-    const emails = await supabaseHelper.fetchOrgMembers(orgId);
-    emails.forEach((email, index) => {
-      memberEmails.value[index] = email;
-    });
+    const { members: memberList, leaderEmail } = await supabaseHelper.fetchOrgMembersWithLeader(orgId);
+    
+    members.value = memberList.map(email => ({
+      email,
+      isLeader: email === leaderEmail
+    }));
   } catch (error) {
     console.error("Ошибка при получении данных участников:", error);
   }

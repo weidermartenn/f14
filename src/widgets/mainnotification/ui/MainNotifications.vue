@@ -69,8 +69,7 @@ const fetchNotifications = async () => {
     if (error) throw error;
 
     notifications.value = data || [];
-    unreadCount.value = data.filter((n) => !n.read).length;
-    console.log("Fetched notifications:", data); // Логирование для отладки
+    unreadCount.value = data.filter((n) => !n.read).length;  
   } catch (error) {
     console.error("Error fetching notifications:", error);
   }

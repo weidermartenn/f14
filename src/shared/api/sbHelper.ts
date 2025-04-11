@@ -150,6 +150,54 @@ class SupabaseHelper {
     }
   };
 
+  public fetchOrgLeader = async (orgId: string): Promise<string> => {
+    try {
+      const { data, error } = await supabase
+        .from("orgs")
+        .select("leaderId")
+        .eq("id", orgId)
+        .single();
+      if (error) throw error;
+      return data.leaderId;
+    } catch (err) {
+      console.error("Error fetching org leader:", err);
+      throw err;
+    }
+  };
+  
+  public fetchOrgMembersWithLeader = async (orgId: string) => {
+    try {
+      // Get organization data including members and leader
+      const { data: orgData, error: orgError } = await supabase
+        .from("orgs")
+        .select("membersIds, leaderId")
+        .eq("id", orgId)
+        .single();
+  
+      if (orgError) throw orgError;
+      if (!orgData?.membersIds?.length) return { members: [], leaderEmail: '' };
+  
+      // Get member emails from the users table
+      const { data: users, error: usersError } = await supabase
+        .from("users")
+        .select("email, id")
+        .in("id", orgData.membersIds);
+  
+      if (usersError) throw usersError;
+  
+      // Find leader email
+      const leader = users.find(user => user.id === orgData.leaderId);
+      
+      return {
+        members: users?.map(user => user.email) || [],
+        leaderEmail: leader?.email || ''
+      };
+    } catch (err) {
+      console.error("Error fetching org members:", err);
+      throw err;
+    }
+  };
+
   public getUserColor = async (id: string) => {
     try {
       const { data, error } = await supabase

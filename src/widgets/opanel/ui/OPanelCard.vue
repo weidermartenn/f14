@@ -88,9 +88,6 @@ onMounted(async () => {
       const color = await supabaseHelper.getUserColor(memberId);
       memberColors.value[memberId] = color;
     }
-
-    console.log("Emails:", allMemberEmails.value);
-    console.log("Colors:", memberColors.value);
   } catch (error) {
     console.error("Ошибка при получении почты пользователей:", error);
   }

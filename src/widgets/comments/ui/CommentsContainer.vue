@@ -19,18 +19,32 @@
         v-for="comment in comments"
         :key="comment.id"
         :comment="comment"
+        :isLeader="isLeader"
         @commentDeleted="handleCommentDeleted"
         @commentUpdated="handleCommentUpdated"
       />
     </div>
-    <div class="flex gap-2 mt-4">
-      <textarea
-        v-model="newComment"
-        @keyup.enter="addComment"
-        @input="checkForMention"
-        placeholder="Введите ваш комментарий..."
-        class="w-[95%] p-2 border border-gray-600 rounded-md bg-gray-800 text-white resize-none overflow-auto h-20"
-      ></textarea>
+    <div class="flex gap-2 mt-4 relative">
+      <div class="w-[95%] relative">
+        <textarea
+          v-model="newComment"
+          @keyup.enter="addComment"
+          @input="checkForMention"
+          placeholder="Введите ваш комментарий..."
+          class="w-full p-2 border border-gray-600 rounded-md bg-gray-800 text-white resize-none overflow-auto h-20"
+          maxlength="250"
+        ></textarea>
+        <div 
+          class="absolute bottom-2 right-1 text-xs"
+          :class="{
+            'text-gray-400': remainingChars > 20,
+            'text-yellow-400': remainingChars <= 20 && remainingChars > 0,
+            'text-red-400': remainingChars === 0
+          }"
+        >
+          {{ remainingChars }}/250
+        </div>
+      </div>
       <button
         @click="addComment"
         class="p-2 text-white rounded-full hover:text-blue-500"
@@ -58,6 +72,7 @@
 
 <script setup lang="ts">
 import { ref, watch, computed, onMounted } from "vue";
+import { useRoute } from "vue-router";
 import { generateId } from "../../../shared/lib/generateId";
 import type { Comment } from "../../../entities/comment/types";
 import { supabaseHelper } from "../../../shared/api/sbHelper";
@@ -70,9 +85,33 @@ const props = defineProps<{
   projectId: string | null;
 }>();
 
+const MAX_COMMENT_LENGTH = 250;
+
 const members = ref<any[]>([]);
 const showMentionDropdown = ref(false);
 const mentionQuery = ref("");
+
+const route = useRoute();
+const isLeader = ref(false);
+
+const remainingChars = computed(() => {
+  return MAX_COMMENT_LENGTH - newComment.value.length;
+});
+
+const checkIfLeader = async () => {
+  try {
+    // Get the current organization ID (you might need to pass this as a prop or get it from route)
+    const orgId = route.params.orgId as string;
+    const leaderId = await supabaseHelper.fetchOrgLeader(orgId);
+    const currentUserEmail = user.value?.email;
+    if (currentUserEmail) {
+      const currentUserId = await supabaseHelper.getUserId(currentUserEmail);
+      isLeader.value = currentUserId === leaderId;
+    }
+  } catch (error) {
+    console.error("Error checking leader status:", error);
+  }
+};
 
 const filteredMembers = computed(() => {
   return members.value.filter(
@@ -272,11 +311,17 @@ watch(
 onMounted(() => {
   fetchMembers();
   loadComments();
+  checkIfLeader();
 });
 
 const addComment = async () => {
   if (newComment.value.trim() === "") {
     addNotification("Комментарий не может быть пустым.", "error");
+    return;
+  }
+
+  if (newComment.value.length > MAX_COMMENT_LENGTH) {
+    addNotification(`Комментарий не может превышать ${MAX_COMMENT_LENGTH} символов.`, "error");
     return;
   }
 

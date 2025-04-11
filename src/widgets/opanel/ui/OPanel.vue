@@ -43,9 +43,7 @@ onMounted(async () => {
   try {
     loading.value = true;
     orgs.value = await supabaseHelper.fetchOrgs(user.value.email);
-    console.log("Загруженные организации:", orgs.value); // Логирование для проверки данных
   } catch (error) {
-    console.error("Ошибка при загрузке организаций:", error);
   } finally {
     loading.value = false;
   }
