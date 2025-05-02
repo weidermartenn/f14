@@ -1,8 +1,8 @@
 <template>
   <div
-    class="flex flex-col items-center justify-center min-h-screen bg-bg-main text-white"
+    class="flex flex-col items-center justify-center min-h-[calc(100vh-180px)] bg-bg-dark text-white"
   >
-    <div class="bg-bg-accent p-8 rounded-lg shadow-lg max-w-md w-full">
+    <div class="bg-bg-accent-dark p-8 rounded-lg shadow-lg max-w-md w-full">
       <h1 class="text-2xl font-bold mb-4 text-center">Подтверждение email</h1>
 
       <div v-if="loading" class="flex flex-col items-center">

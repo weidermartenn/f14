@@ -3,4 +3,6 @@ export interface Orgs {
     membersIds: string[];
     leaderId: string;
     name: string;
+    members_count: number;
+    projects_count: number;
 }
