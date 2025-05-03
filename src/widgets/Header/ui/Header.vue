@@ -18,7 +18,7 @@
                 <ChangeThemeButton class="mr-20"/>
                 <section class="flex gap-4 mr-6">
                 <div v-if="user" class="flex flex-col items-center">
-                    <span class="text-white">{{ username.split('@')[0] }}</span>
+                    <span class="text-white">{{ user.email.split('@')[0] }}</span>
                     <div class="flex gap-4">
                         <button @click="handleProfile" class="text-sm hover:text-gray-300">
                             Профиль
@@ -37,7 +37,6 @@
 
 <script setup lang="ts">
 import logo from "@/app/assets/wflogo.svg";
-import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { user } from "../../../shared/lib/auth";
 import { supabase } from "../../../shared/api/supabaseClient";
@@ -45,8 +44,6 @@ import { ChangeThemeButton } from "../../../features/change-theme";
 import MainNotifications from "../../mainnotification/ui/MainNotifications.vue";
 
 const router = useRouter();
-
-const username = ref<string>(user.value.email)
 
 const authClick = () => {
     router.push({ name: 'auth' });
