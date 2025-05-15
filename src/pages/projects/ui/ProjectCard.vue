@@ -1,15 +1,15 @@
 <template>
   <div>
     <div
-      class="w-64 h-40 bg-bg-accent-dark p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
+      class="w-full h-32 bg-zinc-900 p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow flex flex-col justify-between"
       :class="{ 'border-2 border-blue-500': isSelected }"
       @click="handleSelect"
     >
-      <div class="flex justify-between">
-        <h3 class="text-xl font-semibold truncate max-w-[80%]">{{ project.name }}</h3>
+      <div class="flex justify-between items-center">
+        <h3 class="text-lg font-semibold truncate max-w-[70%]">{{ project.name }}</h3>
         <div class="relative">
           <button
-            @click="toggleMenu"
+            @click.stop="toggleMenu"
             class="w-6 h-6 flex items-center justify-center hover:bg-gray-600 rounded-full duration-150"
             :class="{ 'rotate-90': isMenuOpen }"
           >
@@ -20,13 +20,13 @@
             class="absolute right-0 top-8 bg-zinc-800 rounded-md shadow-lg w-auto z-10"
           >
             <button
-              @click="handleEdit"
+              @click.stop="handleEdit"
               class="w-full px-4 py-2 hover:bg-gray-700 duration-150 rounded-md"
             >
               Изменить
             </button>
             <button
-              @click="handleDelete"
+              @click.stop="handleDelete"
               class="w-full px-4 py-2 hover:bg-gray-700 duration-150 rounded-md"
             >
               Удалить
@@ -34,10 +34,12 @@
           </div>
         </div>
       </div>
-      <p class="text-gray-300 text-sm mt-2">
-        Создан: {{ formatDate(project.createdAt) }}
-      </p>
-      <button @click="handleRedirect(project.id)" class="mt-8 hover:text-gray-400 duration-150">Перейти</button>
+      <div class="flex justify-between items-center">
+        <p class="text-gray-300 text-sm">
+          Создан: {{ formatDate(project.createdAt) }}
+        </p>
+        <button @click.stop="handleRedirect(project.id)" class="hover:text-gray-400 duration-150">Перейти</button>
+      </div>
     </div>
     <div v-if="isEditOpen" class="mt-4 space-y-2">
       <Input type="text" v-model="editedName" />

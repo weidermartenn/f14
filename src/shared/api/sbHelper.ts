@@ -164,7 +164,7 @@ class SupabaseHelper {
       throw err;
     }
   };
-  
+
   public fetchOrgMembersWithLeader = async (orgId: string) => {
     try {
       // Get organization data including members and leader
@@ -173,24 +173,24 @@ class SupabaseHelper {
         .select("membersIds, leaderId")
         .eq("id", orgId)
         .single();
-  
+
       if (orgError) throw orgError;
-      if (!orgData?.membersIds?.length) return { members: [], leaderEmail: '' };
-  
+      if (!orgData?.membersIds?.length) return { members: [], leaderEmail: "" };
+
       // Get member emails from the users table
       const { data: users, error: usersError } = await supabase
         .from("users")
         .select("email, id")
         .in("id", orgData.membersIds);
-  
+
       if (usersError) throw usersError;
-  
+
       // Find leader email
-      const leader = users.find(user => user.id === orgData.leaderId);
-      
+      const leader = users.find((user) => user.id === orgData.leaderId);
+
       return {
-        members: users?.map(user => user.email) || [],
-        leaderEmail: leader?.email || ''
+        members: users?.map((user) => user.email) || [],
+        leaderEmail: leader?.email || "",
       };
     } catch (err) {
       console.error("Error fetching org members:", err);
@@ -290,19 +290,19 @@ class SupabaseHelper {
         .select("membersIds")
         .eq("id", orgId)
         .single();
-  
+
       if (orgError) throw orgError;
       if (!orgData?.membersIds?.length) return [];
-  
+
       // 2. Get member emails from the users table
       const { data: users, error: usersError } = await supabase
         .from("users")
         .select("email")
         .in("id", orgData.membersIds);
-  
+
       if (usersError) throw usersError;
-  
-      return users?.map(user => user.email) || [];
+
+      return users?.map((user) => user.email) || [];
     } catch (err) {
       console.error("Error fetching org members:", err);
       throw err;
@@ -328,9 +328,9 @@ class SupabaseHelper {
   public fetchProject = async (projectId: string) => {
     try {
       const { data, error } = await supabase
-        .from('projects')
-        .select('*')
-        .eq('id', projectId)
+        .from("projects")
+        .select("*")
+        .eq("id", projectId)
         .single();
       if (error) throw error;
       return data;
@@ -478,10 +478,15 @@ class SupabaseHelper {
             const { data: urlData } = supabase.storage
               .from("task-attachments")
               .getPublicUrl(`${projectId}/${taskId}/${file.name}`);
+
+            const { data: metadata } = await supabase.storage
+              .from("task-attachments")
+              .download(`${projectId}/${taskId}/${file.name}`);
             return {
               name: file.name,
               url: urlData.publicUrl,
               type: file.name.split(".").pop()?.toLowerCase() || "file",
+              size: metadata?.size || 0
             };
           })
       );
@@ -518,6 +523,24 @@ class SupabaseHelper {
         .from("tasks")
         .select("*")
         .eq("projectId", projectId);
+      if (error) throw error;
+      return data.map((task: Task) => ({
+        ...task,
+        createdAt: task.createdAt,
+        deadline: task.deadline,
+        labels: task.labels || [],
+      }));
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  public fetchSubTasks = async (taskId: string): Promise<Task[]> => {
+    try {
+      const { data, error } = await supabase
+        .from("task_assignments")
+        .select("*")
+        .eq("taskId", taskId);
       if (error) throw error;
       return data.map((task: Task) => ({
         ...task,

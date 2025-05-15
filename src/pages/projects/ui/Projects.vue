@@ -1,126 +1,295 @@
 <template>
-  <div class="px-6 py-8 min-h-[calc(100vh-180px)]">
+  <div class="px-6 py-2 min-h-[calc(100vh-180px)]">
     <Notification
       v-if="showNotification"
-      :notifications="[
-        { id: '1', message: notificationMessage, type: 'success' },
-      ]"
+      :notifications="[{ id: '1', message: notificationMessage, type: 'success' }]"
       @close="showNotification = false"
     />
-    <button
-      @click="$router.push({ name: 'dashboard' })"
-      class="flex items-center gap-2 mb-4 hover:text-gray-300 duration-150"
-    >
-      <i class="fa-solid fa-chevron-left hover:text-gray-300"></i>
-      <span>Вернуться к дашборду</span>
-    </button>
-    <span class="bg-bg-accent-dark text-white rounded-md px-2 py-1">{{
-      orgName
-    }}</span>
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 ml-20 mt-6">
-      <div class="flex flex-col items-center">
-        <div class="flex flex-col items-center justify-center px-2 py-1 gap-4">
-          <h2 class="text-xl mt-4 w-full text-center">Участники организации</h2>
-          <div class="flex flex-wrap gap-2 mt-2">
-            <!-- Имена участников -->
-            <span
+    
+    <!-- Кнопка возврата -->
+    <div class="w-full p-5 flex justify-center">
+      <button
+        @click="$router.push({ name: 'dashboard' })"
+        class="flex items-center justify-center border-2 border-rose-600 text-rose-600 rounded-md w-10 h-10 hover:border-rose-400 hover:text-rose-400 duration-150"
+      >
+        <i class="fa-solid fa-right-from-bracket"></i>
+      </button>
+    </div>
+
+    <!-- Основной контент с тремя колонками -->
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_0fr_1fr] gap-6">
+      <!-- 1-я колонка: Переключаемые списки -->
+      <div class="bg-bg-accent-dark rounded-lg p-4">
+        <div class="flex border-b border-gray-700 mb-4">
+          <button
+            @click="activeTab = 'members'"
+            :class="{'text-gray-300 border-b-2 border-blue-400': activeTab === 'members', 'text-gray-400': activeTab !== 'members'}"
+            class="px-4 py-2 font-medium"
+          >
+            Участники
+          </button>
+          <button
+            @click="activeTab = 'projects'"
+            :class="{'text-gray-300 border-b-2 border-blue-400': activeTab === 'projects', 'text-gray-400': activeTab !== 'projects'}"
+            class="px-4 py-2 font-medium"
+          >
+            Проекты
+          </button>
+        </div>
+
+        <!-- Контент вкладок -->
+        <div v-if="activeTab === 'members'">
+          <h3 class="text-lg font-semibold mb-4">Участники организации</h3>
+          <div class="space-y-2 max-h-[300px] overflow-y-auto">
+            <div
               v-for="(member, id) in members"
               :key="id"
-              class="bg-bg-accent-dark text-white rounded-md px-2 py-1"
+              class="flex items-center justify-between p-2 hover:bg-gray-800 rounded"
             >
-              {{ member.email.split("@")[0] }}
-              <i v-if="member.isLeader" class="fa-solid fa-crown text-gray-300"></i>
-            </span>
+              <div class="flex items-center">
+                <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center mr-3">
+                  {{ member.email.charAt(0).toUpperCase() }}
+                </div>
+                <span>
+                  {{ member.email.split("@")[0] }}
+                  <i v-if="member.isLeader" class="fa-solid fa-crown text-yellow-400 ml-1"></i>
+                </span>
+              </div>
+              <button
+                v-if="!member.isLeader"
+                @click="removeMember(member.email)"
+                class="text-red-400 hover:text-red-300"
+              >
+                <i class="fa-solid fa-user-minus"></i>
+              </button>
+            </div>
           </div>
           <button
             @click="openAddMemberModal"
-            class="mt-4 hover:text-gray-300 rounded-md px-4 py-2"
+            class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded flex items-center justify-center"
           >
-            + Добавить участника
+            <i class="fa-solid fa-user-plus mr-2"></i>
+            Добавить участника
           </button>
         </div>
-        <h2
-          class="text-3xl mt-4 py-2 mb-4 border-b-2 border-gray-700 w-full text-center"
-        >
-          Все проекты
-        </h2>
-        <span class="text-gray-300 text-center mb-4">
-          Ниже отображаются все созданные вами проекты.
-        </span>
-        <button
-          @click="handleCreateProject"
-          class="w-14 h-10 mt-2 flex items-center justify-center text-3xl cursor-pointer border-2 border-gray-700 rounded-lg hover:border-blue-500 hover:text-blue-500 transition-colors"
-        >
-          +
-        </button>
-        <!-- Загрузка проектов -->
-        <div v-if="loading" class="mt-10 flex justify-center">
-          <LoadingSpinner />
-        </div>
-        <!-- Состояние ошибки-->
-        <div v-else-if="error" class="mt-10 text-center flex justify-center">
-          Ошибка: {{ error }}
-        </div>
-        <!-- Состояние, когда проектов нет -->
-        <div
-          v-else-if="projects.length === 0"
-          class="mt-10 text-center flex justify-center"
-        >
-          Проектов пока нет.
-        </div>
-        <!-- Отображение проектов -->
-        <div
-          v-else
-          class="w-full mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-        >
-          <ProjectCard
-            v-for="project in projects"
-            :key="project.id"
-            :project="project"
-            :is-selected="selectedProjectId === project.id"
-            @edit="handleProjectUpdate"
-            @delete="handleProjectDelete"
-            @select="handleProjectSelect"
-          />
+
+        <div v-else>
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold">Проекты организации</h3>
+            <button
+              @click="handleCreateProject"
+              class="w-8 h-8 flex items-center justify-center text-xl cursor-pointer border border-gray-600 rounded-lg hover:border-blue-500 hover:text-blue-500 transition-colors"
+            >
+              +
+            </button>
+          </div>
+          
+          <div v-if="loading" class="flex justify-center py-10">
+            <LoadingSpinner />
+          </div>
+          
+          <div v-else-if="error" class="text-center py-10 text-red-400">
+            Ошибка: {{ error }}
+          </div>
+          
+          <div v-else-if="projects.length === 0" class="text-center py-10 text-gray-400">
+            Проектов пока нет
+          </div>
+          
+          <div v-else class="space-y-2 max-h-[300px] overflow-y-auto">
+            <ProjectCard
+              v-for="project in projects"
+              :key="project.id"
+              :project="project"
+              :is-selected="selectedProjectId === project.id"
+              @select="handleProjectSelect"
+            />
+          </div>
         </div>
       </div>
-      <div class="flex items-center justify-center h-full">
-        <CommentsContainer
-          class="h-[calc(100vh-240px)] w-full max-w-lg"
-          :project-id="selectedProjectId"
-        />
+
+      <!-- 2-я колонка: Аналитика -->
+      <div class="rounded-lg">
+        <h3 class="bg-bg-accent-dark p-4 rounded-md text-lg font-semibold mb-4">Аналитика проекта</h3>
+        
+        <!-- График активности -->
+        <div class="bg-bg-accent-dark p-4 rounded-md mb-6">
+          <h4 class="text-md font-medium mb-2">Активность по дням</h4>
+          <div class="h-64">
+            <canvas ref="activityChart"></canvas>
+          </div>
+        </div>
+        
+        <!-- Круговые диаграммы -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="bg-bg-accent-dark rounded-md p-4">
+            <h4 class="text-md font-medium mb-2">Выполняемость задач</h4>
+            <div class="h-48">
+              <canvas ref="completionChart"></canvas>
+            </div>
+          </div>
+          <div class="bg-bg-accent-dark rounded-md p-4">
+            <h4 class="text-md font-medium mb-2">Распределение по типам</h4>
+            <div class="h-48">
+              <canvas ref="typeDistributionChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3-я колонка: Чат -->
+      <div class="bg-bg-accent-dark rounded-lg p-4 flex flex-col">
+        <h3 class="text-lg font-semibold mb-4">Чат проекта</h3>
+        <CommentsContainer :projectId="selectedProjectId" />
       </div>
     </div>
+
     <AddMemberModal ref="addMemberModal" @memberAdded="handleMemberAdded" />
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, watch, nextTick } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+import { Chart, registerables } from 'chart.js';
 import ProjectCard from "./ProjectCard.vue";
 import LoadingSpinner from "../../../shared/ui/LoadingSpinner/ui/LoadingSpinner.vue";
-import CommentsContainer from "../../../widgets/comments/ui/CommentsContainer.vue";
 import AddMemberModal from "../../../widgets/addmember/ui/AddMemberModal.vue";
-import { ref, onMounted, watch } from "vue";
-import { useRoute, useRouter } from "vue-router";
 import { supabaseHelper } from "../../../shared/api/sbHelper";
 import type { Project } from "../../../entities/project/types";
 import Notification from "../../../widgets/notification/ui/Notification.vue";
+import CommentsContainer from '../../../widgets/comments/ui/CommentsContainer.vue';
+
+Chart.register(...registerables);
 
 const projects = ref<Project[]>([]);
 const loading = ref(true);
 const error = ref<string | null>(null);
 const selectedProjectId = ref<string | null>(null);
-const members = ref<{email: string; isLeader: boolean}[]>([]);
+const members = ref<{ email: string; isLeader: boolean }[]>([]);
+const activeTab = ref<'members' | 'projects'>('projects');
+const newMessage = ref('');
+const chatMessages = ref([
+  { user: 'Алексей', time: '12:30', text: 'Привет, как продвигается работа?' },
+  { user: 'Мария', time: '12:32', text: 'Почти закончила свою часть' },
+  { user: 'Вы', time: '12:35', text: 'Отлично! Я тоже почти закончил' }
+]);
 
 const route = useRoute();
 const router = useRouter();
 
 const showNotification = ref(false);
 const notificationMessage = ref("");
-
-const orgName = ref("");
 const addMemberModal = ref<InstanceType<typeof AddMemberModal> | null>(null);
 
+// Refs для графиков
+const activityChart = ref<HTMLCanvasElement | null>(null);
+const completionChart = ref<HTMLCanvasElement | null>(null);
+const typeDistributionChart = ref<HTMLCanvasElement | null>(null);
+
+const sendMessage = () => {
+  if (newMessage.value.trim()) {
+    chatMessages.value.push({
+      user: 'Вы',
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      text: newMessage.value
+    });
+    newMessage.value = '';
+    // Здесь можно добавить отправку сообщения на сервер
+  }
+};
+
+const removeMember = (email: string) => {
+  // Реализация удаления участника
+  console.log('Удалить участника:', email);
+};
+
+const initCharts = () => {
+  nextTick(() => {
+    // График активности
+    if (activityChart.value) {
+      new Chart(activityChart.value, {
+        type: 'bar',
+        data: {
+          labels: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
+          datasets: [{
+            label: 'Активность',
+            data: [12, 19, 8, 15, 22, 13, 7],
+            backgroundColor: 'rgba(59, 130, 246, 0.7)',
+            borderColor: 'rgba(59, 130, 246, 1)',
+            borderWidth: 1,
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, grid: { color: 'rgba(75, 85, 99, 0.2)' } },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }
+
+    // Диаграмма выполняемости
+    if (completionChart.value) {
+      new Chart(completionChart.value, {
+        type: 'doughnut',
+        data: {
+          labels: ['Выполнено', 'В работе', 'Не начато'],
+          datasets: [{
+            data: [65, 25, 10],
+            backgroundColor: [
+              'rgba(16, 185, 129, 0.7)',
+              'rgba(59, 130, 246, 0.7)',
+              'rgba(156, 163, 175, 0.7)'
+            ],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '70%',
+          plugins: {
+            legend: { position: 'bottom' }
+          }
+        }
+      });
+    }
+
+    // Диаграмма распределения по типам
+    if (typeDistributionChart.value) {
+      new Chart(typeDistributionChart.value, {
+        type: 'pie',
+        data: {
+          labels: ['Разработка', 'Дизайн', 'Тестирование', 'Документация'],
+          datasets: [{
+            data: [40, 30, 15, 15],
+            backgroundColor: [
+              'rgba(59, 130, 246, 0.7)',
+              'rgba(168, 85, 247, 0.7)',
+              'rgba(22, 163, 74, 0.7)',
+              'rgba(234, 88, 12, 0.7)'
+            ],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom' }
+          }
+        }
+      });
+    }
+  });
+};
+
+// Остальные методы остаются без изменений
 const handleProjectSelect = (projectId: string) => {
   selectedProjectId.value = projectId;
   localStorage.setItem("selectedProjectId", projectId);
@@ -129,34 +298,17 @@ const handleProjectSelect = (projectId: string) => {
 const loadProjects = async () => {
   try {
     const orgId = route.params.orgId as string;
-    if (!orgId) {
-      throw new Error("Организация не найдена.");
-    }
+    if (!orgId) throw new Error("Организация не найдена.");
 
     loading.value = true;
     error.value = null;
-
-    const data = await supabaseHelper.fetchProjects(orgId);
-    projects.value = data;
+    projects.value = await supabaseHelper.fetchProjects(orgId);
   } catch (err) {
     console.error("Ошибка при загрузке проектов:", err);
-    error.value = err as string;
+    error.value = err instanceof Error ? err.message : String(err);
   } finally {
     loading.value = false;
   }
-};
-
-const handleProjectUpdate = (updatedProject: Project) => {
-  projects.value = projects.value.map((p: Project) =>
-    p.id === updatedProject.id ? updatedProject : p
-  );
-};
-
-const handleProjectDelete = async (deletedProject: Project) => {
-  projects.value = projects.value.filter(
-    (p: Project) => p.id !== deletedProject.id
-  );
-  await loadProjects();
 };
 
 const handleCreateProject = () => {
@@ -169,11 +321,12 @@ const handleCreateProject = () => {
 const fetchMemberData = async () => {
   try {
     const orgId = route.params.orgId as string;
-    const { members: memberList, leaderEmail } = await supabaseHelper.fetchOrgMembersWithLeader(orgId);
-    
-    members.value = memberList.map(email => ({
+    const { members: memberList, leaderEmail } =
+      await supabaseHelper.fetchOrgMembersWithLeader(orgId);
+
+    members.value = memberList.map((email) => ({
       email,
-      isLeader: email === leaderEmail
+      isLeader: email === leaderEmail,
     }));
   } catch (error) {
     console.error("Ошибка при получении данных участников:", error);
@@ -181,51 +334,64 @@ const fetchMemberData = async () => {
 };
 
 const openAddMemberModal = () => {
-  if (addMemberModal.value) {
-    addMemberModal.value.openModal();
-  }
+  addMemberModal.value?.openModal();
 };
 
 const handleMemberAdded = async (data: { email: string; message: string }) => {
-  try {
-    showNotification.value = true;
-    notificationMessage.value = data.message;
-
-    // Reset notification after 5 seconds
-    setTimeout(() => {
-      showNotification.value = false;
-    }, 5000);
-
-    // Refresh members list
-    await fetchMemberData();
-  } catch (error) {
-    console.error("Error handling member addition:", error);
-  }
+  showNotification.value = true;
+  notificationMessage.value = data.message;
+  setTimeout(() => showNotification.value = false, 5000);
+  await fetchMemberData();
 };
 
 onMounted(() => {
   loadProjects();
-  supabaseHelper
-    .fetchOrgName(route.params.orgId as string)
-    .then((name) => (orgName.value = name));
-
   fetchMemberData();
-
+  
   const savedProjectId = localStorage.getItem("selectedProjectId");
   if (savedProjectId) {
     selectedProjectId.value = savedProjectId;
-  } else if (projects.value.length > 0) {
-    selectedProjectId.value = projects.value[0].id;
   }
+  
+  initCharts();
 });
 
-watch(
-  projects,
-  (newProjects) => {
-    if (newProjects.length > 0 && !selectedProjectId.value) {
-      selectedProjectId.value = newProjects[0].id;
-    }
-  },
-  { immediate: true }
-);
+watch(projects, (newProjects) => {
+  if (newProjects.length > 0 && !selectedProjectId.value) {
+    selectedProjectId.value = newProjects[0].id;
+  }
+}, { immediate: true });
 </script>
+
+<style scoped>
+/* Стили для скроллбара */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #4b5563;
+  border-radius: 3px;
+}
+
+/* Анимации */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+/* Общие стили переходов */
+.transition-colors {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+</style>

@@ -19,7 +19,7 @@
       </div>
     </div>
     <div
-      class="bg-zinc-400 dark:bg-zinc-900 w-full max-w-[1200px] h-[1000px] rounded-md mt-4 mb-20 flex flex-col"
+      class="bg-zinc-400 dark:bg-zinc-900 w-full max-w-[1500px] h-[1000px] rounded-md mt-4 mb-20 flex flex-col"
     >
       <div class="w-full flex justify-center items-center p-4 shadow-lg">
         <!-- Контейнер для пунктов -->

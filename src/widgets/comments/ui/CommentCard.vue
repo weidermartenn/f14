@@ -1,68 +1,93 @@
 <template>
   <div
-    class="comment-card border border-gray-200 rounded-lg p-4 mb-2 bg-zinc-900"
+    class="comment-card w-full rounded-xl p-4 transition-all duration-200"
+    :class="{
+      'bg-blue-50 dark:bg-blue-900/30 border border-blue-100 dark:border-blue-800/50': isCurrentUser,
+      'bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700': !isCurrentUser
+    }"
   >
-    <div class="flex justify-between">
-      <p class="comment-id text-gray-500">{{ username }}</p>
-      <div v-if="isCurrentUser" class="flex gap-4">
+    <!-- Заголовок комментария -->
+    <div class="flex justify-between items-start mb-2">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium"
+          :class="isCurrentUser ? 'bg-blue-600' : 'bg-gray-600'">
+          {{ username[0] }}
+        </div>
+        <div>
+          <p class="font-medium text-gray-900 dark:text-gray-100">{{ username }}</p>
+          <p class="text-xs text-gray-500 dark:text-gray-400">{{ formattedTime }}</p>
+        </div>
+      </div>
+      
+      <div v-if="isCurrentUser" class="flex gap-1">
         <button
           @click="startEditing"
-          class="hover:text-gray-300 hover:bg-gray-600 px-1 rounded duration-150"
+          class="p-1.5 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors duration-200"
+          title="Редактировать"
         >
-          <i class="fa-solid fa-edit"></i>
+          <i class="fas fa-edit text-sm"></i>
         </button>
         <button
           @click="deleteComment"
-          class="hover:text-gray-300 hover:bg-gray-600 px-1 rounded duration-150"
+          class="p-1.5 text-gray-500 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors duration-200"
+          title="Удалить"
         >
-          <i class="fa-solid fa-trash"></i>
+          <i class="fas fa-trash-alt text-sm"></i>
         </button>
       </div>
     </div>
 
-    <div v-if="isEditing" class="comment-edit-container mt-2">
+    <!-- Редактирование комментария -->
+    <div v-if="isEditing" class="mt-3">
       <textarea
         v-model="editedComment"
-        class="w-full p-2 border border-gray-600 rounded-md bg-gray-800 text-white"
+        class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
         rows="3"
+        maxlength="250"
+        autofocus
       ></textarea>
       <div class="flex justify-end gap-2 mt-2">
         <button
           @click="cancelEditing"
-          class="px-3 py-1 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+          class="px-3 py-1.5 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
         >
           Отмена
         </button>
         <button
           @click="saveComment"
-          class="px-3 py-1 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          class="px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200"
+          :disabled="editedComment.trim() === ''"
+          :class="{'opacity-50 cursor-not-allowed': editedComment.trim() === ''}"
         >
           Сохранить
         </button>
       </div>
     </div>
-    <div v-else class="comment-text-container relative">
-      <p
+    
+    <!-- Содержимое комментария -->
+    <div v-else class="comment-content mt-2">
+      <div
         ref="commentText"
-        :class="['comment-text text-gray-300', { 'line-clamp-3': !isExpanded }]"
+        class="comment-text text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words"
+        :class="{'line-clamp-3': !isExpanded && shouldShowToggle}"
         v-html="formatCommentText(comment.comment)"
-      ></p>
+      ></div>
+      
+      <!-- Кнопка развернуть/свернуть -->
       <button
-        v-if="isOverflow"
+        v-if="shouldShowToggle"
         @click="toggleExpand"
-        class="hover:underline text-blue-500"
+        class="text-blue-600 dark:text-blue-400 hover:underline text-sm mt-1 transition-colors duration-200 flex items-center gap-1"
       >
-        {{ isExpanded ? "Свернуть" : "Развернуть" }}
+        <i class="fas" :class="isExpanded ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+        {{ isExpanded ? 'Свернуть' : 'Развернуть' }}
       </button>
     </div>
-    <span class="comment-timestamp text-sm text-gray-600">{{
-      formatTimestamp(comment.createdAt)
-    }}</span>
   </div>
 </template>
 
 <script setup lang="ts">
-import { defineProps, ref, onMounted, nextTick, computed, onUnmounted } from "vue";
+import { defineProps, ref, onMounted, nextTick, computed } from "vue";
 import type { Comment } from "../../../entities/comment/types";
 import { supabaseHelper } from "../../../shared/api/sbHelper";
 import { user } from "../../../shared/lib/auth";
@@ -84,6 +109,22 @@ const currentUserId = ref("");
 
 const isCurrentUser = computed(() => {
   return currentUserId.value === props.comment.userId || props.isLeader;
+});
+
+const shouldShowToggle = computed(() => {
+  return isOverflow.value && props.comment.comment.length > 100;
+});
+
+const formattedTime = computed(() => {
+  const date = new Date(props.comment.createdAt);
+  // Убедимся, что время корректно (учитываем локальное время)
+  return date.toLocaleTimeString('ru-RU', {
+    hour: '2-digit',
+    minute: '2-digit',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
 });
 
 const fetchUsername = async () => {
@@ -113,29 +154,15 @@ const fetchCurrentUserId = async () => {
   }
 };
 
-const formatTimestamp = (timestamp: Date) => {
-  // Создаем новую дату, добавляя 3 часа к переданному времени
-  const date = new Date(timestamp);
-  date.setHours(date.getHours() + 3);
-
-  return new Intl.DateTimeFormat('ru-RU', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    timeZone: 'Europe/Moscow' // Для UTC+3
-  }).format(date);
-};
-
 const toggleExpand = () => {
   isExpanded.value = !isExpanded.value;
 };
 
-const checkOverflow = () => {
+const checkOverflow = async () => {
+  await nextTick();
   if (commentText.value) {
-    isOverflow.value =
-      commentText.value.scrollHeight > commentText.value.clientHeight;
+    // Проверяем, превышает ли высота содержимого высоту элемента
+    isOverflow.value = commentText.value.scrollHeight > commentText.value.clientHeight;
   }
 };
 
@@ -163,6 +190,8 @@ const saveComment = async () => {
 };
 
 const deleteComment = async () => {
+  if (!confirm("Вы уверены, что хотите удалить этот комментарий?")) return;
+  
   try {
     await supabaseHelper.deleteComment(props.comment.id);
     emit("commentDeleted", props.comment.id);
@@ -174,35 +203,28 @@ const deleteComment = async () => {
 onMounted(async () => {
   await fetchUsername();
   await fetchCurrentUserId();
-  await nextTick();
-  checkOverflow();
-  
-  // Добавляем обработчик изменения размера окна
-  window.addEventListener('resize', checkOverflow);
+  await checkOverflow();
 });
 
-// Не забудьте удалить обработчик при уничтожении компонента
-onUnmounted(() => {
-  window.removeEventListener('resize', checkOverflow);
-});
+// Добавляем обработчик ресайза
+window.addEventListener('resize', checkOverflow);
 </script>
 
-<style>
-/* Обновленные стили для текста комментария */
+<style scoped>
+.comment-card {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
 .comment-text {
-  white-space: pre-wrap; /* Сохраняем переносы строк */
-  word-wrap: break-word; /* Переносим длинные слова */
-  overflow-wrap: break-word; /* Альтернатива для word-wrap */
+  line-height: 1.5;
 }
 
 .line-clamp-3 {
   display: -webkit-box;
+  -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-  white-space: pre-wrap; /* Добавляем для сохранения переносов */
 }
 
 .mention {
@@ -210,6 +232,12 @@ onUnmounted(() => {
   padding: 0 2px;
   border-radius: 3px;
   color: #3b82f6;
-  display: inline; /* Убедимся, что упоминания отображаются правильно */
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.mention:hover {
+  background-color: rgba(59, 130, 246, 0.3);
+  text-decoration: none;
 }
 </style>

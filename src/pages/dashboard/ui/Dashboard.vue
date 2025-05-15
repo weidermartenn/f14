@@ -7,13 +7,16 @@
         @select="selectOrg"
         class="w-full md:w-1/3 lg:w-1/4"
       />
-
+      
+      <div>
+        
+      </div>
       <!-- Правая колонка - виджеты -->
       <div class="w-full md:w-1/3 lg:w-3/4 space-y-6">
         <!-- Блок для лидера организации -->
         <transition name="fade-slide">
           <div
-            v-if="isCurrentUserLeader"
+            v-if="!isCurrentUserLeader"
             class="relative bg-gradient-to-r from-teal-900/30 to-bg-accent-dark rounded-lg shadow-lg p-5 flex items-center justify-between border-l-4 border-teal-500 overflow-hidden"
           >
             <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-teal-500/10 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-500"></div>

@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-col items-center gap-4 p-4 min-h-screen">
+  <div class="flex flex-col items-center gap-4 p-4 min-h-screen bg-gray-900">
     <div class="flex flex-col items-center gap-1">
       <span class="text-sm text-gray-400"
         >Перемещайте задачи между колонками с помощью перетаскивания</span
@@ -10,7 +10,7 @@
     </div>
 
     <div class="flex gap-6 items-center justify-center">
-      <span>Добавить задачу</span>
+      <span class="text-white">Добавить задачу</span>
       <button
         @click="handleAddTask"
         class="w-12 h-8 flex items-center justify-center text-xl cursor-pointer border-2 border-gray-700 rounded-lg hover:border-blue-500 hover:text-blue-500 transition-colors"
@@ -22,7 +22,7 @@
     <div class="mr-12 flex items-center gap-4 relative">
       <i
         id="info"
-        class="fa-solid fa-circle-info text-2xl text-zinc-700 flex justify-center items-center w-8 h-8 rounded-full hover:bg-bg-accent-dark hover:text-zinc-500 duration-150"
+        class="fa-solid fa-circle-info text-2xl text-zinc-700 flex justify-center items-center w-8 h-8 rounded-full hover:bg-gray-700 hover:text-zinc-500 duration-150"
         @mouseenter="showTips = true"
         @mouseleave="showTips = false"
       ></i>
@@ -31,7 +31,7 @@
         <div
           v-if="showTips"
           id="tips"
-          class="bg-bg-dark p-4 rounded-lg shadow-md shadow-black flex flex-col gap-3 absolute left-12 top-0 z-50"
+          class="bg-gray-800 p-4 rounded-lg shadow-md shadow-black flex flex-col gap-3 absolute left-12 top-0 z-50"
         >
           <div class="flex items-center gap-2">
             <button
@@ -72,7 +72,7 @@
         <div
           v-for="column in columns"
           :key="column.id"
-          class="flex-1 bg-bg-accent-dark rounded-lg p-4 shadow-md shadow-black flex flex-col min-h-[600px] max-h-[600px]"
+          class="flex-1 bg-gray-800 rounded-lg p-4 shadow-md shadow-black flex flex-col min-h-[600px] max-h-[600px] min-w-[450px]"
         >
           <div class="flex justify-center">
             <i :class="column.icon" class="text-3xl text-gray-400 mb-2"></i>
@@ -83,7 +83,7 @@
             :move="checkMove"
             group="tasks"
             item-key="id"
-            class="mt-10 flex flex-col gap-2 p-4 overflow-y-auto flex-1 min-w-[320px]"
+            class="mt-10 flex flex-col gap-2 p-4 overflow-y-auto flex-1 custom-scrollbar"
             @change="(event) => handleTaskMove(event, column.id)"
             @move="onDragMove"
             @end="onDragEnd"
@@ -416,6 +416,42 @@ onMounted(async () => {
 }
 
 .overflow-x-auto::-webkit-scrollbar-thumb {
+  background-color: #3f3f46;
+  border-radius: 4px;
+}
+
+/* Дополнительные стили для улучшения внешнего вида */
+.bg-gray-900 {
+  background-color: #111827;
+}
+
+.shadow-md {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.hover\:text-blue-500:hover {
+  color: #3b82f6;
+}
+
+.hover\:border-blue-500:hover {
+  border-color: #3b82f6;
+}
+
+/* Стили для вертикального скролла */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #3f3f46 #27272a;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #27272a;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
   background-color: #3f3f46;
   border-radius: 4px;
 }

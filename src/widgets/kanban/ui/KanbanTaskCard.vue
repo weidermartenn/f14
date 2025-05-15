@@ -2,7 +2,7 @@
   <div>
     <TaskEditPanel :task="task" :isOpen="isEditPanelOpen" @close="handleEditClose" @updated="handleTaskUpdated"/>
     <div
-    :class="['w-72 h-42 p-2 flex flex-col justify-between rounded-md border-2 cursor-pointer',
+    :class="['w-82 h-42 p-2 flex flex-col justify-between rounded-md border-2 cursor-pointer',
       task.isFrozen ? 'bg-gray-800 border-gray-600' : 'bg-bg-dark border-gray-700 hover:border-blue-500'
     ]">
       <TaskDetail :task="task" :isOpen="isOpen" @close="handleClose"/>
@@ -21,7 +21,10 @@
           </button>
       </div>
       <div @click="handleClick">
-        <span class="inline-block mt-2 text-md truncate max-w-[100%]"><code class="bg-bg-accent-dark rounded-sm px-2 py-2">{{ task.name }}</code></span>
+        <div class="flex flex-col">
+          <span class="inline-block mt-2 text-xs text-gray-300">{{ task.id }}</span>
+          <span class="inline-block mt-2 text-md truncate max-w-[100%]"><code class="bg-bg-accent-dark rounded-sm px-2 py-2">{{ task.name }}</code></span>
+        </div>
         <div class="mt-4 grid grid-cols-2">
           <div class="flex flex-col">
             <span class="flex gap-1 items-center text-xs text-gray-400">
