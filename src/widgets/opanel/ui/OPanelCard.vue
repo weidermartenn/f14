@@ -1,7 +1,7 @@
 <template>
   <div
     @click="handleOrg"
-    class="w-full flex items-center bg-bg-dark hover:bg-zinc-500 cursor-pointer p-4 rounded-md"
+    class="w-full flex items-center bg-bg-dark hover:bg-zinc-800 cursor-pointer p-4 rounded-md duration-150"
     :class="{ 'bg-bg-accent-darker border-l-4 border-blue-500': isSelected }"
   >
     <div class="flex flex-col">
