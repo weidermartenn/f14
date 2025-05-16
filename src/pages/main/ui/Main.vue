@@ -6,7 +6,7 @@
             <div class="flex flex-col justify-center items-center w-[44rem] h-[12rem] bg-zinc-900 rounded-md gap-6">
                 <span class="text-xl text-white">Добро пожаловать на <span class="font-semibold">FKanban</span></span>
                 <span class="text-center text-gray-300">Ваш идеальный инструмент для организации задач и управления проектами.</span>
-                <button @click="createProject">Начать работу</button>
+                <button @click="router.push({ name: 'dashboard' })">Начать работу</button>
             </div>
 
             <!-- Основной текст -->
@@ -66,24 +66,10 @@
 <script setup lang="ts">
 import { useInternetConnection } from '../../../features/check-internet-conn/lib/useInternetConnection';
 import { useRouter } from 'vue-router';
-import { supabaseHelper } from '../../../shared/api/sbHelper';
-import { user } from '../../../shared/lib/auth';
-import { ref } from 'vue';
-
 
 const { isOnline } = useInternetConnection();
 
 const router = useRouter();
-const isHadOrg = ref(false);
-
-const createProject = async () => {
-    isHadOrg.value = await supabaseHelper.checkOrg(user.value.email);
-    if (isHadOrg) {
-        router.push({ name: 'dashboard' });
-    } else {
-        router.push({ name: 'create-organization' });
-    }
-}
 </script>
 
 <style scoped>
