@@ -8,7 +8,7 @@
       <input
         v-model="newMemberEmail"
         type="email"
-        placeholder="Введите email участника"
+        placeholder="Введите email пользователя"
         class="w-full text-black p-2 border border-gray-300 rounded-md mb-4"
       />
       <div class="flex justify-end">

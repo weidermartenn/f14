@@ -110,7 +110,7 @@
 
       <!-- 2-я колонка: Аналитика -->
       <div class="rounded-lg">
-        <h3 class="bg-bg-accent-dark p-4 rounded-md text-lg font-semibold mb-4">Аналитика проекта</h3>
+        <h3 class="bg-bg-accent-dark p-4 rounded-md text-lg font-semibold mb-4">Аналитика организации</h3>
         
         <!-- График активности -->
         <div class="bg-bg-accent-dark p-4 rounded-md mb-6">

@@ -7,25 +7,22 @@
         @select="selectOrg"
         class="w-full md:w-1/3 lg:w-1/4"
       />
-      
-      <div>
-        
-      </div>
+
       <!-- Правая колонка - виджеты -->
       <div class="w-full md:w-1/3 lg:w-3/4 space-y-6">
         <!-- Блок для лидера организации -->
         <transition name="fade-slide">
           <div
-            v-if="!isCurrentUserLeader"
+            v-if="!isCurrentUserLeader && selectedOrg"
             class="relative bg-gradient-to-r from-teal-900/30 to-bg-accent-dark rounded-lg shadow-lg p-5 flex items-center justify-between border-l-4 border-teal-500 overflow-hidden"
           >
             <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-teal-500/10 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-500"></div>
-            
+
             <div class="flex items-center gap-3 z-10">
               <div class="p-2 bg-teal-500/20 rounded-full transition-all duration-300 hover:bg-teal-500/30 hover:scale-105">
                 <i class="fa-solid fa-crown text-teal-400 text-lg transition-all duration-500 hover:text-teal-300"></i>
               </div>
-              
+
               <div>
                 <h3 class="text-lg font-semibold text-gray-200 flex items-center">
                   <span class="text-teal-400 font-bold mr-1 transition-colors duration-300 hover:text-teal-300">Вы</span>
@@ -36,7 +33,7 @@
                 </p>
               </div>
             </div>
-            
+
             <button
               @click="openGuide"
               class="relative z-10 text-xs bg-teal-500/10 hover:bg-teal-500/20 text-teal-400 hover:text-teal-300 px-3 py-1 rounded-md transition-all duration-300 flex items-center gap-1 group"
@@ -47,7 +44,40 @@
           </div>
         </transition>
 
-        <!-- Виджет выбранной организации -->
+        <!-- Section to delete organization -->
+        <transition name="fade-slide">
+          <div
+            v-if="!isCurrentUserLeader && selectedOrg"
+            class="relative bg-gradient-to-r from-red-900/30 to-bg-accent-dark rounded-lg shadow-lg p-5 flex items-center justify-between border-l-4 border-red-500 overflow-hidden mt-4"
+          >
+            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,var(--tw-gradient-stops))] from-red-500/10 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-500"></div>
+
+            <div class="flex items-center gap-3 z-10">
+              <div class="p-2 bg-red-500/20 rounded-full transition-all duration-300 hover:bg-red-500/30 hover:scale-105">
+                <i class="fa-solid fa-trash text-red-400 text-lg transition-all duration-500 hover:text-red-300"></i>
+              </div>
+
+              <div>
+                <h3 class="text-lg font-semibold text-gray-200 flex items-center">
+                  <span class="text-red-400 font-bold mr-1 transition-colors duration-300 hover:text-red-300">Удалить организацию</span>
+                </h3>
+                <p class="text-sm text-gray-500 mt-1 transition-colors duration-300 hover:text-gray-400">
+                  Это действие нельзя будет отменить
+                </p>
+              </div>
+            </div>
+
+            <button
+              @click="openDeleteConfirmation"
+              class="relative z-10 text-xs bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 px-3 py-1 rounded-md transition-all duration-300 flex items-center gap-1 group"
+            >
+              <i class="fa-solid fa-trash transition-transform duration-300 group-hover:rotate-12"></i>
+              <span class="transition-all duration-300 group-hover:translate-x-0.5">Удалить</span>
+            </button>
+          </div>
+        </transition>
+
+        <!-- Виджет выбранной организации или сообщение об отсутствии -->
         <transition name="fade" mode="out-in">
           <div
             v-if="selectedOrg && !loading"
@@ -60,7 +90,7 @@
                 <button class="p-2 text-gray-400 hover:text-blue-500 transition-colors">
                   <i class="fa-solid fa-pen-to-square"></i>
                 </button>
-                <button 
+                <button
                   @click="leaveOrg(selectedOrg.id)"
                   class="p-2 text-gray-400 hover:text-red-500 transition-colors"
                 >
@@ -70,25 +100,38 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-              <StatCard 
-                title="Участники" 
-                :value="selectedOrg.members_count" 
+              <StatCard
+                title="Участники"
+                :value="selectedOrg.members_count"
                 icon="users"
                 color="blue"
               />
-              <StatCard 
-                title="Проекты" 
-                :value="selectedOrg.projects_count || 0" 
+              <StatCard
+                title="Проекты"
+                :value="selectedOrg.projects_count || 0"
                 icon="folder"
                 color="green"
               />
-              <StatCard 
-                title="Активность" 
-                value="Высокая" 
+              <StatCard
+                title="Активность"
+                value="Высокая"
                 icon="activity"
                 color="yellow"
               />
             </div>
+          </div>
+          <div
+            v-else-if="!loading && orgs.length === 0"
+            key="no-orgs"
+            class="bg-bg-accent-dark rounded-lg shadow-lg p-5 text-center"
+          >
+            <p class="text-gray-400">У вас нет организаций</p>
+            <button 
+              @click="createNewOrg"
+              class="mt-4 px-4 py-2 bg-teal-600 hover:bg-teal-700 rounded-md text-white transition-colors duration-300"
+            >
+              Создать новую организацию
+            </button>
           </div>
           <div
             v-else
@@ -253,6 +296,57 @@
         </div>
       </div>
     </transition>
+
+    <!-- Модальное окно подтверждения удаления -->
+    <transition name="modal">
+      <div
+        v-if="showDeleteConfirmation"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50"
+        @click.self="closeDeleteConfirmation"
+      >
+        <div class="relative bg-bg-accent-dark rounded-xl shadow-2xl max-w-md w-full">
+          <div class="p-6 space-y-4">
+            <h2 class="text-xl font-bold text-red-400 flex items-center gap-2">
+              <i class="fa-solid fa-exclamation-triangle"></i>
+              Подтверждение удаления
+            </h2>
+            <p class="text-gray-300">Вы уверены, что хотите удалить организацию?</p>
+            <div v-if="confirmDelete" class="mt-4">
+              <input
+                v-model="orgNameInput"
+                type="text"
+                placeholder="Введите название организации"
+                class="w-full p-2 border border-gray-600 rounded bg-bg-accent-dark text-white"
+              />
+            </div>
+          </div>
+
+          <div class="p-4 border-t border-gray-800 flex justify-end gap-2">
+            <button
+              @click="closeDeleteConfirmation"
+              class="px-4 py-2 bg-gray-600 hover:bg-gray-700 rounded-md text-white transition-colors duration-300"
+            >
+              Отмена
+            </button>
+            <button
+              v-if="!confirmDelete"
+              @click="confirmDelete = true"
+              class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-md text-white transition-colors duration-300"
+            >
+              Да
+            </button>
+            <button
+              v-else
+              @click="deleteOrganization"
+              :disabled="orgNameInput !== selectedOrg?.name"
+              class="px-4 py-2 bg-red-600 hover:bg-red-700 rounded-md text-white transition-colors duration-300 disabled:opacity-50"
+            >
+              Подтвердить
+            </button>
+          </div>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -276,6 +370,9 @@ const loading = ref(false);
 const router = useRouter();
 const showGuide = ref(false);
 const chartLoading = ref(true);
+const showDeleteConfirmation = ref(false);
+const confirmDelete = ref(false);
+const orgNameInput = ref("");
 
 const isCurrentUserLeader = computed(() => {
   return selectedOrg.value?.leaderId === user.value.id;
@@ -319,6 +416,8 @@ const fetchOrgs = async () => {
     orgs.value = await supabaseHelper.fetchOrgs(user.value.email);
     if (orgs.value.length > 0) {
       selectedOrg.value = orgs.value[0];
+    } else {
+      selectedOrg.value = null;
     }
   } catch (error) {
     console.error("Не удалось загрузить организации");
@@ -350,6 +449,54 @@ const closeGuide = () => {
 
 const leaveOrg = async (orgId: string) => {
   // Реализация выхода из организации
+};
+
+const openDeleteConfirmation = () => {
+  showDeleteConfirmation.value = true;
+  document.body.style.overflow = "hidden";
+};
+
+const closeDeleteConfirmation = () => {
+  showDeleteConfirmation.value = false;
+  confirmDelete.value = false;
+  orgNameInput.value = "";
+  document.body.style.overflow = "";
+};
+
+const deleteOrganization = async () => {
+  if (selectedOrg.value && orgNameInput.value === selectedOrg.value.name) {
+    try {
+      await supabaseHelper.deleteOrg(selectedOrg.value.id);
+      closeDeleteConfirmation();
+      
+      // Обновляем список организаций
+      await fetchOrgs();
+      
+      // Показываем сообщение об успешном удалении
+      // (можно добавить toast или другое уведомление)
+      console.log("Организация успешно удалена");
+      window.location.reload();
+      
+    } catch (error) {
+      console.error("Ошибка при удалении организации:", error);
+    }
+  }
+};
+
+const createNewOrg = async () => {
+  try {
+    loading.value = true;
+    const newOrg = await supabaseHelper.createOrg("Новая организация", user.value.id);
+    await fetchOrgs(); // Обновляем список
+    
+    if (newOrg) {
+      selectedOrg.value = newOrg;
+    }
+  } catch (error) {
+    console.error("Ошибка при создании организации:", error);
+  } finally {
+    loading.value = false;
+  }
 };
 
 const chartCanvas = ref<HTMLCanvasElement | null>(null);
@@ -405,7 +552,7 @@ const chartConfig: ChartConfiguration<"bar", number[], string> = {
 
 onMounted(() => {
   fetchOrgs();
-  
+
   setTimeout(() => {
     if (chartCanvas.value) {
       new Chart(chartCanvas.value, chartConfig);

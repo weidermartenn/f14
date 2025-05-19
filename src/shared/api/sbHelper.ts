@@ -268,6 +268,18 @@ class SupabaseHelper {
     }
   };
 
+  public deleteOrg = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from("orgs")
+        .delete()
+        .eq("id", id);
+      if (error) throw error;
+    } catch (err) {
+      throw err;
+    }
+  };
+
   public fetchOrgName = async (id: string) => {
     try {
       const { data, error } = await supabase
@@ -339,6 +351,7 @@ class SupabaseHelper {
       throw err;
     }
   };
+
 
   public addProject = async (project: {
     id: string;
