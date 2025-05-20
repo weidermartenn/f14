@@ -10,5 +10,6 @@ export interface Task {
     labels?: string[] | null;
     status: 'planned' | 'progress' | 'done';
     projectId: string;
+    majorTaskId: string;
     isIndicator?: boolean;
 }

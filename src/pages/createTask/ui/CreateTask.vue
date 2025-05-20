@@ -7,6 +7,31 @@
     cancelText=""
     @confirm="isErrorModalOpen = false"
   />
+  <div v-if="isAddMajorTaskModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div class="bg-bg-accent-dark p-6 rounded-lg shadow-lg w-full max-w-md">
+      <h2 class="text-xl mb-4">Создать группу задач</h2>
+      <Input
+        type="text"
+        v-model="newMajorTaskName"
+        placeholder="Название группы задач"
+        class="rounded-md p-2 w-full mb-4"
+      />
+      <div class="flex justify-end gap-2">
+        <button
+          @click="isAddMajorTaskModalOpen = false"
+          class="bg-gray-500 text-white rounded-md px-4 py-2 hover:bg-gray-600"
+        >
+          Отмена
+        </button>
+        <button
+          @click="createMajorTask"
+          class="bg-blue-500 text-white rounded-md px-4 py-2 hover:bg-blue-600"
+        >
+          Создать
+        </button>
+      </div>
+    </div>
+  </div>
   <div class="mt-28 flex flex-col items-center gap-4 px-4">
     <div>
       <button
@@ -50,6 +75,24 @@
             <option value="2">Средний</option>
             <option value="3">Высокий</option>
           </select>
+        </div>
+
+        <div class="flex mt-4 gap-4 flex-col">
+          <span>Группа задач</span>
+          <select v-if="majorTasks.length > 0" v-model="selectedMajorTask" class="bg-bg-accent-dark rounded-md p-2 cursor-pointer">
+            <option v-for="majorTask in majorTasks" :key="majorTask.id" :value="majorTask.id">
+              {{ majorTask.name }}
+            </option>
+          </select>
+          <div v-else class="text-xs text-gray-400">
+            Нет доступных групп задач
+          </div>
+          <button
+            @click="openAddMajorTaskModal"
+            class="bg-blue-500 text-white rounded-md px-2 py-1 hover:bg-blue-600"
+          >
+            Добавить группу задач
+          </button>
         </div>
 
         <div class="mt-4">
@@ -169,6 +212,23 @@
             </li>
           </ul>
         </div>
+
+        <!-- Зависимости задач -->
+        <div v-if="tasks.length > 2" class="mt-4">
+          <span>Зависимости задач</span>
+          <select v-model="selectedDependency" class="bg-bg-accent-dark rounded-md p-2 cursor-pointer w-full">
+            <option v-for="task in tasks" :key="task.id" :value="task.id">
+              {{ task.name }}
+            </option>
+          </select>
+          <select v-if="selectedDependency" v-model="dependencyType" class="bg-bg-accent-dark rounded-md p-2 cursor-pointer w-full mt-2">
+            <option value="FS">Finish-to-Start</option>
+            <option value="SS">Start-to-Start</option>
+            <option value="FF">Finish-to-Finish</option>
+            <option value="SF">Start-to-Finish</option>
+          </select>
+        </div>
+
         <button
           @click="createTask"
           class="mt-10 flex justify-center gap-2 bg-blue-500 text-white rounded-md px-4 py-2 hover:bg-blue-600"
@@ -193,6 +253,8 @@ import { LoadingSpinner } from "../../../shared/ui/LoadingSpinner";
 import { fileIcon } from "../model/extensions";
 import { generateId } from "../../../shared/lib/generateId";
 import { ConfirmationModal } from "../../../shared/ui/ConfirmationModal";
+import type { MajorTask } from "../../../entities/majortask/types";
+import type { Task } from "../../../entities/task/types";
 
 const router = useRouter();
 const route = useRoute();
@@ -202,6 +264,11 @@ const priority = ref("1");
 const projectName = ref(route.query.name || "");
 const projectId = ref(route.query.id || "");
 
+const majorTasks = ref<MajorTask[]>([]);
+const isAddMajorTaskModalOpen = ref(false);
+const newMajorTaskName = ref("");
+const selectedMajorTask = ref("");
+
 const labels = ref<TLabel[]>([]);
 const selectedLabels = ref<TLabel[]>([]);
 const isAddingLabel = ref(false);
@@ -209,14 +276,45 @@ const newLabel = ref("");
 
 const isErrorModalOpen = ref(false);
 
+const tasks = ref<Task[]>([]);
+const selectedDependency = ref("");
+const dependencyType = ref("");
+
 onMounted(async () => {
   labels.value = await supabaseHelper.fetchLabels();
+  majorTasks.value = await supabaseHelper.fetchMajorTasks(projectId.value as string);
+  tasks.value = await supabaseHelper.fetchTasks(projectId.value as string);
 });
 
 const name = ref("");
 
 const selectedDate = ref<Date | null>(new Date());
 const selectedFiles = ref<File[]>([]);
+
+const openAddMajorTaskModal = () => {
+  isAddMajorTaskModalOpen.value = true;
+}
+
+const createMajorTask = async () => {
+  if (newMajorTaskName.value.trim()) {
+    try {
+      const majorTask = {
+        id: generateId(),
+        createdAt: new Date().toISOString(),
+        name: newMajorTaskName.value,
+        userId: "",
+        projectId: projectId.value as string
+      };
+      await supabaseHelper.addMajorTask(projectId.value as string, majorTask);
+      majorTasks.value = await supabaseHelper.fetchMajorTasks(projectId.value as string);
+      newMajorTaskName.value = "";
+      isAddMajorTaskModalOpen.value = false;
+      }
+    catch (error) {
+      console.error("Failed to create major task:", error);
+    }
+  }
+}
 
 const handleFileInput = async (event: Event) => {
   const target = event.target as HTMLInputElement;
@@ -296,8 +394,8 @@ const removeLabelFromSelected = (label: TLabel) => {
 const createTask = async () => {
   try {
     const taskId = generateId();
-    const projectIdStr = Array.isArray(projectId.value) 
-      ? projectId.value[0] 
+    const projectIdStr = Array.isArray(projectId.value)
+      ? projectId.value[0]
       : projectId.value;
 
     if (!projectIdStr) {
@@ -322,13 +420,18 @@ const createTask = async () => {
       labels: selectedLabels.value.map((l: TLabel) => l.label),
       status: "planned" as const,
       projectId: projectIdStr,
+      majorTaskId: selectedMajorTask.value,
       isFrozen: false,
       isVisible: true,
     };
-    
+
     await supabaseHelper.addTask(projectIdStr, taskData);
     await supabaseHelper.createTaskFolder(projectIdStr, taskId);
     await supabaseHelper.uploadFiles(projectIdStr, taskId, selectedFiles.value);
+
+    if (selectedDependency.value && dependencyType.value) {
+      await supabaseHelper.addTaskDependency(taskId, selectedDependency.value, dependencyType.value);
+    }
 
     router.back();
   } catch (error) {

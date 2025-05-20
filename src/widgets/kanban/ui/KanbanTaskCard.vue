@@ -2,11 +2,13 @@
   <div>
     <TaskEditPanel :task="task" :isOpen="isEditPanelOpen" @close="handleEditClose" @updated="handleTaskUpdated"/>
     <div
-    :class="['w-82 h-42 p-2 flex flex-col justify-between rounded-md border-2 cursor-pointer',
-      task.isFrozen ? 'bg-gray-800 border-gray-600' : 'bg-bg-dark border-gray-700 hover:border-blue-500'
-    ]">
+      :class="['w-82 h-42 p-2 flex flex-col justify-between rounded-md border-2 cursor-pointer relative',
+        task.isFrozen ? 'bg-gray-800 border-gray-600' : 'bg-bg-dark border-gray-700 hover:border-blue-500'
+      ]"
+    >
       <TaskDetail :task="task" :isOpen="isOpen" @close="handleClose"/>
-      <div class="flex justify-between gap-4">
+      <!-- Buttons Container -->
+      <div class="absolute top-2 right-2 flex justify-between gap-4">
           <button @click="handleEditTask" id="edit" class="hover:bg-gray-600 w-6 h-6 flex items-center justify-center rounded-full duration-150">
             <i class="fa-solid fa-pen-to-square"></i>
           </button>
@@ -23,6 +25,7 @@
       <div @click="handleClick">
         <div class="flex flex-col">
           <span class="inline-block mt-2 text-xs text-gray-300">{{ task.id }}</span>
+          <span class="inline-block mt-2 text-xs text-gray-300">{{ majorTaskName }}</span>
           <span class="inline-block mt-2 text-md truncate max-w-[100%]"><code class="bg-bg-accent-dark rounded-sm px-2 py-2">{{ task.name }}</code></span>
         </div>
         <div class="mt-4 grid grid-cols-2">
@@ -37,7 +40,7 @@
             </span>
           </div>
           <div v-if="task.labels && task.labels.length > 0" class="grid grid-cols-2 gap-1">
-              <Label v-for="(label, index) in task.labels.slice(0, 2)" :key="index" :label="label" class="w-14 truncate"/>
+              <Label v-for="(label, index) in task.labels.slice(0, 2)" :key="index" :label="label" class="max-w-[100px] truncate"/>
           </div>
         </div>
         <div class="mt-4 flex gap-2 justify-center items-center">
@@ -58,13 +61,15 @@
   </div>
 </template>
 
+
 <script setup lang="ts">
 import { Label } from '../../../widgets/label';
 import type { Task } from '../../../entities/task/types';
-import { defineProps, defineEmits, ref } from 'vue';
+import { defineProps, defineEmits, ref, onMounted } from 'vue';
 import { TaskDetail } from '../../../widgets/taskdetail';
 import { TaskEditPanel } from '../../../widgets/taskeditpanel';
 import { ConfirmationModal } from '../../../shared/ui/ConfirmationModal';
+import { supabaseHelper } from '../../../shared/api/sbHelper';
 
 const props = defineProps<{
   task: Task;
@@ -73,9 +78,16 @@ const props = defineProps<{
 const emit = defineEmits(['edit', 'delete', 'freeze', 'hide']);
 
 const isOpen = ref(false);
-const isDeleting = ref(false)
+const isDeleting = ref(false);
 const isEditPanelOpen = ref(false);
 const isDeleteModalOpen = ref(false);
+
+const majorTaskName = ref('');
+
+onMounted(async () => {
+  const result = await supabaseHelper.fetchMajorTaskName(props.task.majorTaskId);
+  majorTaskName.value = result.name;
+});
 
 const getPriorityLabel = (priority: number) => {
   switch (priority) {
@@ -96,17 +108,17 @@ const formatDate = (date: Date) => {
 };
 
 const handleEditTask = async () => {
-  emit('edit', props.task.id)
-  isEditPanelOpen.value = true
+  emit('edit', props.task.id);
+  isEditPanelOpen.value = true;
 }
 
 const handleDeleteTask = async () => {
   emit('delete', props.task.id);
-  isDeleting.value = true
+  isDeleting.value = true;
 }
 
 const handleHideTask = async () => {
-  emit('hide', props.task.id)
+  emit('hide', props.task.id);
 }
 
 const handleFreezeTask = async () => {
@@ -134,6 +146,19 @@ const cancelDelete = () => {
 }
 </script>
 
-<style scoped>
 
+<style scoped>
+/* Container for the card */
+div[class*="w-82"] {
+  position: relative;
+}
+
+/* Buttons container */
+div[class*="absolute"] {
+  position: absolute;
+  top: 0.5rem; /* Adjust as needed */
+  right: 0.5rem; /* Adjust as needed */
+  display: flex;
+  gap: 4px;
+}
 </style>

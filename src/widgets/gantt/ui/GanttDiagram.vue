@@ -23,8 +23,7 @@ export default {
             typeof task?.name === "string" &&
             task.name.trim() !== "" &&
             (task.start instanceof Date || typeof task.start === "string") &&
-            (task.end instanceof Date || typeof task.end === "string") &&
-            typeof task.progress === "number"
+            (task.end instanceof Date || typeof task.end === "string")
         );
       },
     },
@@ -97,7 +96,6 @@ export default {
             name: String(task.name).trim() || "Без названия",
             start: this.formatDate(task.start),
             end: this.formatDate(task.end),
-            progress: Math.max(0, Math.min(100, Number(task.progress))),
             dependencies: task.dependencies ? String(task.dependencies) : "",
           };
         } catch {
@@ -106,7 +104,6 @@ export default {
             name: "Без названия",
             start: this.formatDate(new Date()),
             end: this.formatDate(new Date(Date.now() + 86400000)),
-            progress: 0,
             dependencies: "",
           };
         }
@@ -155,13 +152,6 @@ export default {
 
         this.ganttInstance = new this.Gantt(this.$refs.ganttContainer, tasks, {
           ...this.initialOptions,
-          on_click: (task) => this.$emit("task-click", task),
-          on_date_change: (task, start, end) => {
-            this.$emit("date-change", { task, start, end });
-          },
-          on_progress_change: (task, progress) => {
-            this.$emit("progress-change", { task, progress });
-          },
           on_view_change: (mode) => {
             this.$emit("view-change", mode);
           },
@@ -222,15 +212,6 @@ export default {
         this.ganttInstance.scrollToToday();
       }
     },
-    updateTask(taskId, updatedTask) {
-      if (this.ganttInstance) {
-        const taskIndex = this.tasks.findIndex(task => task.id === taskId);
-        if (taskIndex !== -1) {
-          this.tasks[taskIndex] = updatedTask;
-          this.ganttInstance.refresh(this.prepareTasks(this.tasks));
-        }
-      }
-    },
   },
   watch: {
     tasks: {
@@ -250,16 +231,11 @@ export default {
 </script>
 
 <style scoped>
-.gantt-wrapper {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  min-height: 500px;
-}
-
 .gantt-container {
   width: 100%;
   height: 100%;
+  min-height: 600px;
+  padding: 10px;
   background: white;
   border-radius: 4px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);

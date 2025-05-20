@@ -4,6 +4,7 @@ import type { Task } from "../../entities/task/types";
 import type { TLabel } from "../../entities/label/types";
 import { generateId } from "../lib/generateId";
 import type { Comment } from "../../entities/comment/types";
+import type { MajorTask } from "../../entities/majortask/types";
 
 class SupabaseHelper {
   private getRandomHexColor = () => {
@@ -418,6 +419,58 @@ class SupabaseHelper {
     }
   };
 
+  public addMajorTask = async (projectId: string, majorTask: MajorTask) => {
+    try {
+      const { error } = await supabase
+        .from("major_tasks")
+        .insert({ ...majorTask, projectId });
+      if (error) throw error;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public fetchMajorTasks = async (projectId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("major_tasks")
+        .select("*")
+        .eq("projectId", projectId);
+      if (error) throw error;
+      return data;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public fetchMajorTaskName = async (majorTaskId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("major_tasks")
+        .select("name")
+        .eq("id", majorTaskId)
+        .single();
+      if (error) throw error;
+      return data;
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  public deleteMajorTask = async (taskId: string) => {
+    try {
+      const { error } = await supabase
+        .from("major_tasks")
+        .delete()
+        .eq("id", taskId)
+        .select()
+        .single();
+      if (error) throw error;
+    } catch (err) {
+      throw err;
+    }
+  }
+
   public addTask = async (projectId: string, task: Task) => {
     try {
       const { error } = await supabase
@@ -543,6 +596,31 @@ class SupabaseHelper {
         deadline: task.deadline,
         labels: task.labels || [],
       }));
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  public addTaskDependency = async (taskId: string, dependsOnTaskId: string, dependencyType: string) => {
+    try {
+      const dependencyId = generateId();
+      const { error } = await supabase
+        .from("task_dependencies")
+        .insert({ id: dependencyId, taskId: taskId, depends_on_task_id: dependsOnTaskId, dependency_type: dependencyType });
+      if (error) throw error;
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  public fetchTaskDependencies = async (taskId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("task_dependencies")
+        .select("*")
+        .eq("taskId", taskId);
+      if (error) throw error;
+      return data;
     } catch (err) {
       throw err;
     }
