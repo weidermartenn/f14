@@ -88,13 +88,13 @@
               <h2 class="text-xl font-bold text-zinc-800 dark:text-gray-200">{{ selectedOrg.name }}</h2>
               <div class="flex gap-2">
                 <button class="p-2 text-zinc-800 dark:text-gray-400 hover:text-blue-500 transition-colors">
-                  <i class="fa-solid  fa-pen-to-square"></i>
+                  <i class="fa-solid fa-pen-to-square"></i>
                 </button>
                 <button
                   @click="leaveOrg(selectedOrg.id)"
                   class="p-2 text-zinc-800 dark:text-gray-400 hover:text-red-500 transition-colors"
                 >
-                  <i class="fa-solid  fa-right-from-bracket"></i>
+                  <i class="fa-solid fa-right-from-bracket"></i>
                 </button>
               </div>
             </div>
@@ -126,7 +126,7 @@
             class="bg-gray-200 dark:bg-bg-accent-dark rounded-lg shadow-lg p-5 text-center"
           >
             <p class="text-zinc-800 dark:text-gray-400">У вас нет организаций</p>
-            <button 
+            <button
               @click="createNewOrg"
               class="mt-4 px-4 py-2 bg-teal-600 hover:bg-teal-700 rounded-md text-white transition-colors duration-300"
             >
@@ -159,50 +159,28 @@
         </transition>
 
         <!-- Виджет статистики -->
-        <!-- <transition name="fade" appear>
-          <div class="bg-gray-200 dark:bg-bg-accent-dark rounded-lg shadow-lg p-5">
-            <h3 class="text-lg font-semibold text-zinc-800 dark:text-gray-300 mb-4">Статистика</h3>
-            <div class="h-64 relative">
-              <transition name="fade" mode="out-in">
-                <div
-                  v-if="chartLoading"
-                  key="chart-loading"
-                  class="absolute inset-0 flex items-center justify-center"
-                >
-                  <LoadingSpinner class="text-blue-500 dark:text-blue-400 text-xl" />
-                </div>
-                <canvas
-                  v-else
-                  key="chart"
-                  ref="chartCanvas"
-                  class="w-full h-full"
-                ></canvas>
-              </transition>
-            </div>
-          </div>
-        </transition> -->
         <transition name="fade" appear>
-          <div>
+          <div v-if="selectedOrg">
             <div class="flex space-x-2 mb-4">
               <button
                 @click="setTimeRange('today')"
-                :class="{ 'bg-blue-500 text-white' : timeRange === 'today', 'bg-gray-200': timeRange !== 'today' }"
+                :class="{ 'bg-blue-500 text-white': timeRange === 'today', 'bg-gray-200': timeRange !== 'today' }"
                 class="px-4 py-2 rounded-md transition-colors duration-300"
-                >
+              >
                 Сегодня
               </button>
               <button
                 @click="setTimeRange('week')"
-                :class="{ 'bg-blue-500 text-white' : timeRange === 'week', 'bg-gray-200': timeRange !== 'week' }"
+                :class="{ 'bg-blue-500 text-white': timeRange === 'week', 'bg-gray-200': timeRange !== 'week' }"
                 class="px-4 py-2 rounded-md transition-colors duration-300"
-                >
+              >
                 За неделю
               </button>
               <button
                 @click="setTimeRange('month')"
-                :class="{ 'bg-blue-500 text-white' : timeRange === 'month', 'bg-gray-200': timeRange !== 'month' }"
+                :class="{ 'bg-blue-500 text-white': timeRange === 'month', 'bg-gray-200': timeRange !== 'month' }"
                 class="px-4 py-2 rounded-md transition-colors duration-300"
-                >
+              >
                 За месяц
               </button>
             </div>
@@ -218,7 +196,7 @@
                 </transition>
               </div>
             </div>
-          </div>  
+          </div>
         </transition>
       </div>
     </div>
@@ -470,19 +448,7 @@ const deleteOrganization = async () => {
 };
 
 const createNewOrg = async () => {
-  try {
-    loading.value = true;
-    const newOrg = await supabaseHelper.createOrg("Новая организация", user.value.id);
-    await fetchOrgs(); // Обновляем список
-
-    if (newOrg != null) {
-      selectedOrg.value = newOrg;
-    }
-  } catch (error) {
-    console.error("Ошибка при создании организации:", error);
-  } finally {
-    loading.value = false;
-  }
+  router.push({ name: "create-organization" });
 };
 
 const setTimeRange = (range: TimeRange) => {
@@ -567,13 +533,11 @@ watch(timeRange, () => {
 
 onMounted(() => {
   fetchOrgs();
-
   setTimeout(() => {
     renderChart();
   }, 100);
 });
 </script>
-
 
 <style scoped>
 .fade-enter-active,
