@@ -19,7 +19,7 @@
       </div>
     </div>
     <div
-      class="bg-zinc-400 dark:bg-zinc-900 w-full max-w-[1500px] h-[1000px] rounded-md mt-4 mb-20 flex flex-col"
+      class="bg-gray-200 dark:bg-zinc-900 w-full max-w-[1500px] h-[1000px] rounded-md mt-4 mb-20 flex flex-col"
     >
       <div class="w-full flex justify-center items-center p-4 shadow-lg">
         <!-- Контейнер для пунктов -->
@@ -28,10 +28,10 @@
             v-for="(page, index) in pages"
             :key="index"
             :class="{
-              'text-gray-400 scale-90': index !== currentPage,
+              'text-zinc-600 dark:text-gray-400 scale-90': index !== currentPage,
               'scale-105': index === currentPage,
             }"
-            class="cursor-pointer transition-colors duration-150"
+            class="cursor-pointer text-blue-700 dark:text-f14-font-dark transition-colors duration-150"
             @click="currentPage = index"
           >
             {{ page }}
@@ -59,23 +59,21 @@
             <button @click="changeViewMode('Month')" :class="{ active: viewMode === 'Month' }">Месяц</button>
           </div>
           <GanttDiagram
+            v-if="ganttTasks.length > 0"
             ref="ganttRef"
             :tasks="ganttTasks"
             :holidays="holidays"
             :initial-options="ganttOptions"
           />
+          <div v-else>
+            <p>Loading tasks...</p>
+          </div>
         </div>
         <div
           v-else-if="currentPage === 3"
-          class="h-full flex items-center justify-center"
+          class="h-full"
         >
-          Аналитика (виджет будет добавлен позже)
-        </div>
-        <div
-          v-else-if="currentPage === 4"
-          class="h-full flex items-center justify-center"
-        >
-          Все действия (виджет будет добавлен позже)
+          <LogList :projectId="projectId" />
         </div>
       </div>
     </div>
@@ -88,6 +86,7 @@ import { ref, watch, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import { GanttDiagram } from "../../../widgets/gantt";
 import { TaskList } from "../../../widgets/tasklist";
+import { LogList } from "../../../widgets/loglist";
 import { supabaseHelper } from "../../../shared/api/sbHelper";
 
 interface GanttTask {
@@ -120,6 +119,9 @@ const ganttOptions = ref({
   view_mode: viewMode.value,
   bar_height: 25,
   bar_corner_radius: 5,
+  container_height: 600,
+  language: "ru",
+  arrow_curve: 5,
   view_mode_select: false,
   today_button: false
 });
@@ -138,7 +140,6 @@ const pages = [
   "Все задачи",
   "Доска задач",
   "Диаграмма Ганта",
-  "Аналитика",
   "Все действия",
 ];
 const currentPage = ref(0);

@@ -1,7 +1,7 @@
 <template>
   <div class="relative">
     <i
-      class="fa-solid fa-bell text-xl text-gray-300 cursor-pointer hover:text-white"
+      class="fa-solid fa-bell text-xl text-gray-800 dark:text-gray-300 cursor-pointer hover:text-white"
       @click="toggleNotifications"
     ></i>
     <div

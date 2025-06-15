@@ -5,6 +5,7 @@ import type { TLabel } from "../../entities/label/types";
 import { generateId } from "../lib/generateId";
 import type { Comment } from "../../entities/comment/types";
 import type { MajorTask } from "../../entities/majortask/types";
+import type { Log } from "../../entities/log/types";
 
 class SupabaseHelper {
   private getRandomHexColor = () => {
@@ -723,6 +724,32 @@ class SupabaseHelper {
       throw err;
     }
   };
+
+  public createLogEntry = async (log: Log) => {
+    try {
+      const { error } = await supabase
+        .from("log")
+        .insert(log)
+      if (error) throw error;
+    } catch (err) {
+      console.error("Error creating log entry:", err);
+      throw err;
+    }
+  };
+
+  public fetchLogs = async (projectId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("log")
+        .select("*")
+        .eq("projectId", projectId);
+      if (error) throw error;
+      return data;
+    } catch (err) {
+      console.error("Error fetching logs:", err);
+      throw err;
+    }
+  }
 }
 
 export const supabaseHelper = new SupabaseHelper();

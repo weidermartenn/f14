@@ -1,17 +1,17 @@
 <template>
-  <div class="flex flex-col items-center justify-center overflow-hidden">
+  <div class="flex flex-col items-center justify-center bg-bg dark:bg-bg-dark p-4 overflow-hidden">
     <div v-if="!authed" class="mt-52">
       <button
         @click="router.back"
-        class="flex items-center gap-2 hover:text-gray-300"
+        class="flex items-center gap-2 text-zinc-800 dark:text-zinc-400 transiotion-colors hover:text-gray-300 mb-6"
       >
         <i class="fa-solid fa-chevron-left"></i>
         <span>Вернуться назад</span>
       </button>
       <div
-        class="bg-bg-accent-dark mt-4 p-8 rounded-lg shadow-lg w-full max-w-md"
+        class="bg-gray-200 dark:bg-bg-accent-dark mt-4 p-8 rounded-lg shadow-lg w-full max-w-md"
       >
-        <h2 class="text-2xl font-bold mb-6 text-center">Войти в систему</h2>
+        <h2 class="text-2xl text-zinc-800 dark:text-f14-font-dark font-bold mb-6 text-center">Войти в систему</h2>
         <form @submit.prevent="handleLogin">
           <EmailInput v-model="email" :error="error" />
           <div class="mb-10"></div>

@@ -1,16 +1,16 @@
 <template>
-  <div class="flex flex-col items-center gap-4 p-4 min-h-screen bg-gray-900">
+  <div class="flex flex-col items-center gap-4 p-4 min-h-screen dark:bg-gray-900">
     <div class="flex flex-col items-center gap-1">
-      <span class="text-sm text-gray-400"
+      <span class="text-sm text-zinc-700 dark:text-gray-400"
         >Перемещайте задачи между колонками с помощью перетаскивания</span
       >
-      <span class="text-sm text-gray-400"
+      <span class="text-sm text-zinc-700 dark:text-gray-400"
         >Для более подробного просмотра задач нажмите на задачу</span
       >
     </div>
 
     <div class="flex gap-6 items-center justify-center">
-      <span class="text-white">Добавить задачу</span>
+      <span class=" text-zinc-900 dark:text-white">Добавить задачу</span>
       <button
         @click="handleAddTask"
         class="w-12 h-8 flex items-center justify-center text-xl cursor-pointer border-2 border-gray-700 rounded-lg hover:border-blue-500 hover:text-blue-500 transition-colors"
@@ -31,7 +31,7 @@
         <div
           v-if="showTips"
           id="tips"
-          class="bg-gray-800 p-4 rounded-lg shadow-md shadow-black flex flex-col gap-3 absolute left-12 top-0 z-50"
+          class="bg-bg-accent-dark p-4 rounded-lg shadow-md shadow-black flex flex-col gap-3 absolute left-12 top-0 z-50"
         >
           <div class="flex items-center gap-2">
             <button
@@ -72,7 +72,7 @@
         <div
           v-for="column in columns"
           :key="column.id"
-          class="flex-1 bg-gray-800 rounded-lg p-4 shadow-md shadow-black flex flex-col min-h-[600px] max-h-[600px] min-w-[450px]"
+          class="flex-1 bg-zinc-500 dark:bg-gray-800 rounded-lg p-4 shadow-md shadow-black flex flex-col min-h-[600px] max-h-[600px] min-w-[450px]"
         >
           <div class="flex justify-center">
             <i :class="column.icon" class="text-3xl text-gray-400 mb-2"></i>
@@ -118,7 +118,7 @@
       </div>
     </div>
 
-    <div v-if="tasks.length === 0" class="text-center text-gray-400 mt-4">
+    <div v-if="tasks.length === 0" class="text-center text-zinc-800 dark:text-gray-400 mt-4">
       В этом проекте пока нет задач. Нажмите на кнопку выше, чтобы добавить
       новую задачу.
     </div>
@@ -126,7 +126,7 @@
     <div v-if="tasks.length > 0" class="mt-10 w-full px-4 flex justify-center">
       <div v-if="hiddenTasks.length > 0">
         <div class="flex items-center gap-2 mb-2">
-          <span class="text-2xl text-gray-300">Скрытые задачи</span>
+          <span class="text-2xl text-zinc-800 dark:text-gray-300">Скрытые задачи</span>
           <button
             @click="isHiddenExpanded = !isHiddenExpanded"
             class="text-gray-400 hover:text-white transition-colors"

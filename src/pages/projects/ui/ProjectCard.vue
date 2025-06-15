@@ -1,12 +1,12 @@
 <template>
   <div>
     <div
-      class="w-full h-32 bg-zinc-900 p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow flex flex-col justify-between"
+      class="w-full h-32 bg-gray-300 dark:bg-zinc-900 p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow flex flex-col justify-between"
       :class="{ 'border-2 border-blue-500': isSelected }"
       @click="handleSelect"
     >
       <div class="flex justify-between items-center">
-        <h3 class="text-lg font-semibold truncate max-w-[70%]">{{ project.name }}</h3>
+        <h3 class="text-lg text-zinc-800 dark:text-gray-300 font-semibold truncate max-w-[70%]">{{ project.name }}</h3>
         <div class="relative">
           <button
             @click.stop="toggleMenu"
@@ -35,7 +35,7 @@
         </div>
       </div>
       <div class="flex justify-between items-center">
-        <p class="text-gray-300 text-sm">
+        <p class="text-zinc-700 dark:text-gray-300 text-sm">
           Создан: {{ formatDate(project.createdAt) }}
         </p>
         <button @click.stop="handleRedirect(project.id)" class="hover:text-gray-400 duration-150">Перейти</button>

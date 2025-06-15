@@ -89,16 +89,20 @@ export default {
       });
     },
     prepareTasks(tasks) {
+      console.log("Preparing tasks:", tasks); // Log the input tasks
       return tasks.map((task) => {
         try {
-          return {
+          const preparedTask = {
             id: String(task.id),
             name: String(task.name).trim() || "Без названия",
             start: this.formatDate(task.start),
             end: this.formatDate(task.end),
             dependencies: task.dependencies ? String(task.dependencies) : "",
           };
-        } catch {
+          console.log("Prepared task:", preparedTask); // Log the prepared task
+          return preparedTask;
+        } catch (error) {
+          console.error("Error preparing task:", error); // Log any errors
           return {
             id: "task-" + Math.random().toString(36).substr(2, 9),
             name: "Без названия",
@@ -231,6 +235,17 @@ export default {
 </script>
 
 <style scoped>
+.gantt-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 600px;
+  padding: 10px;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
 .gantt-container {
   width: 100%;
   height: 100%;

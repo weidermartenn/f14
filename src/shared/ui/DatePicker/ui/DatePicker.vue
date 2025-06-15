@@ -4,7 +4,7 @@
       type="text"
       :value="formattedDate"
       @click="toggleCalendar"
-      class="w-full px-4 py-2 border border-gray-700 bg-bg-accent-dark text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+      class="w-full px-4 py-2 border border-gray-700 bg-gray-200 dark:bg-bg-accent-dark text-zinc-800 dark:text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
       placeholder="Выберите дату"
       readonly
     />

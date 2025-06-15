@@ -5,9 +5,9 @@
         class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
         @click.self="cancel"
       >
-        <div class="bg-zinc-800 p-6 rounded-lg shadow-lg max-w-sm w-full">
-          <h3 class="text-xl font-semibold mb-4">{{ title }}</h3>
-          <p class="text-gray-300 mb-6">{{ message }}</p>
+        <div class="bg-gray-300 dark:bg-zinc-800 p-6 rounded-lg shadow-lg max-w-sm w-full">
+          <h3 class="text-xl text-zinc-800 dark:text-f14-font-dark font-semibold mb-4">{{ title }}</h3>
+          <p class="text-zinc-700 dark:text-gray-300 mb-6">{{ message }}</p>
           <div class="flex gap-2 justify-end">
             <button
               @click="confirm"

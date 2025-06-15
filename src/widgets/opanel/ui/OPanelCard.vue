@@ -1,14 +1,14 @@
 <template>
   <div
     @click="handleOrg"
-    class="w-full flex items-center bg-bg-dark hover:bg-zinc-800 cursor-pointer p-4 rounded-md duration-150"
+    class="w-full flex items-center bg-zinc-300 dark:bg-bg-dark hover:bg-zinc-400 dark:hover:bg-zinc-800 cursor-pointer p-4 rounded-md duration-150"
     :class="{ 'bg-bg-accent-darker border-l-4 border-blue-500': isSelected }"
   >
     <div class="flex flex-col">
-      <span class="text-lg">{{ org.name }}</span>
-      <span class="text-sm text-gray-300">{{ org.members_count }} {{ pluralize(org.members_count, ['участник', 'участника', 'участников']) }}</span>
-      <span class="text-sm text-gray-300">
-        Лидер: {{ leaderEmail }}<span v-if="isCurrentUserLeader" class="text-teal-700"> (Вы)</span>
+      <span class="text-lg text-zinc-900 dark:text-f14-font-dark">{{ org.name }}</span>
+      <span class="text-sm text-zinc-800 dark:text-gray-300">{{ org.members_count }} {{ pluralize(org.members_count, ['участник', 'участника', 'участников']) }}</span>
+      <span class="text-sm text-zinc-800 dark:text-gray-300">
+        Лидер: {{ leaderEmail }}<span v-if="isCurrentUserLeader" class="font-semibold text-teal-600 dark:text-teal-700"> (Вы)</span>
       </span>
       <div class="flex gap-2 mt-2">
         <div

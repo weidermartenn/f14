@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-col p-4 rounded-lg bg-bg-accent-darker transition-all hover:bg-bg-accent-darkest"
+    class="flex flex-col p-4 rounded-lg transition-all"
     :class="{
       'border-l-4 border-blue-500': color === 'blue',
       'border-l-4 border-green-500': color === 'green',
@@ -10,7 +10,7 @@
     }"
   >
     <div class="flex items-center justify-between mb-2">
-      <h3 class="text-sm font-medium text-gray-400">{{ title }}</h3>
+      <h3 class="text-sm font-medium text-zinc-700 dark:text-gray-400">{{ title }}</h3>
       <div
         class="p-2 rounded-md"
         :class="{
@@ -34,7 +34,7 @@
       </div>
     </div>
 
-    <p class="text-2xl font-bold text-gray-200">{{ value }}</p>
+    <p class="text-2xl font-bold text-zinc-700 dark:text-gray-200">{{ value }}</p>
 
     <div
       v-if="trend"

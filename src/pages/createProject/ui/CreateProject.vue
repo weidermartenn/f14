@@ -7,8 +7,8 @@
       <i class="fa-solid fa-chevron-left"></i>
       <span>Вернуться назад</span>
     </button>
-    <div class="bg-bg-accent-dark p-8 rounded-lg shadow-lg w-full max-w-md">
-      <h2 class="text-2xl font-bold mb-6 text-center">
+    <div class="bg-gray-200 dark:bg-bg-accent-dark p-8 rounded-lg shadow-lg w-full max-w-md">
+      <h2 class="text-2xl text-zinc-800 dark:text-f14-font-dark font-bold mb-6 text-center">
         Придумайте название для проекта
       </h2>
       <form @submit.prevent="supabaseHelper.addProject!!">

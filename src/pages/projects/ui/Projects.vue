@@ -1,5 +1,5 @@
 <template>
-  <div class="px-6 py-2 min-h-[calc(100vh-180px)]">
+  <div class="px-6 py-2 min-h-[calc(100vh-180px)] bg-bg dark:bg-bg-dark">
     <Notification
       v-if="showNotification"
       :notifications="[{ id: '1', message: notificationMessage, type: 'success' }]"
@@ -10,7 +10,7 @@
     <div class="w-full p-5 flex justify-center">
       <button
         @click="$router.push({ name: 'dashboard' })"
-        class="flex items-center justify-center border-2 border-rose-600 text-rose-600 rounded-md w-10 h-10 hover:border-rose-400 hover:text-rose-400 duration-150"
+        class="flex items-center justify-center border-2 border-rose-600 dark:border-rose-500 text-rose-600 dark:text-rose-500 rounded-md w-10 h-10 hover:border-rose-400 dark:hover:border-rose-400 hover:text-rose-400 dark:hover:text-rose-400 duration-150"
       >
         <i class="fa-solid fa-right-from-bracket"></i>
       </button>
@@ -19,19 +19,25 @@
     <!-- Основной контент с тремя колонками -->
     <div class="grid grid-cols-1 lg:grid-cols-[1fr_0fr_1fr] gap-6">
       <!-- 1-я колонка: Переключаемые списки -->
-      <div class="bg-bg-accent-dark rounded-lg p-4">
-        <div class="flex border-b border-gray-700 mb-4">
+      <div class="bg-gray-100 dark:bg-bg-accent-dark rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+        <div class="flex border-b border-gray-300 dark:border-gray-700 mb-4">
           <button
             @click="activeTab = 'members'"
-            :class="{'text-gray-300 border-b-2 border-blue-400': activeTab === 'members', 'text-gray-400': activeTab !== 'members'}"
-            class="px-4 py-2 font-medium"
+            :class="{
+              'text-f14-font dark:text-f14-font-dark border-b-2 border-blue-500': activeTab === 'members', 
+              'text-gray-500 dark:text-gray-400': activeTab !== 'members'
+            }"
+            class="px-4 py-2 font-medium transition-colors"
           >
             Участники
           </button>
           <button
             @click="activeTab = 'projects'"
-            :class="{'text-gray-300 border-b-2 border-blue-400': activeTab === 'projects', 'text-gray-400': activeTab !== 'projects'}"
-            class="px-4 py-2 font-medium"
+            :class="{
+              'text-f14-font dark:text-f14-font-dark border-b-2 border-blue-500': activeTab === 'projects', 
+              'text-gray-500 dark:text-gray-400': activeTab !== 'projects'
+            }"
+            class="px-4 py-2 font-medium transition-colors"
           >
             Проекты
           </button>
@@ -39,26 +45,26 @@
 
         <!-- Контент вкладок -->
         <div v-if="activeTab === 'members'">
-          <h3 class="text-lg font-semibold mb-4">Участники организации</h3>
+          <h3 class="text-lg text-f14-font dark:text-f14-font-dark font-semibold mb-4">Участники организации</h3>
           <div class="space-y-2 max-h-[300px] overflow-y-auto">
             <div
               v-for="(member, id) in members"
               :key="id"
-              class="flex items-center justify-between p-2 hover:bg-gray-800 rounded"
+              class="flex items-center justify-between p-2 hover:bg-gray-200 dark:hover:bg-gray-800 rounded transition-colors"
             >
               <div class="flex items-center">
-                <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center mr-3">
+                <div class="w-8 h-8 rounded-full bg-gray-300 dark:bg-gray-700 flex items-center justify-center mr-3 text-gray-700 dark:text-gray-200">
                   {{ member.email.charAt(0).toUpperCase() }}
                 </div>
-                <span>
+                <span class="text-f14-font dark:text-gray-300">
                   {{ member.email.split("@")[0] }}
-                  <i v-if="member.isLeader" class="fa-solid fa-crown text-yellow-400 ml-1"></i>
+                  <i v-if="member.isLeader" class="fa-solid fa-crown text-yellow-500 ml-1"></i>
                 </span>
               </div>
               <button
                 v-if="!member.isLeader"
                 @click="removeMember(member.email)"
-                class="text-red-400 hover:text-red-300"
+                class="text-red-500 dark:text-red-400 hover:text-red-400 dark:hover:text-red-300 transition-colors"
               >
                 <i class="fa-solid fa-user-minus"></i>
               </button>
@@ -66,7 +72,7 @@
           </div>
           <button
             @click="openAddMemberModal"
-            class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded flex items-center justify-center"
+            class="mt-4 w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded flex items-center justify-center transition-colors"
           >
             <i class="fa-solid fa-user-plus mr-2"></i>
             Добавить участника
@@ -75,10 +81,10 @@
 
         <div v-else>
           <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold">Проекты организации</h3>
+            <h3 class="text-lg text-f14-font dark:text-f14-font-dark font-semibold">Проекты организации</h3>
             <button
               @click="handleCreateProject"
-              class="w-8 h-8 flex items-center justify-center text-xl cursor-pointer border border-gray-600 rounded-lg hover:border-blue-500 hover:text-blue-500 transition-colors"
+              class="w-8 h-8 flex items-center justify-center text-xl cursor-pointer border border-gray-400 dark:border-gray-600 rounded-lg hover:border-blue-500 dark:hover:border-blue-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
             >
               +
             </button>
@@ -88,11 +94,11 @@
             <LoadingSpinner />
           </div>
           
-          <div v-else-if="error" class="text-center py-10 text-red-400">
+          <div v-else-if="error" class="text-center py-10 text-red-500 dark:text-red-400">
             Ошибка: {{ error }}
           </div>
           
-          <div v-else-if="projects.length === 0" class="text-center py-10 text-gray-400">
+          <div v-else-if="projects.length === 0" class="text-center py-10 text-gray-500 dark:text-gray-400">
             Проектов пока нет
           </div>
           
@@ -110,11 +116,11 @@
 
       <!-- 2-я колонка: Аналитика -->
       <div class="rounded-lg">
-        <h3 class="bg-bg-accent-dark p-4 rounded-md text-lg font-semibold mb-4">Аналитика организации</h3>
+        <h3 class="bg-gray-100 dark:bg-bg-accent-dark text-f14-font dark:text-f14-font-dark p-4 rounded-md text-lg font-semibold mb-4 border border-gray-200 dark:border-gray-700">Аналитика организации</h3>
         
         <!-- График активности -->
-        <div class="bg-bg-accent-dark p-4 rounded-md mb-6">
-          <h4 class="text-md font-medium mb-2">Активность по дням</h4>
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-md mb-6 border border-gray-200 dark:border-gray-700">
+          <h4 class="text-md font-medium mb-2 text-f14-font dark:text-gray-300">Активность по дням</h4>
           <div class="h-64">
             <canvas ref="activityChart"></canvas>
           </div>
@@ -122,14 +128,14 @@
         
         <!-- Круговые диаграммы -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div class="bg-bg-accent-dark rounded-md p-4">
-            <h4 class="text-md font-medium mb-2">Выполняемость задач</h4>
+          <div class="bg-white dark:bg-gray-800 rounded-md p-4 border border-gray-200 dark:border-gray-700">
+            <h4 class="text-md font-medium mb-2 text-f14-font dark:text-gray-300">Выполняемость задач</h4>
             <div class="h-48">
               <canvas ref="completionChart"></canvas>
             </div>
           </div>
-          <div class="bg-bg-accent-dark rounded-md p-4">
-            <h4 class="text-md font-medium mb-2">Распределение по типам</h4>
+          <div class="bg-white dark:bg-gray-800 rounded-md p-4 border border-gray-200 dark:border-gray-700">
+            <h4 class="text-md font-medium mb-2 text-f14-font dark:text-gray-300">Распределение по типам</h4>
             <div class="h-48">
               <canvas ref="typeDistributionChart"></canvas>
             </div>
@@ -138,8 +144,8 @@
       </div>
 
       <!-- 3-я колонка: Чат -->
-      <div class="bg-bg-accent-dark rounded-lg p-4 flex flex-col">
-        <h3 class="text-lg font-semibold mb-4">Чат проекта</h3>
+      <div class="bg-white dark:bg-bg-accent-dark rounded-lg p-4 flex flex-col border border-gray-200 dark:border-gray-700">
+        <h3 class="text-lg font-semibold mb-4 text-f14-font dark:text-f14-font-dark">Чат проекта</h3>
         <CommentsContainer :projectId="selectedProjectId" />
       </div>
     </div>

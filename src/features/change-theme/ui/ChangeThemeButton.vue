@@ -26,6 +26,10 @@ import { ref, onMounted } from "vue";
 const isDark = ref(false);
 const isRotating = ref(false);
 
+const emit = defineEmits<{
+  (e: 'theme-changed', value: boolean): void
+}>();
+
 const toggleTheme = () => {
   isRotating.value = true;
   setTimeout(() => {
@@ -34,6 +38,7 @@ const toggleTheme = () => {
 
   isDark.value = !isDark.value;
   updateTheme();
+  emit('theme-changed', isDark.value);
 };
 
 const updateTheme = () => {
@@ -62,6 +67,8 @@ onMounted(() => {
     isDark.value = false;
     root.classList.remove("dark");
   }
+
+  emit('theme-changed', isDark.value);
 });
 </script>
 

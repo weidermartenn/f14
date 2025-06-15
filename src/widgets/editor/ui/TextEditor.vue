@@ -1,16 +1,18 @@
 <template>
-  <div class="flex flex-col gap-6">
+  <div class="flex flex-col gap-4">
+    <!-- Панель инструментов -->
     <div
-      class="bg-bg-dark ml-2 rounded-lg p-2 flex flex-wrap justify-between gap-4 px-4 text-gray-300"
+      class="bg-white dark:bg-gray-800 rounded-lg p-2 flex flex-wrap justify-between gap-2 px-4 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700"
     >
-      <div class="flex flex-wrap gap-4">
+      <div class="flex flex-wrap gap-2">
         <!-- Bold -->
         <button
           @click="toggleBold"
           :class="[
-            'px-2 rounded-sm hover:bg-gray-500 duration-150',
-            editor?.isActive('bold') ? 'bg-slate-700' : 'bg-transparent',
+            'p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors',
+            editor?.isActive('bold') ? 'bg-gray-100 dark:bg-gray-700' : '',
           ]"
+          title="Жирный"
         >
           <span class="fa-solid fa-bold"></span>
         </button>
@@ -18,9 +20,10 @@
         <button
           @click="toggleItalic"
           :class="[
-            'px-2 rounded-sm hover:bg-gray-500 duration-150',
-            editor?.isActive('italic') ? 'bg-slate-700' : 'bg-transparent',
+            'p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors',
+            editor?.isActive('italic') ? 'bg-gray-100 dark:bg-gray-700' : '',
           ]"
+          title="Курсив"
         >
           <span class="fa-solid fa-italic"></span>
         </button>
@@ -28,9 +31,10 @@
         <button
           @click="toggleUnderline"
           :class="[
-            'px-2 rounded-sm hover:bg-gray-500 duration-150',
-            editor?.isActive('underline') ? 'bg-slate-700' : 'bg-transparent',
+            'p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors',
+            editor?.isActive('underline') ? 'bg-gray-100 dark:bg-gray-700' : '',
           ]"
+          title="Подчеркивание"
         >
           <span class="fa-solid fa-underline"></span>
         </button>
@@ -38,9 +42,10 @@
         <button
           @click="toggleStrike"
           :class="[
-            'px-2 rounded-sm hover:bg-gray-500 duration-150',
-            editor?.isActive('strike') ? 'bg-slate-700' : 'bg-transparent',
+            'p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors',
+            editor?.isActive('strike') ? 'bg-gray-100 dark:bg-gray-700' : '',
           ]"
+          title="Зачеркивание"
         >
           <span class="fa-solid fa-strikethrough"></span>
         </button>
@@ -48,21 +53,23 @@
         <button
           @click="toggleLink"
           :class="[
-            'px-2 rounded-sm hover:bg-gray-500 duration-150',
-            editor?.isActive('link') ? 'bg-slate-700' : 'bg-transparent',
+            'p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors',
+            editor?.isActive('link') ? 'bg-gray-100 dark:bg-gray-700' : '',
           ]"
+          title="Ссылка"
         >
           <span class="fa-solid fa-link"></span>
         </button>
       </div>
-      <div class="flex flex-wrap gap-4">
+      <div class="flex flex-wrap gap-2">
         <!-- Bulleted List -->
         <button
           @click="toggleBulletList"
           :class="[
-            'px-2 rounded-sm hover:bg-gray-500 duration-150',
-            editor?.isActive('bulletList') ? 'bg-slate-700' : 'bg-transparent',
+            'p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors',
+            editor?.isActive('bulletList') ? 'bg-gray-100 dark:bg-gray-700' : '',
           ]"
+          title="Маркированный список"
         >
           <span class="fa-solid fa-list-ul"></span>
         </button>
@@ -70,9 +77,10 @@
         <button
           @click="toggleOrderedList"
           :class="[
-            'px-2 rounded-sm hover:bg-gray-500 duration-150',
-            editor?.isActive('orderedList') ? 'bg-slate-700' : 'bg-transparent',
+            'p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors',
+            editor?.isActive('orderedList') ? 'bg-gray-100 dark:bg-gray-700' : '',
           ]"
+          title="Нумерованный список"
         >
           <span class="fa-solid fa-list-ol"></span>
         </button>
@@ -80,16 +88,19 @@
         <button
           @click="toggleBlockquote"
           :class="[
-            'px-2 rounded-sm hover:bg-gray-500 duration-150',
-            editor?.isActive('blockquote') ? 'bg-slate-700' : 'bg-transparent',
+            'p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors',
+            editor?.isActive('blockquote') ? 'bg-gray-100 dark:bg-gray-700' : '',
           ]"
+          title="Цитата"
         >
           <span class="fa-solid fa-quote-left"></span>
         </button>
       </div>
     </div>
+
+    <!-- Область редактирования -->
     <div
-      class="bg-bg-dark h-96 ml-2 rounded-lg p-2 flex justify-between gap-4 px-4 text-gray-300 overflow-y-auto max-h-[650px]"
+      class="bg-white dark:bg-gray-800 rounded-lg p-4 flex justify-between gap-4 text-gray-800 dark:text-gray-200 overflow-y-auto max-h-[650px] border border-gray-200 dark:border-gray-700"
     >
       <div class="w-full h-full">
         <editor-content :editor="editor" class="h-full break-words" />
@@ -123,14 +134,13 @@ const {
 
 watch(() => editor.value?.getHTML(), (newValue) => {
   emit("update:modelValue", newValue || '');
-})
-
+});
 </script>
 
 <style scoped>
 /* Стили для редактора */
 :deep(.tiptap) {
-  padding: 1rem;
+  padding: 0.5rem;
   height: 100%;
   outline: none;
   word-break: break-word;
@@ -139,42 +149,83 @@ watch(() => editor.value?.getHTML(), (newValue) => {
 }
 
 :deep(.tiptap p) {
-  margin: 0;
+  margin: 0 0 0.5rem 0;
+  line-height: 1.5;
 }
 
 :deep(.tiptap a) {
   color: #3b82f6;
   text-decoration: underline;
+  cursor: pointer;
 }
 
 /* Стили для маркированных списков */
-:deep(.tiptap ul) {
+:deep(.tiptap ul),
+:deep(.tiptap ol) {
   padding-left: 1.5rem;
-  list-style-type: disc; /* Маркеры в виде точек */
+  margin: 0.5rem 0;
+}
+
+:deep(.tiptap ul) {
+  list-style-type: disc;
 }
 
 /* Стили для нумерованных списков */
 :deep(.tiptap ol) {
-  padding-left: 1.5rem;
-  list-style-type: decimal; /* Нумерация */
+  list-style-type: decimal;
 }
 
 /* Стили для цитат */
 :deep(.tiptap blockquote) {
-  border-left: 3px solid #ccc;
+  border-left: 3px solid #d1d5db;
   padding-left: 1rem;
-  margin: 0;
-  color: #666;
-}
-
-/* Убедимся, что текст в списках виден */
-:deep(.tiptap li) {
-  color: inherit; /* Наследует цвет текста */
-}
-
-:deep(.tiptap p:first-child:empty::before) {
-  content: "Введите описание задачи...";
+  margin: 0.5rem 0;
   color: #6b7280;
+}
+
+.dark :deep(.tiptap blockquote) {
+  border-left-color: #4b5563;
+  color: #9ca3af;
+}
+
+/* Плейсхолдер */
+:deep(.tiptap p.is-editor-empty:first-child::before) {
+  content: attr(data-placeholder);
   float: left;
+  color: #9ca3af;
+  pointer-events: none;
+  height: 0;
+}
+
+/* Активное состояние для кнопок */
+:deep(.tiptap .is-active) {
+  background-color: #f3f4f6;
+}
+
+.dark :deep(.tiptap .is-active) {
+  background-color: #374151;
+}
+
+/* Стили для скроллбара */
+:deep(.tiptap)::-webkit-scrollbar {
+  width: 8px;
+}
+
+:deep(.tiptap)::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+:deep(.tiptap)::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 4px;
+}
+
+.dark :deep(.tiptap)::-webkit-scrollbar-track {
+  background: #374151;
+}
+
+.dark :deep(.tiptap)::-webkit-scrollbar-thumb {
+  background: #6b7280;
 }
 </style>

@@ -3,8 +3,8 @@
     v-if="isOpen"
     class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
   >
-    <div class="bg-bg-accent-dark rounded-lg p-6 w-96">
-      <h2 class="text-xl mb-4">Добавить участника</h2>
+    <div class="bg-gray-300 dark:bg-bg-accent-dark rounded-lg p-6 w-96">
+      <h2 class="text-xl text-zinc-800 dark:text-f14-font-dark mb-4">Добавить участника</h2>
       <input
         v-model="newMemberEmail"
         type="email"

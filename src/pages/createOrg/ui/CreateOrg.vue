@@ -3,15 +3,15 @@
     <div  class="mt-52">
       <button
         @click="router.back"
-        class="flex items-center gap-2 hover:text-gray-300"
+        class="flex items-center gap-2 text-zinc-800 dark:text-gray-400 hover:text-zinc-600 dark:hover:text-gray-300 duration-150"
       >
         <i class="fa-solid fa-chevron-left"></i>
         <span>Вернуться назад</span>
       </button>
       <div
-        class="bg-bg-accent-dark mt-4 p-8 rounded-lg shadow-lg w-full max-w-md"
+        class="bg-gray-200 dark:bg-bg-accent-dark mt-4 p-8 rounded-lg shadow-lg w-full max-w-md"
       >
-        <h2 class="text-2xl font-bold mb-6 text-center">Создание организации</h2>
+        <h2 class="text-2xl text-zinc-900 dark:text-f14-font-dark font-bold mb-6 text-center">Создание организации</h2>
         <form @submit.prevent="handleCreateOrg">
           <Input type="text" v-model="name" placeholder="Название" />
           <div class="mb-10"></div>

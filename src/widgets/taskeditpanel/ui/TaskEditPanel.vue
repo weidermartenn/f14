@@ -1,61 +1,81 @@
 <template>
+  <!-- Blur Background -->
   <Transition
-    enter-active-class="transition-transform duration-300"
-    leave-active-class="transition-transform duration-300"
+    enter-active-class="transition-all duration-300 ease-out"
+    leave-active-class="transition-all duration-200 ease-in"
+    enter-from-class="opacity-0"
+    enter-to-class="opacity-100"
+    leave-from-class="opacity-100"
+    leave-to-class="opacity-0"
+  >
+    <div
+      v-if="isOpen"
+      @click="$emit('close')"
+      class="fixed inset-0 z-40 backdrop-blur-sm bg-black/30"
+    ></div>
+  </Transition>
+
+  <!-- Task Panel -->
+  <Transition
+    enter-active-class="transition-transform duration-300 ease-out"
+    leave-active-class="transition-transform duration-200 ease-in"
     enter-from-class="translate-x-full"
+    enter-to-class="translate-x-0"
+    leave-from-class="translate-x-0"
     leave-to-class="translate-x-full"
   >
     <div
       v-if="isOpen"
-      @click.stop
-      class="fixed right-0 top-0 bottom-0 w-[400px] bg-neutral-900 shadow-xl z-50 overflow-y-auto p-8"
+      class="fixed right-0 top-0 bottom-0 w-full max-w-[420px] bg-neutral-800 shadow-2xl z-50 overflow-y-auto border-l border-neutral-700 animate-glow"
     >
       <button
         @click="$emit('close')"
-        class="absolute top-4 right-4 text-white text-xl hover:text-zinc-300"
+        class="absolute top-4 right-4 text-neutral-400 hover:text-white transition-all duration-200 rounded-full hover:bg-neutral-700 active:scale-90 p-1"
       >
-        <i class="fa-solid fa-xmark"></i>
+        <i class="fa-solid fa-xmark text-xl"></i>
       </button>
 
       <div class="flex flex-col gap-6">
-        <!-- Заголовок -->
-        <h2 class="text-2xl font-bold text-white">Редактирование задачи</h2>
+        <!-- Header -->
+        <div class="sticky top-0 bg-neutral-800/90 backdrop-blur-sm z-10 p-6 pb-4 border-b border-neutral-700">
+          <h2 class="text-2xl font-bold text-white truncate drop-shadow-md">Редактирование задачи</h2>
+        </div>
 
-        <!-- Форма редактирования -->
-        <form @submit.prevent="handleSubmit" class="space-y-6">
-          <!-- Название задачи -->
+        <!-- Edit Form -->
+        <form @submit.prevent="handleSubmit" class="space-y-6 p-6">
+          <!-- Task Name -->
           <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">
+            <label class="block text-sm font-medium text-neutral-300 mb-2">
               Название задачи
             </label>
             <input
               v-model="formData.name"
               type="text"
               required
-              class="w-full bg-bg-accent-dark rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full bg-neutral-700 rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
             />
           </div>
 
-          <!-- Описание -->
+          <!-- Description -->
           <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">
+            <label class="block text-sm font-medium text-neutral-300 mb-2">
               Описание
             </label>
             <TextEditor
               @click.stop
               v-model="formData.description!!"
-              class="bg-bg-accent-dark rounded-md"
+              class="bg-neutral-700 rounded-md transition-all duration-200"
             />
           </div>
 
-          <!-- Статус -->
+          <!-- Status -->
           <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">
+            <label class="block text-sm font-medium text-neutral-300 mb-2">
               Статус
             </label>
             <select
               v-model="formData.status"
-              class="w-full bg-bg-accent-dark rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full bg-neutral-700 rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
             >
               <option value="planned">Запланировано</option>
               <option value="progress">В работе</option>
@@ -63,14 +83,14 @@
             </select>
           </div>
 
-          <!-- Приоритет -->
+          <!-- Priority -->
           <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">
+            <label class="block text-sm font-medium text-neutral-300 mb-2">
               Приоритет
             </label>
             <select
               v-model="formData.priority"
-              class="w-full bg-bg-accent-dark rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full bg-neutral-700 rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
             >
               <option :value="1">Низкий</option>
               <option :value="2">Средний</option>
@@ -78,30 +98,30 @@
             </select>
           </div>
 
-          <!-- Дедлайн -->
+          <!-- Deadline -->
           <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">
+            <label class="block text-sm font-medium text-neutral-300 mb-2">
               Дедлайн
             </label>
             <input
               v-model="formData.deadline"
               type="datetime-local"
-              class="w-full bg-bg-accent-dark rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              class="w-full bg-neutral-700 rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
             />
           </div>
 
-          <!-- Кнопки -->
+          <!-- Buttons -->
           <div class="flex gap-4 justify-end">
             <button
               type="button"
               @click="$emit('close')"
-              class="px-4 py-2 text-gray-300 hover:text-white transition-colors"
+              class="px-4 py-2 text-neutral-300 hover:text-white transition-colors duration-200"
             >
               Отмена
             </button>
             <button
               type="submit"
-              class="px-4 py-2 bg-blue-600 rounded-md text-white hover:bg-blue-700 transition-colors"
+              class="px-4 py-2 bg-blue-600 rounded-md text-white hover:bg-blue-700 transition-colors duration-200"
               :disabled="isSubmitting"
             >
               <span v-if="isSubmitting">Сохранение...</span>
@@ -140,13 +160,13 @@ const formData = ref({
 
 const isSubmitting = ref(false);
 
-// Форматирование даты для datetime-local
+// Format date for datetime-local
 function formatDateTime(date: string | Date) {
   const d = new Date(date);
   return d.toISOString().slice(0, 16);
 }
 
-// Обновляем форму при изменении задачи
+// Update form when task changes
 watch(
   () => props.task,
   (newTask) => {
@@ -184,3 +204,28 @@ const handleSubmit = async () => {
   }
 };
 </script>
+
+<style scoped>
+/* Glow Animation */
+.animate-glow {
+  border-left-color: #3b82f6;
+  animation: glow 2s infinite;
+}
+
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 5px #0c377a;
+  }
+  50% {
+    box-shadow: 0 0 10px #0c377a, 0 0 30px #1d4ed8;
+  }
+  100% {
+    box-shadow: 0 0 5px #0c377a;
+  }
+}
+
+/* Blur Transition */
+.backdrop-blur-sm {
+  transition: backdrop-filter 300ms ease-out, background-color 300ms ease-out;
+}
+</style>
