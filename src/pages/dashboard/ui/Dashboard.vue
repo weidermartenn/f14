@@ -90,12 +90,6 @@
                 <button class="p-2 text-zinc-800 dark:text-gray-400 hover:text-blue-500 transition-colors">
                   <i class="fa-solid fa-pen-to-square"></i>
                 </button>
-                <button
-                  @click="leaveOrg(selectedOrg.id)"
-                  class="p-2 text-zinc-800 dark:text-gray-400 hover:text-red-500 transition-colors"
-                >
-                  <i class="fa-solid fa-right-from-bracket"></i>
-                </button>
               </div>
             </div>
 
@@ -410,10 +404,6 @@ const openGuide = () => {
 const closeGuide = () => {
   showGuide.value = false;
   document.body.style.overflow = "";
-};
-
-const leaveOrg = async (orgId: string) => {
-  // Реализация выхода из организации
 };
 
 const openDeleteConfirmation = () => {

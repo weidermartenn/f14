@@ -174,12 +174,6 @@ const error = ref<string | null>(null);
 const selectedProjectId = ref<string | null>(null);
 const members = ref<{ email: string; isLeader: boolean }[]>([]);
 const activeTab = ref<'members' | 'projects'>('projects');
-const newMessage = ref('');
-const chatMessages = ref([
-  { user: 'Алексей', time: '12:30', text: 'Привет, как продвигается работа?' },
-  { user: 'Мария', time: '12:32', text: 'Почти закончила свою часть' },
-  { user: 'Вы', time: '12:35', text: 'Отлично! Я тоже почти закончил' }
-]);
 
 const route = useRoute();
 const router = useRouter();
@@ -192,18 +186,6 @@ const addMemberModal = ref<InstanceType<typeof AddMemberModal> | null>(null);
 const activityChart = ref<HTMLCanvasElement | null>(null);
 const completionChart = ref<HTMLCanvasElement | null>(null);
 const typeDistributionChart = ref<HTMLCanvasElement | null>(null);
-
-const sendMessage = () => {
-  if (newMessage.value.trim()) {
-    chatMessages.value.push({
-      user: 'Вы',
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      text: newMessage.value
-    });
-    newMessage.value = '';
-    // Здесь можно добавить отправку сообщения на сервер
-  }
-};
 
 const removeMember = (email: string) => {
   // Реализация удаления участника

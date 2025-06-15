@@ -12,7 +12,7 @@
 
     <!-- Список комментариев -->
     <div class="flex-1 min-h-0 overflow-y-scroll max-h-[400px]">
-      <div 
+      <div
         ref="commentsList"
         class="h-full pr-2 space-y-3"
       >
@@ -143,7 +143,6 @@ onUpdated(() => {
   });
 });
 
-// Остальной код остается без изменений...
 const checkIfLeader = async () => {
   try {
     const orgId = route.params.orgId as string;
@@ -418,32 +417,6 @@ const removeNotification = (id: string) => {
 
 const isCurrentUser = (userId: string) => {
   return userId === user.value?.id;
-};
-
-const getUsername = (userId: string) => {
-  const member = members.value.find((mem) => mem.id === userId);
-  return member ? member.email.split("@")[0] : "Anonymous";
-};
-
-const formatCommentText = (text: string) => {
-  return text.replace(
-    /@([\w-]+)/g,
-    '<span class="mention bg-blue-500/20 text-blue-400 px-1 rounded">@$1</span>'
-  );
-};
-
-const formatTimestamp = (timestamp: Date) => {
-  const date = new Date(timestamp);
-  date.setHours(date.getHours() + 3);
-
-  return new Intl.DateTimeFormat("ru-RU", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "Europe/Moscow",
-  }).format(date);
 };
 </script>
 
