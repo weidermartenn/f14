@@ -9,11 +9,8 @@ export const initAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     user.value = session?.user || null;
     
-    supabase.auth.onAuthStateChange((event, session) => {
+    supabase.auth.onAuthStateChange((_, session) => {
       user.value = session?.user || null;
-      if (event === 'SIGNED_IN') {
-        window.location.href = 'https://fkanban.netlify.app';
-      }
     });
   } catch (error) {
     console.error("Auth initialization error:", error);
