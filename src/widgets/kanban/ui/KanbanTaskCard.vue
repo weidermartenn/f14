@@ -5,8 +5,8 @@
       :class="[
         'w-full p-4 flex flex-col justify-between rounded-lg border cursor-pointer relative transition-colors',
         task.isFrozen 
-          ? 'bg-gray-400 dark:bg-gray-900 border-gray-300 dark:border-gray-600' 
-          : 'bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-400'
+          ? 'bg-gray-400 dark:bg-zinc-700 border-gray-300 dark:border-gray-600' 
+          : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-400'
       ]"
     >
       <TaskDetail :task="task" :isOpen="isOpen" @close="handleClose"/>

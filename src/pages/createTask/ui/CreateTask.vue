@@ -60,7 +60,7 @@
           type="text"
           v-model="name"
           placeholder="Название"
-          class="rounded-md p-2 w-full max-w-md bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-f14-font dark:text-gray-300"
+          class="rounded-md p-2 w-full max-w-md border-gray-300 dark:border-gray-600 text-f14-font dark:text-gray-300"
         />
         
         <TextEditor v-model="description" />
