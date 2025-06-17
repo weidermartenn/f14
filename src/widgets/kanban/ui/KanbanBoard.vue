@@ -165,6 +165,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, reactive, computed } from "vue";
+import { generateId } from "../../../shared/lib/generateId";
+import { user } from "../../../shared/lib/auth";
 import { useRouter, useRoute } from "vue-router";
 import { KanbanTaskCard } from "..";
 import { supabaseHelper } from "../../../shared/api/sbHelper";
@@ -178,6 +180,8 @@ const router = useRouter();
 const route = useRoute();
 const projectId = route.query.projectId as string;
 const tasks = ref<Task[]>([]);
+
+const userId = ref("");
 
 const loadingTasks = ref<Record<string, boolean>>({});
 
@@ -221,6 +225,17 @@ const handleDeleteTask = async (taskId: string) => {
       await supabaseHelper.deleteTask(taskId);
 
       tasks.value = tasks.value.filter((task: Task) => task.id !== taskId);
+
+      await supabaseHelper.createLogEntry({
+        id: generateId(),
+        action: "Удалена задача",
+        name: task.name,
+        createdAt: new Date().toISOString(),
+        userId: userId.value,
+        orgId: "",
+        projectId: task.projectId,
+        taskId: task.id,
+      })
 
       addNotification(`Задача "${task.name}" удалена`, "success");
     } catch (err) {
@@ -369,6 +384,7 @@ const onDragEnd = () => {
 
 onMounted(async () => {
   await fetchProjectTasks();
+  userId.value = await supabaseHelper.getUserId(user.value?.email as string);
 });
 </script>
 

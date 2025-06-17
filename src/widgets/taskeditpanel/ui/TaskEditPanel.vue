@@ -135,10 +135,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, defineProps, defineEmits } from "vue";
+import { ref, watch, defineProps, defineEmits, onMounted } from "vue";
+import { user } from "../../../shared/lib/auth";
 import { TextEditor } from "../../../widgets/editor";
 import { supabaseHelper } from "../../../shared/api/sbHelper";
 import type { Task } from "../../../entities/task/types";
+import { generateId } from "../../../shared/lib/generateId";
+
+const userId = ref("");
+
+onMounted(async () => {
+  userId.value = await supabaseHelper.getUserId(user.value?.email as string);
+})
 
 const props = defineProps({
   task: {
@@ -193,6 +201,19 @@ const handleSubmit = async () => {
 
     await supabaseHelper.updateTask(props.task.id, updatedData);
 
+    const newName = formData.value.name !== props.task.name ? formData.value.name : props.task.name;
+
+    await supabaseHelper.createLogEntry({
+      id: generateId(),
+      action: "Изменена задача",
+      name: `${props.task.name} ⭢ ${newName}`,
+      createdAt: new Date().toISOString(),
+      userId: userId.value,
+      orgId: "",
+      projectId: props.task.projectId,
+      taskId: props.task.id,
+    });
+
     emit("updated", { ...props.task, ...updatedData });
     emit("notify", { type: "success", message: "Задача успешно обновлена" });
     emit("close");
@@ -203,6 +224,7 @@ const handleSubmit = async () => {
     isSubmitting.value = false;
   }
 };
+
 </script>
 
 <style scoped>

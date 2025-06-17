@@ -1,6 +1,8 @@
 <template>
   <div class="p-4 w-full">
-    <div v-if="loading" class="text-center">Loading...</div>
+    <div v-if="loading">
+      <LoadingSpinner />
+    </div>
     <div v-else>
       <!-- Sorting and Filtering Controls -->
       <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4">
@@ -92,6 +94,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { supabaseHelper } from '../../../shared/api/sbHelper';
+import { LoadingSpinner } from '../../../shared/ui/LoadingSpinner';
 import type { MajorTask } from '../../../entities/majortask/types';
 import type { Task } from '../../../entities/task/types';
 
