@@ -62,7 +62,7 @@ const handleLogin = async () => {
     const { error: supabaseError } = await supabase.auth.signInWithOtp({
       email: email.value,
       options: {
-        emailRedirectTo: `${window.location.origin}/auth-redirect`,
+        emailRedirectTo: `${window.location.origin}`,
       },
     });
 
