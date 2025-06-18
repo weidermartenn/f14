@@ -59,9 +59,9 @@
 
               <div>
                 <h3 class="text-lg font-semibold text-gray-200 flex items-center">
-                  <span class=" text-red-600 dark:text-red-400 font-bold mr-1 transition-colors duration-300 hover:text-red-400 dark:hover:text-red-300">Удалить организацию</span>
+                  <span class="text-red-600 dark:text-red-400 font-bold mr-1 transition-colors duration-300 hover:text-red-400 dark:hover:text-red-300">Удалить организацию</span>
                 </h3>
-                <p class="text-sm  text-zinc-700 dark:text-gray-500 mt-1 transition-colors duration-300 hover:text-zinc-400 dark:hover:text-gray-400">
+                <p class="text-sm text-zinc-700 dark:text-gray-500 mt-1 transition-colors duration-300 hover:text-zinc-400 dark:hover:text-gray-400">
                   Это действие нельзя будет отменить
                 </p>
               </div>
@@ -108,7 +108,7 @@
               />
               <StatCard
                 title="Активность"
-                value="Высокая"
+                :value="getActivityLevel(selectedOrg.projects_count || 0)"
                 icon="activity"
                 color="yellow"
               />
@@ -149,47 +149,6 @@
               <span>Подробнее об организации</span>
               <i class="fa-solid fa-arrow-right"></i>
             </button>
-          </div>
-        </transition>
-
-        <!-- Виджет статистики -->
-        <transition name="fade" appear>
-          <div v-if="selectedOrg">
-            <div class="flex space-x-2 mb-4">
-              <button
-                @click="setTimeRange('today')"
-                :class="{ 'bg-blue-500 text-white': timeRange === 'today', 'bg-gray-200': timeRange !== 'today' }"
-                class="px-4 py-2 rounded-md transition-colors duration-300"
-              >
-                Сегодня
-              </button>
-              <button
-                @click="setTimeRange('week')"
-                :class="{ 'bg-blue-500 text-white': timeRange === 'week', 'bg-gray-200': timeRange !== 'week' }"
-                class="px-4 py-2 rounded-md transition-colors duration-300"
-              >
-                За неделю
-              </button>
-              <button
-                @click="setTimeRange('month')"
-                :class="{ 'bg-blue-500 text-white': timeRange === 'month', 'bg-gray-200': timeRange !== 'month' }"
-                class="px-4 py-2 rounded-md transition-colors duration-300"
-              >
-                За месяц
-              </button>
-            </div>
-            <div class="bg-gray-200 dark:bg-bg-accent-dark rounded-lg shadow-lg p-5">
-              <h3 class="text-lg font-semibold text-zinc-800 dark:text-gray-300 mb-4">Статистика</h3>
-              <div class="h-64 relative">
-                <transition name="fade" mode="out-in">
-                  <canvas
-                    key="chart"
-                    ref="chartCanvas"
-                    class="w-full h-full"
-                  ></canvas>
-                </transition>
-              </div>
-            </div>
           </div>
         </transition>
       </div>
@@ -338,7 +297,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useRouter } from "vue-router";
 import { supabaseHelper } from "../../../shared/api/sbHelper";
 import { user } from "../../../shared/lib/auth";
@@ -346,9 +305,6 @@ import { LoadingSpinner } from "../../../shared/ui/LoadingSpinner";
 import { StatCard } from "../../../widgets/statcard";
 import type { Orgs } from "../../../entities/org/types";
 import { OPanel } from "../../../widgets/opanel";
-import { Chart, type ChartConfiguration, registerables } from "chart.js";
-
-Chart.register(...registerables);
 
 const orgs = ref<Orgs[]>([]);
 const selectedOrg = ref<Orgs | null>(null);
@@ -359,15 +315,21 @@ const showDeleteConfirmation = ref(false);
 const confirmDelete = ref(false);
 const orgNameInput = ref("");
 
-type TimeRange = 'today' | 'week' | 'month';
-
-const timeRange = ref<TimeRange>("week");
-const chartCanvas = ref<HTMLCanvasElement | null>(null);
-let chartInstance: Chart | null = null;
-
 const isCurrentUserLeader = computed(() => {
   return selectedOrg.value?.leaderId === user.value.id;
 });
+
+const getActivityLevel = (projectsCount: number) => {
+  if (projectsCount === 0) {
+    return "Не активна";
+  } else if (projectsCount >= 1 && projectsCount <= 3) {
+    return "Низкая";
+  } else if (projectsCount >= 4 && projectsCount <= 7) {
+    return "Средняя";
+  } else {
+    return "Высокая";
+  }
+};
 
 const fetchOrgs = async () => {
   try {
@@ -441,91 +403,8 @@ const createNewOrg = async () => {
   router.push({ name: "create-organization" });
 };
 
-const setTimeRange = (range: TimeRange) => {
-  timeRange.value = range;
-};
-
-const chartData = {
-  today: {
-    labels: ["Час 1", "Час 2", "Час 3", "Час 4", "Час 5", "Час 6", "Час 7"],
-    actions: [2, 3, 1, 4, 3, 2, 1],
-    completedTasks: [1, 2, 1, 3, 2, 1, 1],
-    changes: [1, 1, 0, 2, 1, 1, 0],
-  },
-  week: {
-    labels: ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"],
-    actions: [12, 19, 8, 15, 22, 13, 7],
-    completedTasks: [10, 15, 6, 12, 18, 10, 5],
-    changes: [5, 8, 4, 9, 12, 7, 3],
-  },
-  month: {
-    labels: ["Неделя 1", "Неделя 2", "Неделя 3", "Неделя 4"],
-    actions: [45, 50, 40, 55],
-    completedTasks: [35, 40, 30, 45],
-    changes: [20, 25, 20, 30],
-  },
-};
-
-const renderChart = () => {
-  const data = chartData[timeRange.value];
-
-  const chartConfig: ChartConfiguration = {
-    type: "bar",
-    data: {
-      labels: data.labels,
-      datasets: [
-        {
-          label: "Действия",
-          data: data.actions,
-          backgroundColor: "rgba(59, 130, 246, 0.7)",
-          borderColor: "rgba(59, 130, 246, 1)",
-          borderWidth: 1,
-        },
-        {
-          label: "Выполненные задачи",
-          data: data.completedTasks,
-          backgroundColor: "rgba(16, 185, 129, 0.7)",
-          borderColor: "rgba(16, 185, 129, 1)",
-          borderWidth: 1,
-        },
-        {
-          label: "Изменения",
-          data: data.changes,
-          backgroundColor: "rgba(245, 158, 11, 0.7)",
-          borderColor: "rgba(245, 158, 11, 1)",
-          borderWidth: 1,
-        },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: {
-          beginAtZero: true,
-        },
-      },
-    },
-  };
-
-  if (chartInstance) {
-    chartInstance.destroy();
-  }
-
-  if (chartCanvas.value) {
-    chartInstance = new Chart(chartCanvas.value, chartConfig);
-  }
-};
-
-watch(timeRange, () => {
-  renderChart();
-});
-
 onMounted(() => {
   fetchOrgs();
-  setTimeout(() => {
-    renderChart();
-  }, 100);
 });
 </script>
 
@@ -595,6 +474,10 @@ onMounted(() => {
 .scroll-container::-webkit-scrollbar-thumb {
   background-color: #4b5563;
   border-radius: 3px;
+}
+
+.scroll-container::-webkit-scrollbar-thumb:hover {
+  background-color: #6b7280;
 }
 
 .transition-colors {

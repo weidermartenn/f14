@@ -1,9 +1,9 @@
 <template>
   <div
-    class="flex flex-col items-center justify-center min-h-[calc(100vh-180px)] bg-bg-dark text-white"
+    class="flex flex-col items-center justify-center min-h-[calc(100vh-180px)] bg-white dark:bg-bg-dark text-white"
   >
-    <div class="bg-bg-accent-dark p-8 rounded-lg shadow-lg max-w-md w-full">
-      <h1 class="text-2xl font-bold mb-4 text-center">Подтверждение email</h1>
+    <div class="bg-gray-200 dark:bg-bg-accent-dark p-8 rounded-lg shadow-lg max-w-md w-full">
+      <h1 class="text-zinc-900 dark:text-white text-2xl font-bold mb-4 text-center">Подтверждение email</h1>
 
       <div v-if="loading" class="flex flex-col items-center">
         <LoadingSpinner class="mb-4" />
@@ -16,7 +16,7 @@
 
       <div v-if="success" class="text-center">
         <i class="fas fa-check-circle text-green-500 text-5xl mb-4"></i>
-        <p class="mb-4">
+        <p class="mb-4 text-zinc-800 dark:text-white">
           Вы успешно подтвердили email и добавлены в организацию!
         </p>
         <button
@@ -50,7 +50,6 @@ const redirectToDashboard = () => {
 
 onMounted(async () => {
   try {
-    // Wait for user to be authenticated
     const {
       data: { user },
       error: authError,
@@ -60,7 +59,6 @@ onMounted(async () => {
       throw new Error("Пользователь не аутентифицирован");
     }
 
-    // Get the organization ID from the URL fragment or query
     const orgId =
       (route.query.orgId as string) || window.location.hash.split("orgId=")[1];
 
@@ -68,14 +66,13 @@ onMounted(async () => {
       throw new Error("ID организации не найден");
     }
 
-    // Add user to organization
     await supabaseHelper.addOrgMember(orgId, user.email!);
 
     success.value = true;
   } catch (err) {
     console.error("Ошибка подтверждения email:", err);
     error.value =
-      err instanceof Error ? err.message : "Произошла неизвестная ошибка";
+      err instanceof Error ? err.message : "Произошла неизвестная ошибка.";
   } finally {
     loading.value = false;
   }

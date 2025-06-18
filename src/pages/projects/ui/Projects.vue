@@ -5,7 +5,7 @@
       :notifications="[{ id: '1', message: notificationMessage, type: 'success' }]"
       @close="showNotification = false"
     />
-    
+
     <!-- Кнопка возврата -->
     <div class="w-full p-5 flex justify-center">
       <button
@@ -24,7 +24,7 @@
           <button
             @click="activeTab = 'members'"
             :class="{
-              'text-f14-font dark:text-f14-font-dark border-b-2 border-blue-500': activeTab === 'members', 
+              'text-f14-font dark:text-f14-font-dark border-b-2 border-blue-500': activeTab === 'members',
               'text-gray-500 dark:text-gray-400': activeTab !== 'members'
             }"
             class="px-4 py-2 font-medium transition-colors"
@@ -34,7 +34,7 @@
           <button
             @click="activeTab = 'projects'"
             :class="{
-              'text-f14-font dark:text-f14-font-dark border-b-2 border-blue-500': activeTab === 'projects', 
+              'text-f14-font dark:text-f14-font-dark border-b-2 border-blue-500': activeTab === 'projects',
               'text-gray-500 dark:text-gray-400': activeTab !== 'projects'
             }"
             class="px-4 py-2 font-medium transition-colors"
@@ -62,8 +62,8 @@
                 </span>
               </div>
               <button
-                v-if="!member.isLeader"
-                @click="removeMember(member.email)"
+                v-if="!member.isLeader && isCurrentUserLeader"
+                @click="openConfirmationModal(member.email)"
                 class="text-red-500 dark:text-red-400 hover:text-red-400 dark:hover:text-red-300 transition-colors"
               >
                 <i class="fa-solid fa-user-minus"></i>
@@ -80,6 +80,7 @@
         </div>
 
         <div v-else>
+          <!-- Контент для вкладки "Проекты" -->
           <div class="flex justify-between items-center mb-4">
             <h3 class="text-lg text-f14-font dark:text-f14-font-dark font-semibold">Проекты организации</h3>
             <button
@@ -89,19 +90,19 @@
               +
             </button>
           </div>
-          
+
           <div v-if="loading" class="flex justify-center py-10">
             <LoadingSpinner />
           </div>
-          
+
           <div v-else-if="error" class="text-center py-10 text-red-500 dark:text-red-400">
             Ошибка: {{ error }}
           </div>
-          
+
           <div v-else-if="projects.length === 0" class="text-center py-10 text-gray-500 dark:text-gray-400">
             Проектов пока нет
           </div>
-          
+
           <div v-else class="space-y-2 max-h-[300px] overflow-y-auto">
             <ProjectCard
               v-for="project in projects"
@@ -117,7 +118,7 @@
       <!-- 2-я колонка: Аналитика -->
       <div class="rounded-lg">
         <h3 class="bg-gray-100 dark:bg-bg-accent-dark text-f14-font dark:text-f14-font-dark p-4 rounded-md text-lg font-semibold mb-4 border border-gray-200 dark:border-gray-700">Аналитика организации</h3>
-        
+
         <!-- График активности -->
         <div class="bg-white dark:bg-gray-800 p-4 rounded-md mb-6 border border-gray-200 dark:border-gray-700">
           <h4 class="text-md font-medium mb-2 text-f14-font dark:text-gray-300">Активность по дням</h4>
@@ -125,7 +126,7 @@
             <canvas ref="activityChart"></canvas>
           </div>
         </div>
-        
+
         <!-- Круговые диаграммы -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="bg-white dark:bg-gray-800 rounded-md p-4 border border-gray-200 dark:border-gray-700">
@@ -151,16 +152,28 @@
     </div>
 
     <AddMemberModal ref="addMemberModal" @memberAdded="handleMemberAdded" />
+    <ConfirmationModal
+      :isOpen="isConfirmationModalOpen"
+      title="Подтвердите удаление"
+      :message="confirmationMessage"
+      confirmText="Удалить"
+      cancelText="Отмена"
+      :isLoading="isRemovingMember"
+      @confirm="confirmRemoveMember"
+      @cancel="isConfirmationModalOpen = false"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, watch, nextTick } from 'vue';
+import { user } from '../../../shared/lib/auth';
 import { useRoute, useRouter } from 'vue-router';
 import { Chart, registerables } from 'chart.js';
 import ProjectCard from "./ProjectCard.vue";
 import LoadingSpinner from "../../../shared/ui/LoadingSpinner/ui/LoadingSpinner.vue";
 import AddMemberModal from "../../../widgets/addmember/ui/AddMemberModal.vue";
+import ConfirmationModal from '../../../shared/ui/ConfirmationModal/ConfirmationModal.vue';
 import { supabaseHelper } from "../../../shared/api/sbHelper";
 import type { Project } from "../../../entities/project/types";
 import Notification from "../../../widgets/notification/ui/Notification.vue";
@@ -174,27 +187,58 @@ const error = ref<string | null>(null);
 const selectedProjectId = ref<string | null>(null);
 const members = ref<{ email: string; isLeader: boolean }[]>([]);
 const activeTab = ref<'members' | 'projects'>('projects');
-
 const route = useRoute();
 const router = useRouter();
-
 const showNotification = ref(false);
 const notificationMessage = ref("");
 const addMemberModal = ref<InstanceType<typeof AddMemberModal> | null>(null);
+const isCurrentUserLeader = ref(false);
+const isConfirmationModalOpen = ref(false);
+const isRemovingMember = ref(false);
+const memberToRemove = ref<string | null>(null);
+const confirmationMessage = ref("");
 
-// Refs для графиков
+const checkIsCurrentUserLeader = async () => {
+  try {
+    const leaderId = await supabaseHelper.fetchOrgLeader(route.params.orgId as string);
+    const currentUser = await supabaseHelper.getUserId(user.value?.email as string);
+    isCurrentUserLeader.value = leaderId === currentUser;
+  } catch (error) {
+    console.error('Error checking leader status:', error);
+  }
+};
+
 const activityChart = ref<HTMLCanvasElement | null>(null);
 const completionChart = ref<HTMLCanvasElement | null>(null);
 const typeDistributionChart = ref<HTMLCanvasElement | null>(null);
 
-const removeMember = (email: string) => {
-  // Реализация удаления участника
-  console.log('Удалить участника:', email);
+const openConfirmationModal = (email: string) => {
+  memberToRemove.value = email;
+  const username = email.split("@")[0];
+  confirmationMessage.value = `Вы уверены, что хотите удалить участника ${username}?`;
+  isConfirmationModalOpen.value = true;
+};
+
+const confirmRemoveMember = async () => {
+  if (!memberToRemove.value) return;
+
+  isRemovingMember.value = true;
+  try {
+    await supabaseHelper.removeOrgMember(route.params.orgId as string, memberToRemove.value);
+    showNotification.value = true;
+    notificationMessage.value = "Участник успешно удален";
+    setTimeout(() => showNotification.value = false, 5000);
+    await fetchMemberData();
+  } catch (error) {
+    console.error('Error removing member:', error);
+  } finally {
+    isRemovingMember.value = false;
+    isConfirmationModalOpen.value = false;
+  }
 };
 
 const initCharts = () => {
   nextTick(() => {
-    // График активности
     if (activityChart.value) {
       new Chart(activityChart.value, {
         type: 'bar',
@@ -221,7 +265,6 @@ const initCharts = () => {
       });
     }
 
-    // Диаграмма выполняемости
     if (completionChart.value) {
       new Chart(completionChart.value, {
         type: 'doughnut',
@@ -248,7 +291,6 @@ const initCharts = () => {
       });
     }
 
-    // Диаграмма распределения по типам
     if (typeDistributionChart.value) {
       new Chart(typeDistributionChart.value, {
         type: 'pie',
@@ -277,7 +319,6 @@ const initCharts = () => {
   });
 };
 
-// Остальные методы остаются без изменений
 const handleProjectSelect = (projectId: string) => {
   selectedProjectId.value = projectId;
   localStorage.setItem("selectedProjectId", projectId);
@@ -335,12 +376,13 @@ const handleMemberAdded = async (data: { email: string; message: string }) => {
 onMounted(() => {
   loadProjects();
   fetchMemberData();
-  
+  checkIsCurrentUserLeader();
+
   const savedProjectId = localStorage.getItem("selectedProjectId");
   if (savedProjectId) {
     selectedProjectId.value = savedProjectId;
   }
-  
+
   initCharts();
 });
 

@@ -124,6 +124,41 @@ class SupabaseHelper {
     }
   };
 
+  public removeOrgMember = async (orgId: string, email: string) => {
+    try {
+      const userId = await this.getUserId(email);
+
+      // Get current organization members
+      const { data: orgData, error: orgError } = await supabase
+        .from("orgs")
+        .select("membersIds")
+        .eq("id", orgId)
+        .single();
+
+      if (orgError) throw orgError;
+
+      // Check if user is a member
+      if (!orgData.membersIds.includes(userId)) {
+        return;
+      }
+
+      // Update organization members
+      const { error } = await supabase
+        .from("orgs")
+        .update({
+          membersIds: orgData.membersIds.filter((id: string) => id !== userId),
+        })
+        .eq("id", orgId);
+
+      if (error) throw error;
+
+      console.log(`Member ${email} removed from organization ${orgId}`);
+    } catch (err) {
+      console.error("Error removing member from organization:", err);
+      throw err;
+    }
+  };
+
   public getUserId = async (email: string): Promise<string> => {
     try {
       const { data, error } = await supabase

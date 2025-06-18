@@ -1,7 +1,7 @@
 <template>
   <div class="relative">
     <i
-      class="fa-solid fa-bell text-xl text-gray-800 dark:text-gray-300 cursor-pointer hover:text-white"
+      class="fa-solid fa-bell text-xl text-gray-800 dark:text-gray-300 cursor-pointer hover:text-gray-600 dark:hover:text-white"
       @click="toggleNotifications"
     ></i>
     <div
@@ -13,23 +13,23 @@
 
     <div
       v-if="showNotifications"
-      class="absolute right-0 mt-2 w-64 bg-bg-accent-dark rounded-lg shadow-lg z-50 border border-gray-700"
+      class="absolute right-0 mt-2 w-64 bg-gray-200 dark:bg-bg-accent-dark rounded-lg shadow-lg z-50 border border-gray-700"
     >
       <div class="p-2 max-h-64 overflow-y-auto">
         <div
           v-for="notification in sortedNotifications"
           :key="notification.id"
-          class="p-2 border-b border-gray-700 hover:bg-gray-800 cursor-pointer"
+          class="p-2 border-b border-gray-300 bg-gray-200 dark:border-gray-700 hover:bg-gray-300 dark:hover:bg-gray-800 cursor-pointer"
           @click="markAsRead(notification)"
           :class="{ 'bg-gray-800/50': !notification.read }"
         >
           <p class="text-sm font-medium">{{ notification.title }}</p>
-          <p class="text-xs text-gray-400">{{ notification.content }}</p>
+          <p class="text-xs text-zinc-900 dark:text-gray-400">{{ notification.content }}</p>
           <p class="text-xs text-gray-500 mt-1">
             {{ formatTime(notification.createdAt) }}
           </p>
         </div>
-        <p v-if="notifications.length === 0" class="text-sm text-gray-400 p-2">
+        <p v-if="notifications.length === 0" class="text-sm text-zinc-900 dark:text-gray-400 p-2">
           Нет новых уведомлений
         </p>
       </div>
