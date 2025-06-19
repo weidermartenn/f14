@@ -56,6 +56,21 @@
             />
           </div>
 
+          <!-- Назначенный -->
+          <div>
+            <label class="block text-sm font-medium text-neutral-300 mb-2">
+              Ответственный
+            </label>
+            <select
+              v-model="formData.user_id"
+              class="w-full bg-neutral-700 rounded-md px-4 py-2 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+            >
+              <option v-for="user in users" :key="user.id" :value="user.id">
+                {{ user.email.split('@')[0] }}
+              </option>
+            </select>
+          </div>
+
           <!-- Description -->
           <div>
             <label class="block text-sm font-medium text-neutral-300 mb-2">
@@ -137,16 +152,32 @@
 <script setup lang="ts">
 import { ref, watch, defineProps, defineEmits, onMounted } from "vue";
 import { user } from "../../../shared/lib/auth";
+import { useRoute } from "vue-router";
 import { TextEditor } from "../../../widgets/editor";
 import { supabaseHelper } from "../../../shared/api/sbHelper";
 import type { Task } from "../../../entities/task/types";
 import { generateId } from "../../../shared/lib/generateId";
 
 const userId = ref("");
+const users = ref<{ id: string; email: string }[]>([]);
+
+const route = useRoute();
 
 onMounted(async () => {
   userId.value = await supabaseHelper.getUserId(user.value?.email as string);
-})
+
+  // Fetch users for the organization
+  const orgId = await supabaseHelper.fetchProject(props.task.projectId);
+  if (orgId) {
+    const emails = await supabaseHelper.fetchOrgMembers(orgId.orgId);
+    users.value = await Promise.all(
+      emails.map(async (email: string) => {
+        const userId = await supabaseHelper.getUserId(email);
+        return { id: userId, email };
+      })
+    );
+  }
+});
 
 const props = defineProps({
   task: {
@@ -164,6 +195,7 @@ const formData = ref({
   status: props.task.status,
   priority: props.task.priority,
   deadline: props.task.deadline ? formatDateTime(props.task.deadline) : undefined,
+  user_id: props.task.user_id,
 });
 
 const isSubmitting = ref(false);
@@ -184,6 +216,7 @@ watch(
       status: newTask.status,
       priority: newTask.priority,
       deadline: newTask.deadline ? formatDateTime(newTask.deadline) : undefined,
+      user_id: newTask.user_id,
     };
   }
 );
@@ -203,16 +236,34 @@ const handleSubmit = async () => {
 
     const newName = formData.value.name !== props.task.name ? formData.value.name : props.task.name;
 
-    await supabaseHelper.createLogEntry({
-      id: generateId(),
-      action: "Изменена задача",
-      name: `${props.task.name} ⭢ ${newName}`,
-      createdAt: new Date().toISOString(),
-      userId: userId.value,
-      orgId: "",
-      projectId: props.task.projectId,
-      taskId: props.task.id,
-    });
+    if (formData.value.user_id !== props.task.user_id) {
+      const oldUserEmail = await supabaseHelper.getUserEmail(props.task.user_id);
+      const newUserEmail = await supabaseHelper.getUserEmail(formData.value.user_id);
+
+      await supabaseHelper.createLogEntry({
+        id: generateId(),
+        action: "Изменен ответственный за задачу",
+        name: `Задача: ${props.task.name}, Ответственный: ${oldUserEmail.split('@')[0]} ⭢ ${newUserEmail.split('@')[0]}`,
+        createdAt: new Date().toISOString(),
+        userId: userId.value,
+        orgId: route.params.orgId as string,
+        projectId: props.task.projectId,
+        taskId: props.task.id,
+      });
+    }
+
+    if (props.task.name !== newName) {
+      await supabaseHelper.createLogEntry({
+        id: generateId(),
+        action: "Изменена название задачи",
+        name: `${props.task.name} ⭢ ${newName}`,
+        createdAt: new Date().toISOString(),
+        userId: userId.value,
+        orgId: route.params.orgId as string,
+        projectId: props.task.projectId,
+        taskId: props.task.id,
+      });
+    }
 
     emit("updated", { ...props.task, ...updatedData });
     emit("notify", { type: "success", message: "Задача успешно обновлена" });
@@ -224,8 +275,8 @@ const handleSubmit = async () => {
     isSubmitting.value = false;
   }
 };
-
 </script>
+
 
 <style scoped>
 /* Glow Animation */

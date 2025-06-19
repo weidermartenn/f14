@@ -12,4 +12,5 @@ export interface Task {
     projectId: string;
     majorTaskId: string;
     isIndicator?: boolean;
+    user_id: string;
 }

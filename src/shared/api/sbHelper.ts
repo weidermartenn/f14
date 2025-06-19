@@ -772,12 +772,12 @@ class SupabaseHelper {
     }
   };
 
-  public fetchLogs = async (projectId: string) => {
+  public fetchLogs = async (orgId: string) => {
     try {
       const { data, error } = await supabase
         .from("log")
         .select("*")
-        .eq("projectId", projectId);
+        .eq("orgId", orgId);
       if (error) throw error;
       return data;
     } catch (err) {

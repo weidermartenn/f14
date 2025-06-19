@@ -178,6 +178,7 @@ import { supabaseHelper } from "../../../shared/api/sbHelper";
 import type { Project } from "../../../entities/project/types";
 import Notification from "../../../widgets/notification/ui/Notification.vue";
 import CommentsContainer from '../../../widgets/comments/ui/CommentsContainer.vue';
+import type { Log } from '../../../entities/log/types';
 
 Chart.register(...registerables);
 
@@ -197,6 +198,7 @@ const isConfirmationModalOpen = ref(false);
 const isRemovingMember = ref(false);
 const memberToRemove = ref<string | null>(null);
 const confirmationMessage = ref("");
+const logs = ref<Log[]>([]);
 
 const checkIsCurrentUserLeader = async () => {
   try {
@@ -237,16 +239,51 @@ const confirmRemoveMember = async () => {
   }
 };
 
-const initCharts = () => {
-  nextTick(() => {
+const prepareActivityData = (logs: Log[]) => {
+  const today = new Date();
+  const labels = [];
+  const data = [0, 0, 0, 0, 0, 0, 0]; // Инициализация массива данных
+
+  // Создаем метки для последних 7 дней
+  for (let i = -3; i <= 3; i++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + i);
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    labels.push(`${day}.${month}`);
+  }
+
+  // Заполняем данные на основе логов
+  logs.forEach((log: Log) => {
+    const logDate = new Date(log.createdAt);
+    const diffDays = Math.floor((today.getTime() - logDate.getTime()) / (1000 * 60 * 60 * 24));
+    const index = diffDays + 3; // Индекс для массива данных
+
+    console.log(`Log date: ${logDate}, Diff days: ${diffDays}, Index: ${index}`); // Отладочное сообщение
+
+    if (index >= 0 && index < 7) {
+      data[index]++;
+      console.log(`Incrementing data at index ${index}, new value: ${data[index]}`); // Отладочное сообщение
+    }
+  });
+
+  return { labels, data };
+};
+
+const initCharts = async () => {
+  nextTick(async () => {
+    // Подготавливаем данные для графика активности
+    const activityData = prepareActivityData(logs.value);
+    console.log("Prepared activity data:", activityData); // Отладочное сообщение
+
     if (activityChart.value) {
       new Chart(activityChart.value, {
         type: 'bar',
         data: {
-          labels: ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'],
+          labels: activityData.labels,
           datasets: [{
             label: 'Активность',
-            data: [12, 19, 8, 15, 22, 13, 7],
+            data: activityData.data,
             backgroundColor: 'rgba(59, 130, 246, 0.7)',
             borderColor: 'rgba(59, 130, 246, 1)',
             borderWidth: 1,
@@ -265,6 +302,7 @@ const initCharts = () => {
       });
     }
 
+    // Остальные графики остаются без изменений
     if (completionChart.value) {
       new Chart(completionChart.value, {
         type: 'doughnut',
@@ -373,11 +411,12 @@ const handleMemberAdded = async (data: { email: string; message: string }) => {
   await fetchMemberData();
 };
 
-onMounted(() => {
+onMounted( async () => {
   loadProjects();
   fetchMemberData();
   checkIsCurrentUserLeader();
 
+  logs.value = await supabaseHelper.fetchLogs(route.params.orgId as string);
   const savedProjectId = localStorage.getItem("selectedProjectId");
   if (savedProjectId) {
     selectedProjectId.value = savedProjectId;

@@ -232,7 +232,7 @@ const handleDeleteTask = async (taskId: string) => {
         name: task.name,
         createdAt: new Date().toISOString(),
         userId: userId.value,
-        orgId: "",
+        orgId: route.params.orgId as string,
         projectId: task.projectId,
         taskId: task.id,
       })
@@ -253,6 +253,17 @@ const handleHideTask = async (taskId: string) => {
       const newHideState = !task.isVisible;
       await supabaseHelper.updateTask(taskId, { isVisible: newHideState });
       task.isVisible = newHideState;
+
+      await supabaseHelper.createLogEntry({
+        id: generateId(),
+        action: `Задача ${ newHideState ? "открыта" : "скрыта" }`,
+        name: task.name,
+        createdAt: new Date().toISOString(),
+        userId: userId.value,
+        orgId: route.params.orgId as string,
+        projectId: task.projectId,
+        taskId: task.id,
+      })
 
       addNotification(
         `Задача "${task.name}" ${
@@ -279,6 +290,17 @@ const handleFreezeTask = async (taskId: string) => {
       const newFrozenState = !task.isFrozen;
       await supabaseHelper.updateTask(taskId, { isFrozen: newFrozenState });
       task.isFrozen = newFrozenState;
+
+      await supabaseHelper.createLogEntry({
+        id: generateId(),
+        action: `Задача ${ newFrozenState ? "заморожена" : "разморожена" }`,
+        name: task.name,
+        createdAt: new Date().toISOString(),
+        userId: userId.value,
+        orgId: route.params.orgId as string,
+        projectId: task.projectId,
+        taskId: task.id,
+      })
 
       addNotification(
         `Задача "${task.name}" ${
@@ -361,6 +383,17 @@ const handleTaskMove = async (
   if (task) {
     task.status = newStatus;
     await supabaseHelper.updateTask(task.id, { status: newStatus });
+
+    await supabaseHelper.createLogEntry({
+      id: generateId(),
+      action: `Задача перемещена в статус ${ newStatus }`,
+      name: task.name,
+      createdAt: new Date().toISOString(),
+      userId: userId.value,
+      orgId: route.params.orgId as string,
+      projectId: task.projectId,
+      taskId: task.id,
+    })
   }
 };
 

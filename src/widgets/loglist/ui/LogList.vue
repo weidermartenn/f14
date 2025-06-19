@@ -26,12 +26,12 @@
             <input
               v-model="startDate"
               type="date"
-              class="bg-gray-300 dark:bg-gray-700 text-zinc-800 dark:text-white py-2 rounded-md w-full md:w-auto"
+              class="bg-gray-300 dark:bg-gray-700 text-zinc-800 dark:text-white py-2 px-2 rounded-md w-full md:w-auto"
             />
             <input
               v-model="endDate"
               type="date"
-              class="bg-gray-300 dark:bg-gray-700 text-zinc-800 dark:text-white py-2 rounded-md w-full md:w-auto"
+              class="bg-gray-300 dark:bg-gray-700 text-zinc-800 dark:text-white py-2 px-2 rounded-md w-full md:w-auto"
             />
             <button
               @click="sortByDateRange"
@@ -64,16 +64,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
+import { useRoute } from 'vue-router';
 import { supabaseHelper } from '../../../shared/api/sbHelper';
 import { LoadingSpinner } from '../../../shared/ui/LoadingSpinner';
 import type { Log } from '../../../entities/log/types';
 
-const props = defineProps({
-  projectId: {
-    type: String,
-    required: true,
-  },
-});
+const route = useRoute();
 
 const logs = ref<Log[]>([]);
 const loading = ref(true);
@@ -86,7 +82,7 @@ const usernames = ref<{ [key: string]: string }>({});
 
 const fetchLogs = async () => {
   try {
-    const data = await supabaseHelper.fetchLogs(props.projectId);
+    const data = await supabaseHelper.fetchLogs(route.params.orgId as string);
     logs.value = data;
     await fetchUsernames();
   } catch (error) {

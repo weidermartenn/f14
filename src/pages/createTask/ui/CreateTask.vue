@@ -449,6 +449,7 @@ const createTask = async () => {
       majorTaskId: selectedMajorTask.value,
       isFrozen: false,
       isVisible: true,
+      user_id: "s6pG-AeVQne4ks-Lk"
     };
 
     await supabaseHelper.addTask(projectIdStr, taskData);
@@ -465,7 +466,7 @@ const createTask = async () => {
       name: name.value,
       createdAt: new Date().toISOString(),
       userId: userId.value,
-      orgId: "",
+      orgId: route.params.orgId as string,
       projectId: projectIdStr,
       taskId: taskId
     });

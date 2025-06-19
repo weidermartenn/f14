@@ -80,6 +80,15 @@
           ></div>
         </div>
 
+        <!-- Назначенный -->
+         <div class="space-y-2">
+            <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wider">Ответственный: </h3>
+            <div
+              class="text-neutral-300 prose prose-invert prose-sm break-words bg-neutral-700/50 rounded-lg p-4 transition-all duration-200 hover:bg-neutral-700/70"
+              v-html="username || '<p class=\'text-neutral-500\'>Нет ответственного</p>'"
+            ></div>
+         </div>
+
         <!-- Даты -->
         <div class="space-y-3">
           <h3 class="text-sm font-semibold text-neutral-400 uppercase tracking-wider">Даты</h3>
@@ -201,7 +210,7 @@
 import type { Task } from "../../../entities/task/types";
 import { fileIcon } from "../../../pages/createTask/model/extensions";
 import { Label } from "../../../widgets/label";
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { supabaseHelper } from "../../../shared/api/sbHelper";
 
 const props = defineProps({
@@ -215,6 +224,7 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["close"]);
+const username = ref("");
 
 interface Attachment {
   name: string;
@@ -330,6 +340,10 @@ watch(() => props.isOpen, (newVal) => {
   if (newVal) {
     loadAttachments();
   }
+});
+
+onMounted( async () => {
+  username.value = (await supabaseHelper.getUserEmail(props.task.user_id)).split("@")[0];
 });
 </script>
 
